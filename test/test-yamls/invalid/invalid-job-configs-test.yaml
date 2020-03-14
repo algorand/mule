@@ -1,0 +1,10 @@
+tasks:
+- task: Echo
+  name: A
+  message: A
+
+jobs:
+  AB-B-test:
+    tasks:
+      configs:
+        - test

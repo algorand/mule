@@ -1,0 +1,4 @@
+jobs:
+  AB-B-test:
+    tasks:
+      - test

@@ -1,0 +1,14 @@
+tasks:
+- task: Echo
+  name: A
+  message: A
+  dependencies: Echo.B
+- task: Echo
+  name: B
+  message: B
+  dependencies: Echo.A
+
+jobs:
+  inf-loop-test:
+    tasks:
+    - Echo.A

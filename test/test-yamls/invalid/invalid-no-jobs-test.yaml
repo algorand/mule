@@ -1,0 +1,5 @@
+tasks:
+  Echo.A:
+  - task: Echo
+    name: A
+    message: A

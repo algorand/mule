@@ -1,0 +1,7 @@
+tasks:
+  - Echo.A
+
+jobs:
+  A-test:
+    tasks:
+      - Echo.A

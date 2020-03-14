@@ -1,0 +1,11 @@
+# Python testing files
+*.egg-info
+__pycache__
+venv
+
+# IDE files
+.vscode
+
+# Python build folder
+build
+

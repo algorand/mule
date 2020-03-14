@@ -1,0 +1,10 @@
+tasks:
+  Echo.A:
+    task: Echo
+    name: A
+    message: A
+
+jobs:
+  A-test:
+    tasks:
+      - Echo.A

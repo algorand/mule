@@ -1,0 +1,57 @@
+tasks:
+- task: Echo
+  name: A
+  message: A
+- task: Echo
+  name: B
+  message: B
+  dependencies: Echo.A
+- task: Echo
+  name: C
+  message: C
+  dependencies: Echo.A
+- task: Echo
+  name: D
+  message: D
+  dependencies: Echo.A Echo.B Echo.C
+- task: Echo
+  name: E
+  message: E
+  dependencies: Echo.B
+- task: Echo
+  name: F
+  message: F
+  dependencies: Echo.A Echo.C
+- task: Echo
+  name: G
+  message: G
+  dependencies: Echo.F
+
+jobs:
+  AB-B-test:
+    tasks:
+    - Echo.B
+  AB-AB-test:
+    tasks:
+    - Echo.A
+    - Echo.B
+  ABC-BA-test:
+    tasks:
+    - Echo.B
+    - Echo.C
+  ACB-CB-test:
+    tasks:
+    - Echo.C
+    - Echo.B
+  ACB-CAB-test:
+    tasks:
+    - Echo.C
+    - Echo.A
+    - Echo.B
+  ABCD-D-test:
+    tasks:
+    - Echo.D
+  ABECFG-EG-test:
+    tasks:
+    - Echo.E
+    - Echo.G
