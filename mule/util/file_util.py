@@ -15,3 +15,9 @@ def getFilesInFolder(path):
         for filename in filenames:
             files.append(f"{filepath}/{filename}")
     return files
+
+def ensureFile(path, contents):
+    if not os.path.isfile(path):
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, 'w') as file:
+            file.write(contents)

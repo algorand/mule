@@ -9,6 +9,22 @@ from mule.util import file_util
 import os
 import time
 
+DEFAULT_MULE_CONFIG = """
+packages:
+- mule.task
+"""
+
+DEFAULT_MULE_CONFIG_PATH = "~/.mule/config.yaml"
+
+def getValidatedMuleConfigFile():
+    config_file_path = os.path.abspath(os.path.expanduser(DEFAULT_MULE_CONFIG_PATH))
+    file_util.ensureFile(config_file_path, DEFAULT_MULE_CONFIG)
+    mule_config = file_util.readYamlFile(config_file_path)
+    mule_config_keys = mule_config.keys()
+    if not 'packages' in mule_config_keys:
+        raise Exception(messages.FIELD_NOT_FOUND_IN_FILE.format('packages', DEFAULT_MULE_CONFIG_PATH))
+    return mule_config
+
 def getValidatedMuleYaml(yaml_file_path):
     mule_config = file_util.readYamlFile(yaml_file_path)
     mule_config_keys = mule_config.keys()
@@ -83,15 +99,13 @@ def validateTaskConfig(task_config):
         raise Exception(messages.TASK_FIELD_MISSING)
 
 def getValidatedTask(task_config):
-    if 'task' in task_config:
-        task_name = task_config['task']
-        try:
-            task_obj = locate('mule.task.' + task_name)
-            if task_obj is None:
-                raise Exception(messages.CANNOT_LOCATE_TASK.format(task_name))
-        except:
-            raise Exception(messages.CANNOT_LOCATE_TASK.format(task_name))
-        return task_obj(task_config)
+    mule_config = getValidatedMuleConfigFile()
+    task_name = task_config['task']
+    for package in mule_config['packages']:
+        task_obj = locate(f"{package}.{task_name}")
+        if not task_obj is None:
+            return task_obj(task_config)
+    raise Exception(messages.CANNOT_LOCATE_TASK.format(task_name))
 
 def getValidatedTaskDependencyChain(job_context, dependency_edges):
     # This is basically dfs, so these tuples represent edges
