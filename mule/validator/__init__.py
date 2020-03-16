@@ -9,21 +9,21 @@ from mule.util import file_util
 import os
 import time
 
-DEFAULT_MULE_CONFIG = """
-packages:
-- mule.task
-"""
+DEFAULT_MULE_CONFIGS = {
+    'packages': [
+        'mule.task'
+    ]
+}
 
 DEFAULT_MULE_CONFIG_PATH = "~/.mule/config.yaml"
 
 def getValidatedMuleConfigFile():
     config_file_path = os.path.abspath(os.path.expanduser(DEFAULT_MULE_CONFIG_PATH))
-    file_util.ensureFile(config_file_path, DEFAULT_MULE_CONFIG)
-    mule_config = file_util.readYamlFile(config_file_path)
-    mule_config_keys = mule_config.keys()
-    if not 'packages' in mule_config_keys:
-        raise Exception(messages.FIELD_NOT_FOUND_IN_FILE.format('packages', DEFAULT_MULE_CONFIG_PATH))
-    return mule_config
+    mule_configs = DEFAULT_MULE_CONFIGS
+    if os.path.isfile(config_file_path):
+        mule_configs_from_file = file_util.readYamlFile(config_file_path)
+        mule_configs.update(mule_configs_from_file)
+    return mule_configs
 
 def getValidatedMuleYaml(yaml_file_path):
     mule_config = file_util.readYamlFile(yaml_file_path)
