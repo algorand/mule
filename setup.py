@@ -4,7 +4,7 @@ import setuptools
 from mule import __version__
 
 setuptools.setup(
-    name='mule',
+    name='mulecli',
     version=__version__,
     scripts=['bin/mule'],
     description='Script for executing automated tasks',

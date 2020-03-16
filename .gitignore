@@ -6,6 +6,7 @@ venv
 # IDE files
 .vscode
 
-# Python build folder
+# Python build folders
 build
+dist
 

@@ -14,6 +14,14 @@ jobs:
     - Echo.A
 ```
 
+## Install
+
+To install mule using pip, use:
+
+```
+pip install mulecli
+```
+
 # Navigation
 * [Getting Started Guide](docs/getting_started.md)
 * [Task Documentation](docs/tasks/README.md)
