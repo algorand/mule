@@ -1,11 +1,22 @@
 import os
 import subprocess
 import hashlib
+import sys
+import time
+import atexit
 
 def run(image, command, work_dir):
     volume = f"{os.getcwd()}:{work_dir}"
-    docker_command = f"docker run -ti --rm -v {volume} -w {work_dir} {image} {command}"
-    subprocess.run(docker_command.split(" "), check=True)
+    container_name = f"mule-{time.time_ns()}"
+    docker_command = f"docker run --name {container_name} --rm -v {volume} -w {work_dir} -i {image} {command}"
+    atexit.register(kill, container_name)
+    subprocess.run(docker_command.split(' '), check=True)
+
+# This takes container names (or ids) as a space delimted string
+def kill(container_names):
+    print(f"Cleaning up started docker container(s) {container_names}")
+    docker_command = f"docker kill {container_names}"
+    subprocess.run(docker_command.split(' '), stdout=subprocess.DEVNULL)
 
 # Build the docker image
 def build(build_args, build_context_path, tags, docker_file_path):
