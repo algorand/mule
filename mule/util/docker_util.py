@@ -12,7 +12,7 @@ def run(image, command, work_dir):
     atexit.register(kill, container_name)
     subprocess.run(docker_command.split(' '), check=True)
 
-# This takes container names (or ids) as a comma delimted string
+# This takes container names (or ids) as a space delimted string
 def kill(container_names):
     print(f"Cleaning up started docker container(s) {container_names}")
     docker_command = f"docker kill {container_names}"
