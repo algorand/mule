@@ -62,7 +62,10 @@ jobs:
     - Echo
 ```
 
-Here we have a mule config file that lists one task and one job. The tasks field is where you document task configurations that you will need to execute your jobs. It takes a list of maps (dicts in python) that are used to initialize your tasks. One key thing to keep in mind here is that every task configuration must have a task field set. This is used by mule to loop through the task you wish to be initialize. Every other field is a configuration for your task. In this example, we have one task called Echo, which simply prints out "Message for the console".
+Above is a mule config file that lists one task and one job.
+
+- The tasks field is to document task configurations that are needed to execute jobs. It takes a list of maps (dicts in python) that are used to initialize your tasks -- keep in mind that every task configuration must have a task field set -- and is used by mule to loop through the task you wish to initialize.
+- Every other field is a configuration for your task. In this example, we have one task called Echo, which simply prints out "Message for the console".
 
 Next you have your jobs field. This is where you define jobs and provide them with a list of tasks you wish to execute when the job is invoked. The list in the job's tasks field contains the ids of the predefined tasks, which in this case is just the task definition.
 
