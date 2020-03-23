@@ -11,14 +11,14 @@ This task computes a version used to identify a docker image used for builds.
   * Image of the docker image that needs to be made available.
 * dockerFilePath
   * Relative path to the dockerfile used to create the docker image if it is not available.
-    * This must be within the path of the directory this task is called in.
+    * This must be within the path of the directory from where this task is called.
 * arch
   * CPU architecture of the docker image that needs to be made available.
 
 ## Optional Parameters
 
 * buildContextPath
-  * Directory used as the context path of a docker build. (`'.'` by default)
+  * Directory used as the context path of a docker build (`'.'` by default).
 
 # Navigation
 * [Home](../../README.md)

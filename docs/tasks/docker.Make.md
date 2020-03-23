@@ -1,7 +1,7 @@
 # docker.Make
 
 ## Description
-This task executes a make target from within a docker container. This task requires that there is a Makefile in the directory that the task is called from.
+This task executes a make target from within a docker container. This task requires that there is a Makefile in the directory from where the task was called.
 
 ## Required Parameters
 
@@ -14,7 +14,7 @@ This task executes a make target from within a docker container. This task requi
 
 ## Optional Parameters
 * workDir
-  * Working directory that the task will use inside of the container. (`'/project'` by default)
+  * Working directory that the task will use inside of the container (`'/project'` by default).
     * The directory that the task is called from will be mounted to this directory on the created container.
 
 # Navigation

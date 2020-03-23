@@ -39,11 +39,11 @@ Before getting into how to use mule to execute automation, the following docs wi
 
 ## Tasks
 
-A task is an individual unit of automation. You can make a task for any activity you would like to automate. For a list of currently available tasks, see our [task documentation](tasks/README.md)
+A task is an individual unit of automation. You can make a task for any activity you would like to automate. For a list of currently available tasks, see our [task documentation](tasks/README.md).
 
 ## Jobs
 
-A job is a series of executable tasks, and a task itself for that matter. When you provide a job with a list of tasks, the job handles evaluating the chain of dependencies of the tasks you would like to execute and guarantees that all tasks and it's dependencies are executed once in the order that they are needed.
+A job is a series of executable tasks, and a task itself for that matter. When you provide a job with a list of tasks, the job handles evaluating the chain of dependencies of the tasks you would like to execute and guarantees that all tasks and its dependencies are executed once in the order that they are needed.
 
 # How to use Mule
 
@@ -62,7 +62,7 @@ jobs:
     - Echo
 ```
 
-Here we have a mule config file that lists one task and one job. The tasks field is where you document task configurations that you will need to execute your jobs. It takes a list of maps (dicts in python) that are used to initialize your tasks. One key thing to keep in mind here is that every task configuration must have a task field set. This is used by mule to loop up the task you wish to be initialize. Every other field is a configuration for your task. In this example we have one task called Echo, which simply prints out "Message for the console".
+Here we have a mule config file that lists one task and one job. The tasks field is where you document task configurations that you will need to execute your jobs. It takes a list of maps (dicts in python) that are used to initialize your tasks. One key thing to keep in mind here is that every task configuration must have a task field set. This is used by mule to loop through the task you wish to be initialize. Every other field is a configuration for your task. In this example, we have one task called Echo, which simply prints out "Message for the console".
 
 Next you have your jobs field. This is where you define jobs and provide them with a list of tasks you wish to execute when the job is invoked. The list in the job's tasks field contains the ids of the predefined tasks, which in this case is just the task definition.
 
@@ -94,7 +94,7 @@ jobs:
     - Echo.B
 ```
 
-Now we have two tasks that we are defining. The first is an Echo task that prints out "Message for the console" and the second is an Echo task that prints out "Another message for the console". Since we are using two tasks who use the same task definition, we must provide a name field to each that differentiates them. When a name field is introduced to a task, it's id becomes `task_definition.name`.
+Now we have two tasks that we are defining. The first is an Echo task that prints out "Message for the console" and the second is an Echo task that prints out "Another message for the console". Since we are using two tasks who use the same task definition, we must provide a name field to each that differentiates them. When a name field is introduced to a task, its id becomes `task_definition.name`.
 
 One more interesting thing here is the dependencies field in Echo.B. This field is used to declare that a task depends on another task. This way, when the task is executed inside of a job, any other task it depends on will be executed as well. This field can either be a space delimited string, or a yaml list of strings. Keep in mind of the order you arrange these dependencies, since the dependencies will be executed in the order you introduce them in here.
 
@@ -128,7 +128,7 @@ jobs:
 
 No matter the arrangement of tasks, Mule will evaluate the chain of dependent tasks that need to be executed such that tasks get executed once in the order they are needed.
 
-Next we will look into how you can parameterize your tasks
+Next, we will look into how you can parameterize your tasks.
 
 ## Job configs
 
@@ -156,7 +156,7 @@ $ mule -f path/to/mule.yaml job-a
 Another message for the console
 ```
 
-Now since our Echo task's message field has been overwritten, we are seeing mule print out Not A. We may offer more sophisticated ways to overwrite task configs in the future, but for now it's important to be careful when selecting fields that you would like to overwrite so that you do not see unintended consequences in your jobs.
+Now since our Echo task's message field has been overwritten, we are seeing mule print out "Another message for the console". We may offer more sophisticated ways to overwrite task configs in the future, but for now it's important to be careful when selecting fields that you would like to overwrite so that you do not see unintended consequences in your jobs.
 
 Another thing you can do in a jobs config is set values using your system's environment variables.
 
@@ -203,7 +203,7 @@ jobs:
     - Echo.B
 ```
 
-Every time a task is executed, it produces a dictionary of outputs and stores them in memory for tasks that get executed later down the chain. Therefore, subsequent tasks are about to use the outputs of previous tasks using the pattern `'{{ task_id.outputs.field }}'`. In this example, we have the Echo.B task printing the message that Echo.A outputted. Therefore, when we run job-b, we see:
+Every time a task is executed, it produces a dictionary of outputs and stores them in memory for tasks that get executed later down the chain. Therefore, subsequent tasks are able to use the outputs of previous tasks using the pattern `'{{ task_id.outputs.field }}'`. In this example, we have the Echo.B task printing the message that Echo.A outputted. Therefore, when we run job-b, we see:
 
 ```
 $ mule -f path/to/mule.yaml job-b
@@ -211,7 +211,7 @@ Another message for the console
 Another message for the console
 ```
 
-Note this also works with dependencies as well. The only requirement for one task to read task another tasks outputs is that the task it is referencing has already been executed.
+Note this also works with dependencies as well. The only requirement for one task to read another's outputs is that the task it is referencing has already been executed.
 
 ## Conclusion
 

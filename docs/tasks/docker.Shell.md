@@ -14,7 +14,7 @@ This task executes a shell command from within a docker container.
 
 ## Optional Parameters
 * workDir
-  * Working directory that the task will use inside of the container. (`'/project'` by default)
+  * Working directory that the task will use inside of the container (`'/project'` by default).
     * The directory that the task is called from will be mounted to this directory on the created container.
 
 # Navigation
