@@ -10,15 +10,20 @@ from mule.task import ITask
 class HelloWorld(ITask):
 
     def execute(self, job_context):
+        super().execute(job_context)
         print('Hello World!')
 ```
 
 Once the file is added, and you pip install this project in edit mode (`pip3 install -e .`), you should be able to use this task in the following mule yaml.
 
 ```yaml
-stages:
+tasks:
+- task: helloworld.hello.HelloWorld
+
+jobs:
   hello:
-  - task: helloworld.hello.HelloWorld
+    tasks:
+    - helloworld.hello.HelloWorld
 ```
 
 ```
