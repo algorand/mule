@@ -8,7 +8,7 @@ This task computes a version used to identify a docker image used for builds.
 * arch
   * Target cpu architecture of the docker image.
 * configFilePath
-  * Config file who's hash will be used to identify the version of the docker image. This will generally be a script run to configure the docker image appropriately for a build.
+  * Config file whose hash will be used to identify the version of the docker image. This will generally be a script run to configure the docker image appropriately for a build.
 
 ## Outputs
 * version
