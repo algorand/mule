@@ -27,9 +27,27 @@ class ITask:
         return self.task_id
     
     def evaluateOutputFields(self, job_context):
-        for field in self.__dict__.keys():
-            if type(self.__dict__[field]) is str:
-                self.__dict__[field] = pystache.render(self.__dict__[field], job_context.get_fields())
+        ignoredFields = ['dependencies', 'required_fields', 'task_id', 'task_configs']
+        fieldDicts = [self.__dict__]
+        timeout = time.time() + 10
+        job_fields = job_context.get_fields()
+        while len(fieldDicts) > 0:
+            if time.time() > timeout:
+                raise Exception(messages.TASK_FIELD_EVALUATION_TIMEOUT.format(self.getId()))
+            fieldDict = fieldDicts.pop(0)
+            for field in fieldDict.keys():
+                if not field in ignoredFields:
+                    field_value = fieldDict[field]
+                    if type(field_value) is str:
+                        fieldDict[field] = pystache.render(field_value, job_fields)
+                    if type(field_value) is list:
+                        for element_index, element in enumerate(field_value):
+                            if type(element) is str:
+                                fieldDict[field][element_index] = pystache.render(element, job_fields)
+                            elif type(element) is dict:
+                                fieldDicts.append(element)
+                    elif type(field_value) is dict:
+                        fieldDicts.append(fieldDict[field])
 
     def getDependencies(self):
         if type(self.dependencies) is str:
