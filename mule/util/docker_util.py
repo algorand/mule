@@ -5,12 +5,18 @@ import sys
 import time
 import atexit
 
-def run(image, command, work_dir):
-    volume = f"{os.getcwd()}:{work_dir}"
+def run(image, command, work_dir, env):
     container_name = f"mule-{time.time_ns()}"
-    docker_command = f"docker run --name {container_name} --rm -v {volume} -w {work_dir} -i {image} {command}"
+    volume = f"{os.getcwd()}:{work_dir}"
+    docker_command = ['docker', 'run', '--name', container_name, '--rm', '-v', volume, '-w', work_dir, '-i']
+
+    for env_var in env:
+        docker_command.extend(['--env', env_var])
+
+    docker_command.append(image)
+    docker_command.extend(command.split(' '))
     atexit.register(kill, container_name)
-    subprocess.run(docker_command.split(' '), check=True)
+    subprocess.run(docker_command, check=True)
 
 # This takes container names (or ids) as a space delimted string
 def kill(container_names):

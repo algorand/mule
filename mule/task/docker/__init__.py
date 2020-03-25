@@ -1,28 +1,72 @@
 from mule.task import ITask
 import mule.util.docker_util as docker
+from mule.error import messages
 
-class Make(ITask):
+class DockerTask(ITask):
 
-    required_fields = [
-        'image',
-        'version',
-        'target',
+    required_typed_fields = [
+        ('docker', dict),
+        ('docker.image', str),
+        ('docker.version', str),
     ]
-
-    workDir = '/project'
-
+    optional_typed_fields = [
+        ('docker.workDir', str),
+        ('docker.env', list),
+    ]
+    command = ""
     def __init__(self, args):
         super().__init__(args)
-        self.image = args['image']
-        self.version = args['version']
-        self.target = args['target']
+        self.docker = args['docker']
+        self.validateEnvVars()
 
-        if 'workDir' in args:
-            self.workDir = args['workDir']
+    def validateEnvVars(self):
+        if 'env' in self.docker.keys():
+            for env_var_index, env_var in enumerate(self.docker['env']):
+                if not type(env_var) == str:
+                    raise Exception(messages.TASK_FIELD_IS_WRONG_TYPE.format(
+                        self.getId(),
+                        f"docker.env[{env_var_index}]",
+                        str,
+                        type(env_var)
+                    ))
+        else:
+            self.docker['env'] = []
 
     def execute(self, job_context):
         super().execute(job_context)
-        docker.run(f"{self.image}:{self.version}", f"make {self.target}", self.workDir)
+        docker.run(
+            f"{self.docker['image']}:{self.docker['version']}",
+            self.command,
+            self.docker['workDir'],
+            self.docker['env']
+        )
+
+class Make(DockerTask):
+
+    required_fields = [
+        'target',
+    ]
+
+    def __init__(self, args):
+        super().__init__(args)
+        self.target = args['target']
+        self.command = f"make {self.target}"
+
+    def execute(self, job_context):
+        super().execute(job_context)
+
+class Shell(DockerTask):
+
+    required_fields = [
+        'command',
+    ]
+
+    def __init__(self, args):
+        super().__init__(args)
+        self.command = args['command']
+
+    def execute(self, job_context):
+        super().execute(job_context)
 
 class Version(ITask):
 
@@ -42,26 +86,3 @@ class Version(ITask):
         return {
             'version': version
         }
-
-class Shell(ITask):
-
-    required_fields = [
-        'image',
-        'version',
-        'command',
-    ]
-
-    workDir = '/project'
-
-    def __init__(self, args):
-        super().__init__(args)
-        self.image = args['image']
-        self.version = args['version']
-        self.command = args['command']
-
-        if 'workDir' in args:
-            self.workDir = args['workDir']
-
-    def execute(self, job_context):
-        super().execute(job_context)
-        docker.run(f"{self.image}:{self.version}", self.command, self.workDir)
