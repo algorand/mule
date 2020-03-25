@@ -37,5 +37,9 @@ def update_dict(current, new):
         for level_key in level[1].keys():
             if not level_key in level[0].keys():
                 level[0][level_key] = level[1][level_key]
+            elif not type(level[1][level_key]) == dict:
+                level[0][level_key] = level[1][level_key]
+            elif not type(level[0][level_key]) == dict:
+                level[0][level_key] = level[1][level_key]
             else:
                 levels.append((level[0][level_key], level[1][level_key]))
