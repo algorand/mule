@@ -18,6 +18,8 @@ class DockerTask(ITask):
         super().__init__(args)
         self.docker = args['docker']
         self.validateEnvVars()
+        if not 'workdir' in self.docker.keys():
+            self.docker['workDir'] = '/project'
 
     def validateEnvVars(self):
         if 'env' in self.docker.keys():
