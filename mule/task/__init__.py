@@ -7,6 +7,8 @@ import mule.validator as validator
 class ITask:
 
     required_fields = []
+    required_typed_fields = []
+    optional_typed_fields = []
     dependencies = []
 
     def __init__(self, args):
@@ -21,6 +23,12 @@ class ITask:
             self.task_id,
             args,
             self.required_fields
+        )
+        validator.validateTypedFields(
+            self.task_id,
+            args,
+            self.required_typed_fields,
+            self.optional_typed_fields
         )
 
     def getId(self):
@@ -72,6 +80,9 @@ class Job(ITask):
         'tasks',
         'task_configs'
     ]
+
+    required_typed_fields = [('tasks', list)]
+    optional_typed_fields = [('configs', dict)]
     configs = {}
 
     def __init__(self, args):
@@ -80,7 +91,6 @@ class Job(ITask):
         self.task_configs = args['task_configs']
         if 'configs' in args:
             self.configs = args['configs']
-        validator.validateJobFields(self)
 
     def execute(self, job_context):
         super().execute(job_context)
