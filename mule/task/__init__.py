@@ -3,6 +3,7 @@ import pystache
 import time
 from pydoc import locate
 import mule.validator as validator
+from mule.util import update_dict
 
 class ITask:
 
@@ -104,7 +105,7 @@ class Job(ITask):
     
     def buildJobContext(self, job_context):
         for task_config in self.task_configs:
-            task_config.update(self.configs)
+            update_dict(task_config, self.configs)
             validator.validateTaskConfig(task_config)
             if 'name' in task_config:
                 job_context.add_field(f"{task_config['task']}.{task_config['name']}.inputs", task_config)

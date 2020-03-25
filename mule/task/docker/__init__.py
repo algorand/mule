@@ -36,7 +36,7 @@ class DockerTask(ITask):
         super().execute(job_context)
         docker.run(
             f"{self.docker['image']}:{self.docker['version']}",
-            self.command,
+            f"bash -c {self.command}",
             self.docker['workDir'],
             self.docker['env']
         )
