@@ -3,7 +3,7 @@
 CANNOT_LOCATE_TASK="Could not locate task with name {}\nPlease reference documentation or submit an issue"
 CANNOT_LOCATE_TASK_CONFIGS="Task {} listed another task {} as a dependency, but the task configs could not be found"
 CANNOT_PARSE_TASK="Could not parse task at index {} of executing stage"
-CANNOT_EVALUATE_ENV_VAR="Could not evaluate environment variable {} referenced in cicd yaml file"
+CANNOT_EVALUATE_ENV_VAR="Could not evaluate environment variable {} referenced in mule yaml file"
 TASK_MISSING_REQUIRED_FIELDS="Task {} is missing required field {}.\nThe following fields are required {}"
 TASK_FIELD_MISSING="A task is missing its task field"
 JOB_NOT_FOUND="Could not find job for name {}"
