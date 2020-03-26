@@ -43,3 +43,8 @@ jobs:
   echo-with-name-multi-level-test:
     tasks:
     - Echo.print-multi-level-input
+  echo-configs-override:
+    configs:
+      message: test
+    tasks:
+    - Echo
