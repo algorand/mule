@@ -5,18 +5,21 @@ This task executes a make target from within a docker container. This task requi
 
 ## Required Parameters
 
-* image
-  * Name of the docker image that will be used to create the container that the make target will be run inside of.
-* version
-  * Version of the docker image that will be used to create the container that the make target will be run inside of.
+* docker
+  * image
+    * Name of the docker image that will be used to create the container that the make target will be run inside of.
+  * version
+    * Version of the docker image that will be used to create the container that the make target will be run inside of.
 * target
   * Make target will be executed inside of the created container.
 
 ## Optional Parameters
-* workDir
-  * Working directory that the task will use inside of the container (`'/project'` by default).
-    * The directory that the task is called from will be mounted to this directory on the created container.
-
+* docker
+  * workDir
+    * Working directory that the task will use inside of the container (`'/project'` by default).
+      * The directory that the task is called from will be mounted to this directory on the created container.
+  * env
+    * Environment variables that are set in the started container ([] by default)
 # Navigation
 * [Home](../../README.md)
 * [Task Documentation](README.md)

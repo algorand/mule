@@ -2,7 +2,7 @@ from mule.task import ITask
 from mule.task import Job
 from mule.error import messages
 from pydoc import locate
-from mule.util import JobContext
+from mule.util import JobContext, get_dict_value
 import yaml
 import mule.util.yaml.env_var_loader as yaml_util
 from mule.util import file_util
@@ -66,32 +66,33 @@ def validateTaskConfigs(task_configs):
         if not type(task_config) == dict:
             raise Exception(messages.FIELD_VALUE_WRONG_TYPE.format(f"tasks[{task_config_index}]", dict, type(task_configs)))
 
-def validateJobFields(job):
-    job_config_required_fields = [('dependencies', list)]
-    job_config_optional_fields = [('config', dict)]
-    job_configs = job.__dict__
-    task_id = job.getId()
-    for required_field, required_field_type in job_config_required_fields:
-        if not required_field in job_configs.keys():
-            raise Exception(messages.JOB_MISSING_REQUIRED_FIELDS.format(
+def validateTypedFields(task_id, task_fields, task_required_typed_fields, task_optional_typed_fields):
+    for required_field, required_field_type in task_required_typed_fields:
+        required_field_index = required_field.split('.')
+        required_field_value = get_dict_value(task_fields, required_field_index)
+        if required_field_value is None:
+            raise Exception(messages.TASK_MISSING_REQUIRED_FIELDS.format(
                 task_id,
-                job_config_required_fields
+                required_field,
+                task_required_typed_fields,
             ))
-        if not type(job_configs[required_field]) == required_field_type:
-            raise Exception(messages.JOB_FIELD_IS_WRONG_TYPE.format(
+        if not type(required_field_value) == required_field_type:
+            raise Exception(messages.TASK_FIELD_IS_WRONG_TYPE.format(
                 task_id,
                 required_field,
                 required_field_type,
-                type(job_configs[required_field])
+                type(required_field_value)
             ))
-    for optional_field, optional_field_type in job_config_optional_fields:
-        if optional_field in job_configs.keys():
-            if not type(job_configs[optional_field]) == optional_field_type:
-                raise Exception(messages.JOB_FIELD_IS_WRONG_TYPE.format(
+    for optional_field, optional_field_type in task_optional_typed_fields:
+        optional_field_index = optional_field.split('.')
+        optional_field_value = get_dict_value(task_fields, optional_field_index)
+        if not optional_field_value is None:
+            if not type(optional_field_value) == optional_field_type:
+                raise Exception(messages.TASK_FIELD_IS_WRONG_TYPE.format(
                     task_id,
                     optional_field,
                     optional_field_type,
-                    type(job_configs[optional_field])
+                    type(optional_field_value)
                 ))
 
 def validateTaskConfig(task_config):
