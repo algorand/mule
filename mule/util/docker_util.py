@@ -14,7 +14,7 @@ def run(image, command, work_dir, env):
         docker_command.extend(['--env', env_var])
 
     docker_command.append(image)
-    docker_command.extend(command.split(' '))
+    docker_command.extend(command)
     atexit.register(kill, container_name)
     subprocess.run(docker_command, check=True)
 
