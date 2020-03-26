@@ -2,7 +2,7 @@ from mule.task import ITask
 import mule.util.docker_util as docker
 from mule.error import messages
 
-class DockerTask(ITask):
+class IDockerTask(ITask):
 
     required_typed_fields = [
         ('docker', dict),
@@ -43,7 +43,7 @@ class DockerTask(ITask):
             self.docker['env']
         )
 
-class Make(DockerTask):
+class Make(IDockerTask):
 
     required_fields = [
         'target',
@@ -57,7 +57,7 @@ class Make(DockerTask):
     def execute(self, job_context):
         super().execute(job_context)
 
-class Shell(DockerTask):
+class Shell(IDockerTask):
 
     required_fields = [
         'command',
