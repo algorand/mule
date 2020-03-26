@@ -43,3 +43,4 @@ def update_dict(current, new):
                 level[0][level_key] = level[1][level_key]
             else:
                 levels.append((level[0][level_key], level[1][level_key]))
+    return current
