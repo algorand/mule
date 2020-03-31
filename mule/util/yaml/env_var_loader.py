@@ -14,7 +14,8 @@ def path_constructor(loader, node):
             'yellow',
             attrs=['bold']
         )
-    return os.path.expandvars(node.value)
+        return ''
+    return value
 
 def getYamlLoaderWithEnvVars():
     yaml.add_implicit_resolver('!path', env_var_path_matcher)
