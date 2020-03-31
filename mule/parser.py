@@ -39,7 +39,7 @@ def parseArgs():
 
     group.add_argument(
         'JOB',
-        help="name of stage you would like to execute",
+        help="name of job you would like to execute",
         nargs='?',
         default = None,
     )
