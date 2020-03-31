@@ -66,9 +66,9 @@ def checkForLocalImage(docker_image_name) :
 
 # Ensure that the docker image exist for the current configuration file
 def ensure(image, arch, build_context_path, docker_file_path):
-    found = pullFromDockerHub(image)
-    if not found :
-        found = checkForLocalImage(image)
+    found = checkForLocalImage(image)
+    if not found:
+        found = pullFromDockerHub(image)
     if not found:
         print(f"building docker container for arch {arch}")
         build([f"ARCH={arch}"], build_context_path, [image], docker_file_path)
