@@ -2,6 +2,7 @@ from mule.task import ITask
 import mule.util.docker_util as docker
 from mule.error import messages
 from mule.util import update_dict
+import re
 
 class IDockerTask(ITask):
 
@@ -38,6 +39,8 @@ class IDockerTask(ITask):
                     str,
                     type(env_var)
                 ))
+        dockerEnvVarPattern = re.compile(r'.*=.+')
+        self.docker['env'] = [envVar for envVar in self.docker['env'] if dockerEnvVarPattern.match(envVar)]
 
     def execute(self, job_context):
         super().execute(job_context)
