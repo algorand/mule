@@ -24,8 +24,9 @@ class IDockerTask(ITask):
             {
                 'workDir': '/project',
                 'env': [],
+                'volumes': [],
             },
-            args['docker']
+            args['docker'],
         )
         self.validateDockerConfigs()
 
@@ -42,13 +43,25 @@ class IDockerTask(ITask):
         dockerEnvVarPattern = re.compile(r'.*=.+')
         self.docker['env'] = [envVar for envVar in self.docker['env'] if dockerEnvVarPattern.match(envVar)]
 
+        for volume_index, volume in enumerate(self.docker['volumes']):
+            if not type(volume) == str:
+                raise Exception(messages.TASK_FIELD_IS_WRONG_TYPE.format(
+                    self.getId(),
+                    f"docker.env[{volume_index}]",
+                    str,
+                    type(volume)
+                ))
+        dockerVolumePattern = re.compile(r'.+:.+')
+        self.docker['volumes'] = [volume for volume in self.docker['volumes'] if dockerVolumePattern.match(volume)]
+
     def execute(self, job_context):
         super().execute(job_context)
         docker.run(
             f"{self.docker['image']}:{self.docker['version']}",
             ["bash", "-c", self.command],
             self.docker['workDir'],
-            self.docker['env']
+            self.docker['volumes'],
+            self.docker['env'],
         )
 
 class Make(IDockerTask):

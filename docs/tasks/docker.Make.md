@@ -20,6 +20,8 @@ This task executes a make target from within a docker container. This task requi
       * The directory that the task is called from will be mounted to this directory on the created container.
   * env
     * Environment variables that are set in the started container ([] by default)
+  * volumes
+    * This used to list any extra volumes you would like to mount on to the started container, using the syntax of the docker run `-v` option. ([] by default)
 # Navigation
 * [Home](../../README.md)
 * [Task Documentation](README.md)
