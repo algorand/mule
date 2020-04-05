@@ -4,6 +4,7 @@ import hashlib
 import sys
 import time
 import atexit
+from termcolor import cprint
 
 def run(image, command, work_dir, env):
     container_name = f"mule-{time.time_ns()}"
@@ -18,11 +19,11 @@ def run(image, command, work_dir, env):
     atexit.register(kill, container_name)
     subprocess.run(docker_command, check=True)
 
-# This takes container names (or ids) as a space delimted string
-def kill(container_names):
-    print(f"Cleaning up started docker container(s) {container_names}")
-    docker_command = f"docker kill {container_names}"
-    subprocess.run(docker_command.split(' '), stdout=subprocess.DEVNULL)
+# This takes container name
+def kill(container_name):
+    if(len(subprocess.run(f"docker ps -q -f name=^/{container_name}$".split(' '), capture_output=True).stdout) > 0):
+        print(f"Cleaning up started docker container {container_name}")
+        subprocess.run(f"docker kill {container_name}".split(' '), stdout=subprocess.DEVNULL)
 
 # Build the docker image
 def build(build_args, build_context_path, tags, docker_file_path):
@@ -33,20 +34,15 @@ def build(build_args, build_context_path, tags, docker_file_path):
     if tags is not None and len(tags) > 0 :
         tags_str = f"-t {' -t '.join(tags)}"
     docker_command = f"docker build {build_args_str} {tags_str} -f {docker_file_path} {build_context_path}"
-    print(f"docker build command: '{docker_command}'")
     subprocess.run(docker_command.split(' '), check=True)
 
 # Check docker hub for the image
 def pullFromDockerHub(docker_image_name):
     found = False
     pull_from_docker_hub_command = f"docker pull {docker_image_name}"
-    print(f"attempting to get image with command {pull_from_docker_hub_command}")
     docker_image_result = subprocess.run(pull_from_docker_hub_command.split(" "))
     if docker_image_result.returncode == 0:
-        print(f"docker image found in docker hub '{docker_image_name}'")
         found = True
-    else:
-        print(f"docker file not found '{docker_image_name}' in docker hub")
     return found
 
 # Check for local image
@@ -58,20 +54,28 @@ def checkForLocalImage(docker_image_name) :
         stdout=subprocess.DEVNULL
     )
     if docker_inspect_result.returncode == 0:
-        print(f"found local docker image '{docker_image_name}'")
         found = True
-    else:
-        print(f"local docker image not found '{docker_image_name}'")
     return found
 
 # Ensure that the docker image exist for the current configuration file
 def ensure(image, arch, build_context_path, docker_file_path):
-    found = pullFromDockerHub(image)
-    if not found :
-        found = checkForLocalImage(image)
-    if not found:
-        print(f"building docker container for arch {arch}")
-        build([f"ARCH={arch}"], build_context_path, [image], docker_file_path)
+    if checkForLocalImage(image):
+        cprint(
+            f"Found docker image {image} locally",
+            'green',
+        )
+    else:
+        if pullFromDockerHub(image):
+            cprint(
+                f"Found docker image {image} on DockerHub",
+                'green',
+            )
+        else:
+            build([f"ARCH={arch}"], build_context_path, [image], docker_file_path)
+            cprint(
+                f"Built docker image {image} from {docker_file_path}",
+                'green',
+            )
 
 # Construct the version
 def getVersion(arch, config_file):
