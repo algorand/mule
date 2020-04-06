@@ -6,13 +6,14 @@ import time
 import atexit
 from termcolor import cprint
 
-def run(image, command, work_dir, env):
+def run(image, command, work_dir, volumes, env):
     container_name = f"mule-{time.time_ns()}"
-    volume = f"{os.getcwd()}:{work_dir}"
-    docker_command = ['docker', 'run', '--name', container_name, '--rm', '-v', volume, '-w', work_dir, '-i']
+    docker_command = ['docker', 'run', '--name', container_name, '--rm', '-w', work_dir, '-i', '-v', f"{os.getcwd()}:{work_dir}"]
 
     for env_var in env:
         docker_command.extend(['--env', env_var])
+    for volume in volumes:
+        docker_command.extend(['-v', volume])
 
     docker_command.append(image)
     docker_command.extend(command)
