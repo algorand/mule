@@ -1,9 +1,11 @@
-from mule.error import messages
-import pystache
 import time
-from pydoc import locate
+
+import pystache
+
 import mule.validator as validator
+from mule.error import messages
 from mule.util import update_dict
+
 
 class ITask:
 

@@ -1,13 +1,10 @@
-from mule.task import ITask
-from mule.task import Job
-from mule.error import messages
-from pydoc import locate
-from mule.util import JobContext, get_dict_value
-import yaml
-import mule.util.yaml.env_var_loader as yaml_util
-from mule.util import file_util
 import os
 import time
+from pydoc import locate
+
+from mule.error import messages
+from mule.util import file_util
+from mule.util import get_dict_value
 
 DEFAULT_MULE_CONFIGS = {
     'packages': [

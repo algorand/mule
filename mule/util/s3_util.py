@@ -7,6 +7,11 @@ import glob
 
 
 def _path_leaf(path):
+    """
+    Return the leaf object of the given path.
+    :param path: directory path to parse
+    :return: leaf object of path
+    """
     head, tail = ntpath.split(path)
     return tail or ntpath.basename(head)
 

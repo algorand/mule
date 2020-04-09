@@ -2,7 +2,7 @@ from mule.task import ITask
 from mule.util import s3_util
 
 
-class Upload(ITask):
+class UploadFile(ITask):
     required_fields = [
         'bucketName',
         'fileName'
@@ -10,10 +10,9 @@ class Upload(ITask):
 
     def __init__(self, args):
         super().__init__(args)
-        self.bucketName = args['bucketName']
         self.fileName = args['fileName']
-        if 'objectName' in args:
-            self.objectName = args['objectName']
+        self.bucketName = args['bucketName']
+        self.objectName = args['objectName'] if 'objectName' in args else None
 
     def upload_file(self):
         s3_util.upload_file(self.fileName, self.bucketName, self.objectName)
@@ -23,20 +22,38 @@ class Upload(ITask):
         self.upload_file()
 
 
-class Download(ITask):
+class UploadFiles(ITask):
     required_fields = [
         'bucketName',
-        'objectName'
+        'globSpec'
+    ]
+
+    def __init__(self, args):
+        super().__init__(args)
+        self.globSpec = args['globSpec']
+        self.bucketName = args['bucketName']
+
+    def upload_file(self):
+        s3_util.upload_files(self.globSpec, self.bucketName)
+
+    def execute(self, job_context):
+        super().execute(job_context)
+        self.upload_file()
+
+
+class DownloadFile(ITask):
+    required_fields = [
+        'bucketName',
+        'objectName',
+        'outputDir'
     ]
 
     def __init__(self, args):
         super().__init__(args)
         self.bucketName = args['bucketName']
         self.objectName = args['objectName']
-        if 'outputDir' in args:
-            self.outputDir = args['outputDir']
-        if 'fileName' in args:
-            self.fileName = args['fileName']
+        self.outputDir = args['outputDir'] if 'outputDir' in args else None
+        self.fileName = args['fileName'] if 'fileName' in args else None
 
     def download_file(self):
         s3_util.download_file(self.bucketName, self.objectName, self.outputDir, self.fileName)
@@ -54,10 +71,8 @@ class ListFiles(ITask):
     def __init__(self, args):
         super().__init__(args)
         self.bucketName = args['bucketName']
-        if 'prefix' in args:
-            self.prefix = args['prefix']
-        if 'suffix' in args:
-            self.suffix = args['suffix']
+        self.prefix = args['prefix'] if 'prefix' in args else ''
+        self.suffix = args['suffix'] if 'suffix' in args else ''
 
     def list_files(self):
         s3_util.list_keys(self.bucketName, self.prefix, self.suffix)
