@@ -2,7 +2,7 @@ import os
 import tempfile
 import warnings
 from unittest import TestCase
-from mule.task.s3.archive import ListFiles, DownloadFile, UploadFile, UploadFiles
+from mule.task.s3 import ListFiles, DownloadFile, UploadFile, UploadFiles
 from mule.util import JobContext
 
 

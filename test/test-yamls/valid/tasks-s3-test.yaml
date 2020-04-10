@@ -1,0 +1,33 @@
+tasks:
+- task: s3.ListFiles
+  name: list_my_files
+  bucketName: algorand-uploads
+  suffix: out
+- task: s3.DownloadFile
+  name: download_my_files
+  bucketName: algorand-uploads
+  objectName: temp/test.out
+  outputDir: .
+- task: s3.UploadFile
+  name: upload_my_file
+  bucketName: algorand-uploads
+  fileName: test.out
+- task: s3.UploadFiles
+  name: upload_my_files
+  bucketName: algorand-uploads
+  globSpec:
+    - ./*.out
+    - ./*.out
+jobs:
+  s3-list-files:
+    tasks:
+      - s3.ListFiles.list_my_files
+  s3-download-files:
+    tasks:
+      - s3.DownloadFile.download_my_files
+  s3-upload-file:
+    tasks:
+      - s3.UploadFile.upload_my_file
+  s3-upload-files:
+    tasks:
+      - s3.UploadFiles.upload_my_files
