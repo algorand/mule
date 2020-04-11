@@ -13,7 +13,7 @@ class Test(TestCase):
 
     def test__path_leaf(self):
         result = s3_util._path_leaf("test/test2/test3/leaf")
-        self.assertEqual(result, 'leaf', "{} is not what was expected".format(result))
+        self.assertEqual(result, 'leaf', "was expecting 'leaf' not '{}'".format(result))
 
     def test_upload_files(self):
         s3_util.upload_files('resources/test.out', 'algorand-uploads')
@@ -25,35 +25,36 @@ class Test(TestCase):
 
     def test_download_file(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
-            s3_util.download_file("algorand-releases",
-                                  "install/stable/1.0.26/offline_install_stable_darwin-amd64.tar.gz.sig",
-                                  tmpdirname, "test2.out")
-            s3_util.download_file("algorand-releases",
-                                  "install/stable/1.0.26/offline_install_stable_darwin-amd64.tar.gz.sig",
-                                  tmpdirname, "test2.out")
+            s3_util.download_file("algorand-uploads",
+                                  "resources/test.out",
+                                  tmpdirname,
+                                  "test.out")
+            s3_util.download_file("algorand-uploads",
+                                  "resources/test.out",
+                                  tmpdirname, "test.out")
 
     def test_download_files(self):
         with tempfile.TemporaryDirectory() as tmpdirname:
-            s3_util.download_files('algorand-releases', 'install', 'sig', tmpdirname)
-            s3_util.download_files('algorand-releases', 'install/stable/', 'sig', tmpdirname)
-            s3_util.download_files('algorand-releases', ['install/stable/'], ['sig'], tmpdirname)
+            s3_util.download_files('algorand-uploads', 'resources', 'out', tmpdirname)
+            s3_util.download_files('algorand-uploads', 'resources/test', 'out', tmpdirname)
+            s3_util.download_files('algorand-uploads', ['resources/test'], ['out'], tmpdirname)
 
     def test_list_keys(self):
-        s3_util.list_keys('algorand-releases', ['install', 'rpm'])
-        s3_util.list_keys('algorand-releases', 'install')
+        s3_util.list_keys('algorand-uploads', ['temp', 'resources'])
+        s3_util.list_keys('algorand-uploads', 'resources')
 
     def test_list_objects(self):
-        s3_util.list_objects('algorand-releases', ['install', 'rpm'])
-        s3_util.list_objects('algorand-releases', 'install')
+        s3_util.list_objects('algorand-uploads', ['temp', 'resources'])
+        s3_util.list_objects('algorand-uploads', 'resources')
 
     def test_get_matching_s3_objects(self):
         count = 0
-        for _ in s3_util.get_matching_s3_objects("algorand-releases"):
+        for _ in s3_util.get_matching_s3_objects("algorand-uploads"):
             count += 1
         self.assertTrue(count > 0, "matching object count should be greater than zero")
 
     def test_get_matching_s3_keys(self):
         count = 0
-        for _ in s3_util.get_matching_s3_keys("algorand-releases"):
+        for _ in s3_util.get_matching_s3_keys("algorand-uploads"):
             count += 1
         self.assertTrue(count > 0, "matching file key should be greater than zero")

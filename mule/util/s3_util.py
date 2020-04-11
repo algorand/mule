@@ -6,7 +6,7 @@ import os.path
 import glob
 
 
-def _path_leaf(path):
+def _path_leaf(path: str) -> str:
     """
     Return the leaf object of the given path.
     :param path: directory path to parse
@@ -35,7 +35,7 @@ def upload_files(globspec: object, bucket_name: str) -> bool:
     return response
 
 
-def upload_file(file_name, bucket_name, object_name=None) -> bool:
+def upload_file(file_name: str, bucket_name: str, object_name=None) -> bool:
     """
     Upload a file to an S3 bucket
     :param file_name: File path to upload.

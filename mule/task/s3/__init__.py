@@ -1,6 +1,7 @@
 from mule.task import ITask
 from mule.util import s3_util
 
+
 class UploadFile(ITask):
     required_fields = [
         'bucketName',
@@ -62,6 +63,27 @@ class DownloadFile(ITask):
         self.download_file()
 
 
+class DownloadFiles(ITask):
+    required_fields = [
+        'bucketName',
+        'prefix'
+    ]
+
+    def __init__(self, args):
+        super().__init__(args)
+        self.bucketName = args['bucketName']
+        self.prefix = args['prefix']
+        self.suffix = args['suffix'] if 'suffix' in args else None
+        self.outputDir = args['outputDir'] if 'outputDir' in args else None
+
+    def download_files(self):
+        s3_util.download_files(self.bucketName, self.prefix, self.suffix, self.outputDir)
+
+    def execute(self, job_context):
+        super().execute(job_context)
+        self.download_files()
+
+
 class ListFiles(ITask):
     required_fields = [
         'bucketName'
@@ -79,4 +101,3 @@ class ListFiles(ITask):
     def execute(self, job_context):
         super().execute(job_context)
         self.list_files()
-
