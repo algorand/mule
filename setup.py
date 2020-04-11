@@ -17,7 +17,12 @@ setuptools.setup(
         'pygithub',
         'pyyaml',
         'termcolor',
-        'boto3'
+        'boto3',
+        'botocore',
+        'logging',
+        'ntpath',
+        'os.path',
+        'glob'
     ],
     license='MIT',
     classifiers=[
