@@ -18,11 +18,7 @@ setuptools.setup(
         'pyyaml',
         'termcolor',
         'boto3',
-        'botocore',
-        'logging',
-        'ntpath',
-        'os.path',
-        'glob'
+        'botocore'
     ],
     license='MIT',
     classifiers=[
