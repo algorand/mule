@@ -17,6 +17,8 @@ setuptools.setup(
         'pygithub',
         'pyyaml',
         'termcolor',
+        'boto3',
+        'botocore'
     ],
     license='MIT',
     classifiers=[

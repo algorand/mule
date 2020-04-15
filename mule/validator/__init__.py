@@ -1,8 +1,10 @@
-from mule.error import messages
-from pydoc import locate
-from mule.util import get_dict_value
 import os
 import time
+from pydoc import locate
+
+from mule.error import messages
+from mule.util import file_util
+from mule.util import get_dict_value
 
 DEFAULT_MULE_CONFIGS = {
     'packages': [
