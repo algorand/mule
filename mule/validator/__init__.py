@@ -1,11 +1,6 @@
-from mule.task import ITask
-from mule.task import Job
 from mule.error import messages
 from pydoc import locate
-from mule.util import JobContext, get_dict_value
-import yaml
-import mule.util.yaml.env_var_loader as yaml_util
-from mule.util import file_util
+from mule.util import get_dict_value
 import os
 import time
 
@@ -25,8 +20,7 @@ def getValidatedMuleConfigFile():
         mule_configs.update(mule_configs_from_file)
     return mule_configs
 
-def getValidatedMuleYaml(yaml_file_path):
-    mule_config = file_util.readYamlFile(yaml_file_path)
+def getValidatedMuleYaml(mule_config):
     mule_config_keys = mule_config.keys()
 
     if not 'jobs' in mule_config_keys:
@@ -160,3 +154,4 @@ def validateRequiredTaskFieldsPresent(task_id, fields, required_fields):
                 field,
                 str(required_fields)
             ))
+
