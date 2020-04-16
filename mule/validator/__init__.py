@@ -22,8 +22,7 @@ def getValidatedMuleConfigFile():
         mule_configs.update(mule_configs_from_file)
     return mule_configs
 
-def getValidatedMuleYaml(yaml_file_path):
-    mule_config = file_util.readYamlFile(yaml_file_path)
+def getValidatedMuleYaml(mule_config):
     mule_config_keys = mule_config.keys()
 
     if not 'jobs' in mule_config_keys:
@@ -157,3 +156,4 @@ def validateRequiredTaskFieldsPresent(task_id, fields, required_fields):
                 field,
                 str(required_fields)
             ))
+
