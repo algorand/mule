@@ -29,8 +29,8 @@ class Helm(IShellTask):
         super().__init__(args)
         self.action = args['action']
         self.opts = args['opts']
-        if type(self.opts == str):
-            self.opts.split(' ')
+        if type(self.opts) == str:
+            self.opts = self.opts.split(' ')
         helm_command = ['helm']
         helm_command.append(self.action)
         helm_command.extend(self.opts)
