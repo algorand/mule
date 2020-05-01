@@ -44,8 +44,7 @@ class UploadFiles(ITask):
 class DownloadFile(ITask):
     required_fields = [
         'bucketName',
-        'objectName',
-        'outputDir'
+        'objectName'
     ]
 
     def __init__(self, args):
