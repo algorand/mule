@@ -51,7 +51,7 @@ class DownloadFile(ITask):
         super().__init__(args)
         self.bucketName = args['bucketName']
         self.objectName = args['objectName']
-        self.outputDir = args['outputDir'] if 'outputDir' in args else None
+        self.outputDir = args['outputDir'] if 'outputDir' in args else '.'
         self.fileName = args['fileName'] if 'fileName' in args else None
 
     def download_file(self):
@@ -73,7 +73,7 @@ class DownloadFiles(ITask):
         self.bucketName = args['bucketName']
         self.prefix = args['prefix']
         self.suffix = args['suffix'] if 'suffix' in args else None
-        self.outputDir = args['outputDir'] if 'outputDir' in args else None
+        self.outputDir = args['outputDir'] if 'outputDir' in args else '.'
 
     def download_files(self):
         s3_util.download_files(self.bucketName, self.prefix, self.suffix, self.outputDir)
@@ -100,3 +100,4 @@ class ListFiles(ITask):
     def execute(self, job_context):
         super().execute(job_context)
         self.list_files()
+
