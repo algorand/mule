@@ -101,3 +101,28 @@ class ListFiles(ITask):
         super().execute(job_context)
         self.list_files()
 
+
+class BucketCopy(ITask):
+    required_fields = [
+        'bucketSrc',
+        'bucketDest',
+        'prefixSrc',
+        'prefixDest'
+    ]
+
+    def __init__(self, args):
+        super().__init__(args)
+        self.source_bucket = args['bucketSrc']
+        self.source_prefix = args['prefixSrc']
+        self.dest_bucket = args['bucketDest']
+        self.dest_prefix = args['prefixDest']
+
+    def copy(self):
+        for source_key in s3_util.get_bucket_keys(self.source_bucket, self.source_prefix):
+            s3_util.copy_bucket_object(self.source_bucket, source_key, self.dest_bucket, self.dest_prefix)
+
+    def execute(self, job_context):
+        super().execute(job_context)
+        self.copy()
+
+

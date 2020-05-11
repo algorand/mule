@@ -99,6 +99,22 @@ def download_files(bucket_name: str, prefix: object = "", suffix: object = "", o
     return result
 
 
+def get_bucket_keys(bucket_name: str, prefix: object = "", suffix: object = ""):
+    objects = boto3.client('s3').list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+    return [ obj['Key'] for obj in objects['Contents'] ]
+
+
+def copy_bucket_object(source_bucket: str, source_key: str, dest_bucket: str, dest_key: str):
+    s3_client = boto3.resource('s3')
+    copy_source = {
+        'Bucket': source_bucket,
+        'Key'   : source_key
+    }
+
+    filename = source_key.split('/')[2]
+    s3_client.meta.client.copy(copy_source, dest_bucket, dest_key + '/' + filename)
+
+
 def list_keys(bucket_name: str, prefix: object = "", suffix: object = ""):
     """
     Print keys in S3 bucket.
