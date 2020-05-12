@@ -24,6 +24,13 @@ tasks:
   globSpec:
     - ./*.out
     - ./*.out2
+- task: s3.UploadFiles
+  name: upload_my_files_with_prefix
+  bucketName: algorand-uploads
+  prefix: prefix/
+  globSpec:
+    - '**/*.out'
+    - '**/*.out2'
 jobs:
   s3-list-files:
     tasks:
@@ -40,3 +47,6 @@ jobs:
   s3-upload-files:
     tasks:
       - s3.UploadFiles.upload_my_files
+  s3-upload-files-with-prefix:
+    tasks:
+      - s3.UploadFiles.upload_my_files_with_prefix
