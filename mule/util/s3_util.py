@@ -21,6 +21,7 @@ def upload_files(globspec: object, bucket_name: str, prefix = None) -> bool:
     Upload files using a list of globs to an S3 bucket.
     :param globspec: Glob to match local files
     :param bucket_name: Bucket name to upload to.
+    :param prefix: Prefix for object names placed in s3
     :return: True if successful, otherwise False.
     """
     response = True
