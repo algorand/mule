@@ -14,6 +14,7 @@ class IDockerTask(ITask):
     optional_typed_fields = [
         ('docker.workDir', str),
         ('docker.env', list),
+        ('docker.shell', str),
     ]
 
     command = ''
@@ -54,11 +55,14 @@ class IDockerTask(ITask):
         dockerVolumePattern = re.compile(r'.+:.+')
         self.docker['volumes'] = [volume for volume in self.docker['volumes'] if dockerVolumePattern.match(volume)]
 
+        if not 'shell' in self.docker.keys():
+            self.docker['shell'] = 'bash'
+
     def execute(self, job_context):
         super().execute(job_context)
         docker.run(
             f"{self.docker['image']}:{self.docker['version']}",
-            ["bash", "-c", self.command],
+            [self.docker['shell'], '-c', self.command],
             self.docker['workDir'],
             self.docker['volumes'],
             self.docker['env'],
