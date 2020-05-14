@@ -4,6 +4,7 @@ from botocore.exceptions import ClientError
 import ntpath
 import os.path
 import glob
+import os
 
 
 def _path_leaf(path: str) -> str:
@@ -32,11 +33,12 @@ def upload_files(globspec: object, bucket_name: str, prefix = None) -> bool:
     for globspec in globspecs:
         files = glob.glob(globspec, recursive=True)
         for file in files:
-            file = file.replace('./', '')
-            object_name = file
-            if prefix != None:
-                object_name = f"{prefix}{file}"
-            response &= upload_file(file, bucket_name, object_name)
+            if os.path.isfile(file):
+                file = file.replace('./', '')
+                object_name = file
+                if prefix != None:
+                    object_name = f"{prefix}{file}"
+                response &= upload_file(file, bucket_name, object_name)
     return response
 
 
