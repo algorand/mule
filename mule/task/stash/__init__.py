@@ -2,6 +2,7 @@ from mule.task import ITask
 from mule.util import s3_util
 from mule.util import time_util
 from mule.util import file_util
+from mule.error import messages
 
 class Stash(ITask):
     required_fields = [
@@ -15,6 +16,8 @@ class Stash(ITask):
         self.globSpec = args['globSpec']
         self.bucketName = args['bucketName']
         self.stash_id = args['stash_id']
+        if not type(self.stash_id) == str or len(self.stash_id) == 0:
+            raise Exception(messages.STASH_ID_EXCEPTION.format(self.getId()))
 
     def stash(self):
         file_name = f"stash-{time_util.get_timestamp()}.tar.gz"
