@@ -35,9 +35,11 @@ def upload_files(globspec: object, bucket_name: str, prefix = None) -> bool:
         for file in files:
             if os.path.isfile(file):
                 file = file.replace('./', '')
+                # Remove both "./" from the beginning and "/" from both sides, if present.
+                prefix = prefix.lstrip('.').strip('/')
                 object_name = file
                 if prefix != None:
-                    object_name = f"{prefix}{file}"
+                    object_name = f"{prefix}/{file}"
                 response &= upload_file(file, bucket_name, object_name)
     return response
 
