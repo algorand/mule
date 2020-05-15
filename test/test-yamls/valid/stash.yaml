@@ -3,7 +3,13 @@ tasks:
   bucketName: algorand-uploads
   stash_id: test/test-basic-stash
   globSpec: test/resources/stash/**
+- task: stash.Unstash
+  bucketName: algorand-uploads
+  stash_id: test/test-basic-stash
 jobs:
-  s3-list-files:
+  stash-files:
     tasks:
       - stash.Stash
+  unstash-files:
+    tasks:
+      - stash.Unstash
