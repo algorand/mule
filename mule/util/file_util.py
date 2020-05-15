@@ -3,6 +3,9 @@ import yaml
 from glob import glob
 import tarfile
 
+def deleteFile(path):
+    os.remove(path)
+
 def readYamlFile(path):
     with open(path) as configs:
         return yaml.load(configs, Loader=yaml.FullLoader)
