@@ -75,7 +75,7 @@ class DownloadFiles(ITask):
         super().__init__(args)
         self.bucketName = args['bucketName']
         self.prefix = args['prefix']
-        self.suffix = args['suffix'] if 'suffix' in args else None
+        self.suffix = args['suffix'] if 'suffix' in args else ''
         self.outputDir = args['outputDir'] if 'outputDir' in args else '.'
 
     def download_files(self):

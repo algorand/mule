@@ -1,0 +1,9 @@
+tasks:
+- task: stash.Stash
+  bucketName: algorand-uploads
+  stash_id: test/test-basic-stash
+  globSpec: test/resources/stash/**
+jobs:
+  s3-list-files:
+    tasks:
+      - stash.Stash
