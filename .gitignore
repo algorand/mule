@@ -10,3 +10,6 @@ venv
 build
 dist
 
+# Ingore compressed files
+*.tar.gz
+*.tgz
