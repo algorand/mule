@@ -1,11 +1,11 @@
 tasks:
 - task: stash.Stash
   bucketName: algorand-uploads
-  stash_id: test/test-basic-stash
+  stashId: test/test-basic-stash
   globSpec: test/resources/stash/**
 - task: stash.Unstash
   bucketName: algorand-uploads
-  stash_id: test/test-basic-stash
+  stashId: test/test-basic-stash
 jobs:
   stash-files:
     tasks:
