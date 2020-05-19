@@ -1,5 +1,6 @@
 from mule.task import ITask
 from mule.util import s3_util
+from mule.error import MissingOption
 
 class UploadFile(ITask):
     required_fields = [
@@ -25,7 +26,8 @@ class UploadFile(ITask):
 
 class DownloadFile(ITask):
     required_fields = [
-        'bucketName'
+        'bucketName',
+        'prefix'
     ]
 
     def __init__(self, args):
@@ -40,8 +42,10 @@ class DownloadFile(ITask):
     def download_files(self):
         if self.objectName or self.fileName:
             s3_util.download_file(self.bucketName, self.objectName, self.outputDir, self.fileName)
-        else:
+        elif self.suffix:
             s3_util.download_files(self.bucketName, self.prefix, self.suffix, self.outputDir)
+        else:
+            raise MissingOption('objectName or fileName must be specified')
 
     def execute(self, job_context):
         super().execute(job_context)
