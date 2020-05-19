@@ -89,11 +89,10 @@ def download_file(bucket_name: str, object_name: str, output_dir: str = ".", fil
     return True
 
 
-def download_files(bucket_name: str, object_name: str, prefix: object = "", suffix: object = "", output_dir: str = ".") -> bool:
+def download_files(bucket_name: str, prefix: object = "", suffix: object = "", output_dir: str = ".") -> bool:
     """
     Download Files from S3 bucket.
     :param bucket_name: Name of the S3 bucket.
-    :param object_name: Name of object (key).
     :param prefix: Download objects whose key starts with this prefix (optional).
     :param suffix: Download objects whose keys end with this suffix (optional).
     :param output_dir: Directory where to place the files (optional). If not specified, use current directory.
