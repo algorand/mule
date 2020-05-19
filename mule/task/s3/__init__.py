@@ -40,12 +40,12 @@ class Download(ITask):
         self.outputDir = args['outputDir'] if 'outputDir' in args else '.'
 
     def download_files(self):
-        if self.objectName or self.fileName:
+        if self.objectName:
             s3_util.download_file(self.bucketName, self.objectName, self.outputDir, self.fileName)
         elif self.suffix:
             s3_util.download_files(self.bucketName, self.prefix, self.suffix, self.outputDir)
         else:
-            raise MissingOption('objectName or fileName must be specified')
+            raise MissingOption('objectName or suffix must be specified')
 
     def execute(self, job_context):
         super().execute(job_context)
