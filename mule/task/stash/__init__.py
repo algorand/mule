@@ -8,12 +8,12 @@ class Stash(ITask):
     required_fields = [
         'bucketName',
         'stashId',
-        'globSpec'
+        'globSpecs'
     ]
 
     def __init__(self, args):
         super().__init__(args)
-        self.globSpec = args['globSpec']
+        self.globSpecs = args['globSpecs']
         self.bucketName = args['bucketName']
         self.stashId = args['stashId']
         if not type(self.stashId) == str or len(self.stashId) == 0:
@@ -21,7 +21,7 @@ class Stash(ITask):
 
     def stash(self):
         file_name = f"stash-{time_util.get_timestamp()}.tar.gz"
-        file_util.compressFiles(file_name, self.globSpec)
+        file_util.compressFiles(file_name, self.globSpecs)
         s3_util.upload_file(file_name, self.bucketName, f"{self.stashId}/stash.tar.gz")
         file_util.deleteFile(file_name)
 
