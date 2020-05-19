@@ -2,7 +2,7 @@ from mule.task import ITask
 from mule.util import s3_util
 from mule.error import MissingOption
 
-class UploadFile(ITask):
+class Upload(ITask):
     required_fields = [
         'bucketName',
         'globSpec'
@@ -24,7 +24,7 @@ class UploadFile(ITask):
         self.upload_file()
 
 
-class DownloadFile(ITask):
+class Download(ITask):
     required_fields = [
         'bucketName',
         'prefix'

@@ -3,28 +3,28 @@ tasks:
   name: list_my_files
   bucketName: algorand-uploads
   suffix: out
-- task: s3.DownloadFile
+- task: s3.Download
   name: download_my_file
   bucketName: algorand-uploads
   objectName: temp/test.out
   outputDir: .
-- task: s3.DownloadFile
+- task: s3.Download
   name: download_my_files
   bucketName: algorand-uploads
   prefix: temp
   suffix: out
   outputDir: .
-- task: s3.UploadFile
+- task: s3.Upload
   name: upload_my_file
   bucketName: algorand-uploads
   fileName: test.out
-- task: s3.UploadFile
+- task: s3.Upload
   name: upload_my_files
   bucketName: algorand-uploads
   globSpec:
     - ./*.out
     - ./*.out2
-- task: s3.UploadFile
+- task: s3.Upload
   name: upload_my_files_with_prefix
   bucketName: algorand-uploads
   prefix: prefix/
@@ -37,16 +37,16 @@ jobs:
       - s3.ListFiles.list_my_files
   s3-download-file:
     tasks:
-      - s3.DownloadFile.download_my_file
+      - s3.Download.download_my_file
   s3-download-files:
     tasks:
-      - s3.DownloadFile.download_my_files
+      - s3.Download.download_my_files
   s3-upload-file:
     tasks:
-      - s3.UploadFile.upload_my_file
+      - s3.Upload.upload_my_file
   s3-upload-files:
     tasks:
-      - s3.UploadFile.upload_my_files
+      - s3.Upload.upload_my_files
   s3-upload-files-with-prefix:
     tasks:
-      - s3.UploadFile.upload_my_files_with_prefix
+      - s3.Upload.upload_my_files_with_prefix
