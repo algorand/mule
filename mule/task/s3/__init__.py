@@ -27,14 +27,17 @@ class UploadFiles(ITask):
         'bucketName',
         'globSpec'
     ]
+    prefix = None
 
     def __init__(self, args):
         super().__init__(args)
         self.globSpec = args['globSpec']
         self.bucketName = args['bucketName']
+        if 'prefix' in args:
+            self.prefix = args['prefix']
 
     def upload_file(self):
-        s3_util.upload_files(self.globSpec, self.bucketName)
+        s3_util.upload_files(self.globSpec, self.bucketName, self.prefix)
 
     def execute(self, job_context):
         super().execute(job_context)
@@ -72,7 +75,7 @@ class DownloadFiles(ITask):
         super().__init__(args)
         self.bucketName = args['bucketName']
         self.prefix = args['prefix']
-        self.suffix = args['suffix'] if 'suffix' in args else None
+        self.suffix = args['suffix'] if 'suffix' in args else ''
         self.outputDir = args['outputDir'] if 'outputDir' in args else '.'
 
     def download_files(self):

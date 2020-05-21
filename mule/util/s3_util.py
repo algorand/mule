@@ -4,6 +4,7 @@ from botocore.exceptions import ClientError
 import ntpath
 import os.path
 import glob
+import os
 
 
 def _path_leaf(path: str) -> str:
@@ -16,11 +17,12 @@ def _path_leaf(path: str) -> str:
     return tail or ntpath.basename(head)
 
 
-def upload_files(globspec: object, bucket_name: str) -> bool:
+def upload_files(globspec: object, bucket_name: str, prefix = None) -> bool:
     """
     Upload files using a list of globs to an S3 bucket.
     :param globspec: Glob to match local files
     :param bucket_name: Bucket name to upload to.
+    :param prefix: Prefix for object names placed in s3
     :return: True if successful, otherwise False.
     """
     response = True
@@ -29,9 +31,14 @@ def upload_files(globspec: object, bucket_name: str) -> bool:
     else:
         globspecs = globspec
     for globspec in globspecs:
-        files = glob.glob(globspec)
+        files = glob.glob(globspec, recursive=True)
         for file in files:
-            response &= upload_file(file, bucket_name)
+            if os.path.isfile(file):
+                file = file.replace('./', '')
+                object_name = file
+                if prefix != None:
+                    object_name = f"{prefix}{file}"
+                response &= upload_file(file, bucket_name, object_name)
     return response
 
 

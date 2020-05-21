@@ -15,6 +15,8 @@ This task executes a make target from within a docker container. This task requi
 
 ## Optional Parameters
 * docker
+  * shell
+    * Shell that will be used in the docker container (`'bash'` by default).
   * workDir
     * Working directory that the task will use inside of the container (`'/project'` by default).
       * The directory that the task is called from will be mounted to this directory on the created container.
