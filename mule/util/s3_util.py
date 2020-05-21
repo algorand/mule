@@ -17,12 +17,19 @@ def _path_leaf(path: str) -> str:
     return tail or ntpath.basename(head)
 
 
-def upload_files(globspec: object, bucket_name: str, prefix = None) -> bool:
+def _get_object_name(file: str, preserveDirs: bool) -> str:
+    if preserveDirs:
+        return file.replace('./', '')
+
+    return os.path.basename(file)
+
+def upload_files(globspec: object, bucket_name: str, prefix = None, preserveDirs = False) -> bool:
     """
     Upload files using a list of globs to an S3 bucket.
     :param globspec: Glob to match local files
     :param bucket_name: Bucket name to upload to.
-    :param prefix: Prefix for object names placed in s3
+    :param prefix: Upload objects whose key starts with this prefix (optional).
+    :param preserveDirs: Preserve the local directory structure of the file(s) location on the server (optional).
     :return: True if successful, otherwise False.
     """
     response = True
@@ -34,7 +41,7 @@ def upload_files(globspec: object, bucket_name: str, prefix = None) -> bool:
         files = glob.glob(globspec, recursive=True)
         for file in files:
             if os.path.isfile(file):
-                object_name = os.path.basename(file)
+                object_name = _get_object_name(file, preserveDirs)
                 if prefix != None:
                     # Remove both "./" from the beginning and "/" from both sides, if present.
                     object_name = f"{prefix.lstrip('.').strip('/')}/{object_name}"
@@ -42,21 +49,22 @@ def upload_files(globspec: object, bucket_name: str, prefix = None) -> bool:
     return response
 
 
-def upload_file(file_name: str, bucket_name: str, object_name=None) -> bool:
+def upload_file(file_name: str, bucket_name: str, object_name=None, preserveDirs = False) -> bool:
     """
     Upload a file to an S3 bucket
     :param file_name: File path to upload.
     :param bucket_name: S3 bucket name to upload to.
     :param object_name: Object name (key).
+    :param preserveDirs: Preserve the local directory structure of the file(s) location on the server (optional).
     :return: True if successful, otherwise False.
     """
     try:
         # If S3 object_name was not specified, use file_name
         if object_name is None:
-            object_name = file_name
-        print("uploading file '{}' to bucket '{}' to object '{}'".format(file_name, bucket_name, object_name))
+            object_name = _get_object_name(file_name, preserveDirs)
         s3_client = boto3.client('s3')
         # Upload the file
+        print("uploading file '{}' to bucket '{}' to object '{}'".format(file_name, bucket_name, object_name))
         response = s3_client.upload_file(file_name, bucket_name, object_name)
         if response is not None:
             print(response)
