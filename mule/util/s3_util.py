@@ -118,7 +118,7 @@ def copy_bucket_object(source_bucket: str, source_key: str, dest_bucket: str, de
         'Key'   : source_key
     }
 
-    filename = source_key.split('/')[2]
+    filename = source_key.split('/')[-1]
     s3_client.meta.client.copy(copy_source, dest_bucket, dest_key + '/' + filename)
 
 

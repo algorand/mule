@@ -1,3 +1,5 @@
+import re
+
 from mule.task import ITask
 from mule.util import s3_util
 
@@ -107,22 +109,46 @@ class ListFiles(ITask):
 
 class BucketCopy(ITask):
     required_fields = [
-        'bucketSrc',
-        'bucketDest',
-        'prefixSrc',
-        'prefixDest'
+        'src',
+        'dest'
     ]
+
+    # https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html
+    bucketRe = re.compile(r'^(s3://)?([a-z0-9-.]*)\/?(.*)?$')
 
     def __init__(self, args):
         super().__init__(args)
-        self.source_bucket = args['bucketSrc']
-        self.source_prefix = args['prefixSrc']
-        self.dest_bucket = args['bucketDest']
-        self.dest_prefix = args['prefixDest']
+        self.src = args['src']
+        self.dest = args['dest']
 
     def copy(self):
-        for source_key in s3_util.get_bucket_keys(self.source_bucket, self.source_prefix):
-            s3_util.copy_bucket_object(self.source_bucket, source_key, self.dest_bucket, self.dest_prefix)
+        src_s3, src_bucket, src_prefix = self.bucketRe.findall(self.src)[0]
+        dest_s3, dest_bucket, dest_prefix = self.bucketRe.findall(self.dest)[0]
+
+        if src_s3 and dest_s3:
+            for src_key in s3_util.get_bucket_keys(src_bucket, src_prefix):
+                s3_util.copy_bucket_object(src_bucket, src_key, dest_bucket, dest_prefix)
+        elif src_s3 or dest_s3:
+            if src_s3:
+                # Downloading s3 -> local.
+                prefix = src_prefix
+                suffix = ''
+                if src_prefix[-1] != '/':
+                    rightmost_idx = src_prefix.rfind('/')
+                    prefix = src_prefix[:rightmost_idx]
+                    filename_and_ext = src_prefix[rightmost_idx:]
+                    # "+1" to not include the backslash char.
+                    suffix = filename_and_ext[filename_and_ext.rfind('.') + 1:]
+
+                # To get the glob, join the last two tuple elements, i.e., ('', 'bar, 'foo') => 'bar/foo'
+                s3_util.download_files(src_bucket, prefix, suffix, '/'.join((dest_bucket, dest_prefix)))
+            else:
+                # Uploading local -> s3.
+                # To get the glob, join the last two tuple elements, i.e., ('', 'bar, '*.out') => 'bar/*.out'
+                s3_util.upload_files('/'.join((src_bucket, src_prefix)), dest_bucket, dest_prefix)
+        else:
+            # TODO: raise exception, both can't be local.
+            pass
 
     def execute(self, job_context):
         super().execute(job_context)
