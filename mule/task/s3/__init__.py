@@ -124,15 +124,16 @@ class BucketCopy(ITask):
         self.dest = args['dest']
 
     def copy(self):
-        src_s3, src_bucket, src_prefix = self.bucketRe.findall(self.src)[0]
-        dest_s3, dest_bucket, dest_prefix = self.bucketRe.findall(self.dest)[0]
+        src_is_remote, src_bucket, src_prefix = self.bucketRe.findall(self.src)[0]
+        dest_is_remote, dest_bucket, dest_prefix = self.bucketRe.findall(self.dest)[0]
 
-        if src_s3 and dest_s3:
+        if src_is_remote and dest_is_remote:
             for src_key in s3_util.get_bucket_keys(src_bucket, src_prefix):
                 s3_util.copy_bucket_object(src_bucket, src_key, dest_bucket, dest_prefix)
-        elif src_s3 or dest_s3:
-            if src_s3:
+        elif src_is_remote or dest_is_remote:
+            if src_is_remote:
                 # Downloading s3 -> local.
+
                 prefix = src_prefix
                 suffix = ''
 
@@ -159,6 +160,10 @@ class BucketCopy(ITask):
             else:
                 # Uploading local -> s3.
                 # To get the glob, join the last two tuple elements, i.e., ('', 'bar, '*.out') => 'bar/*.out'
+
+                # Handle cases where just the base directory is given (with or without trailing forward slash).
+                if not src_prefix:
+                    src_prefix = '*'
                 s3_util.upload_files('/'.join((src_bucket, src_prefix)), dest_bucket, dest_prefix)
         else:
             # TODO: raise exception, both can't be local.
