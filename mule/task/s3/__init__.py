@@ -1,4 +1,6 @@
 import re
+import os
+import pathlib
 
 from mule.task import ITask
 from mule.util import s3_util
@@ -133,12 +135,24 @@ class BucketCopy(ITask):
                 # Downloading s3 -> local.
                 prefix = src_prefix
                 suffix = ''
+
                 if src_prefix[-1] != '/':
-                    rightmost_idx = src_prefix.rfind('/')
-                    prefix = src_prefix[:rightmost_idx]
-                    filename_and_ext = src_prefix[rightmost_idx:]
-                    # "+1" to not include the backslash char.
-                    suffix = filename_and_ext[filename_and_ext.rfind('.') + 1:]
+                    path = pathlib.Path(prefix)
+                    # We need to check for suffixes here, i.e. .tar.gz, which would return [.tar, .gz].
+                    # If we just check for extension, we'll only get .gz, which may not be what we want.
+                    suffix = "".join(path.suffixes) if len(path.suffixes) else ''
+
+                    # The current download_files function does not support globs, so we need to futz a bit
+                    # to get the expected behavior.
+                    #
+                    # The value of `suffix` begins with a period, so in order to determine if a glob had
+                    # is given as the filename we need to instead inspect `path.name`, which will be the full
+                    # file name, i.e., 1.out or *.out
+                    #
+                    # For the latter, the easiest way to get the expected prefix is to use our old friend
+                    # os.path.dirname.
+                    if len(suffix) and path.name[0] == '*':
+                        prefix = os.path.dirname(src_prefix)
 
                 # To get the glob, join the last two tuple elements, i.e., ('', 'bar, 'foo') => 'bar/foo'
                 s3_util.download_files(src_bucket, prefix, suffix, '/'.join((dest_bucket, dest_prefix)))
