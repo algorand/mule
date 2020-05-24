@@ -148,8 +148,8 @@ class BucketCopy(ITask):
                     # to get the expected behavior.
                     #
                     # The value of `suffix` begins with a period, so in order to determine if a glob had
-                    # is given as the filename we need to instead inspect `path.name`, which will be the full
-                    # file name, i.e., 1.out or *.out
+                    # been given as the filename we need to instead inspect `path.name`, which will be the
+                    # full file name, i.e., `1.out` or `*.out`.
                     #
                     # For the latter, the easiest way to get the expected prefix is to use our old friend
                     # os.path.dirname.
