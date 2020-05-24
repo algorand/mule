@@ -13,9 +13,10 @@ class UploadFile(ITask):
         self.fileName = args['fileName']
         self.bucketName = args['bucketName']
         self.objectName = args['objectName'] if 'objectName' in args else None
+        self.preserveDirs = args['preserveDirs'] if 'preserveDirs' in args else False
 
     def upload_file(self):
-        s3_util.upload_file(self.fileName, self.bucketName, self.objectName)
+        s3_util.upload_file(self.fileName, self.bucketName, self.objectName, self.preserveDirs)
 
     def execute(self, job_context):
         super().execute(job_context)
@@ -27,17 +28,16 @@ class UploadFiles(ITask):
         'bucketName',
         'globSpec'
     ]
-    prefix = None
 
     def __init__(self, args):
         super().__init__(args)
         self.globSpec = args['globSpec']
         self.bucketName = args['bucketName']
-        if 'prefix' in args:
-            self.prefix = args['prefix']
+        self.preserveDirs = args['preserveDirs'] if 'preserveDirs' in args else False
+        self.prefix = args['prefix'] if 'prefix' in args else None
 
     def upload_file(self):
-        s3_util.upload_files(self.globSpec, self.bucketName, self.prefix)
+        s3_util.upload_files(self.globSpec, self.bucketName, self.prefix, self.preserveDirs)
 
     def execute(self, job_context):
         super().execute(job_context)
