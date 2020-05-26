@@ -3,7 +3,6 @@ import os
 import pathlib
 
 from mule.task import ITask
-from mule.error import BadConfig
 from mule.util import s3_util
 
 
@@ -167,7 +166,7 @@ class BucketCopy(ITask):
                     src_prefix = '*'
                 s3_util.upload_files('/'.join((src_bucket, src_prefix)), dest_bucket, dest_prefix)
         else:
-            raise BadConfig('Both src and dest cannot be local')
+            raise ValueError('src and dest configs cannot both be local')
 
     def execute(self, job_context):
         super().execute(job_context)
