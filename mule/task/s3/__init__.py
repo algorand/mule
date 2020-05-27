@@ -1,3 +1,7 @@
+import re
+import os
+import pathlib
+
 from mule.task import ITask
 from mule.util import s3_util
 
@@ -103,4 +107,69 @@ class ListFiles(ITask):
     def execute(self, job_context):
         super().execute(job_context)
         self.list_files()
+
+
+class BucketCopy(ITask):
+    required_fields = [
+        'src',
+        'dest'
+    ]
+
+    # https://docs.aws.amazon.com/AmazonS3/latest/dev/BucketRestrictions.html
+    bucketRe = re.compile(r'^(s3://)?([a-z0-9-.]*)\/?(.*)?$')
+
+    def __init__(self, args):
+        super().__init__(args)
+        self.src = args['src']
+        self.dest = args['dest']
+
+    def copy(self):
+        src_is_remote, src_bucket, src_prefix = self.bucketRe.findall(self.src)[0]
+        dest_is_remote, dest_bucket, dest_prefix = self.bucketRe.findall(self.dest)[0]
+
+        if src_is_remote and dest_is_remote:
+            for src_key in s3_util.get_bucket_keys(src_bucket, src_prefix):
+                s3_util.copy_bucket_object(src_bucket, src_key, dest_bucket, dest_prefix)
+        elif src_is_remote or dest_is_remote:
+            if src_is_remote:
+                # Downloading s3 -> local.
+
+                prefix = src_prefix
+                suffix = ''
+
+                if src_prefix[-1] != '/':
+                    path = pathlib.Path(prefix)
+                    # We need to check for suffixes here, i.e. .tar.gz, which would return [.tar, .gz].
+                    # If we just check for extension, we'll only get .gz, which may not be what we want.
+                    suffix = "".join(path.suffixes) if len(path.suffixes) else ''
+
+                    # The current download_files function does not support globs, so we need to futz a bit
+                    # to get the expected behavior.
+                    #
+                    # The value of `suffix` begins with a period, so in order to determine if a glob had
+                    # been given as the filename we need to instead inspect `path.name`, which will be the
+                    # full file name, i.e., `1.out` or `*.out`.
+                    #
+                    # For the latter, the easiest way to get the expected prefix is to use our old friend
+                    # os.path.dirname.
+                    if len(suffix) and path.name[0] == '*':
+                        prefix = os.path.dirname(src_prefix)
+
+                # To get the glob, join the last two tuple elements, i.e., ('', 'bar, 'foo') => 'bar/foo'
+                s3_util.download_files(src_bucket, prefix, suffix, '/'.join((dest_bucket, dest_prefix)))
+            else:
+                # Uploading local -> s3.
+                # To get the glob, join the last two tuple elements, i.e., ('', 'bar, '*.out') => 'bar/*.out'
+
+                # Handle cases where just the base directory is given (with or without trailing forward slash).
+                if not src_prefix:
+                    src_prefix = '*'
+                s3_util.upload_files('/'.join((src_bucket, src_prefix)), dest_bucket, dest_prefix)
+        else:
+            raise ValueError('src and dest configs cannot both be local')
+
+    def execute(self, job_context):
+        super().execute(job_context)
+        self.copy()
+
 
