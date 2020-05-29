@@ -15,6 +15,7 @@ class IDockerTask(ITask):
         ('docker.workDir', str),
         ('docker.env', list),
         ('docker.shell', str),
+        ('docker.network', str),
     ]
 
     command = ''
@@ -26,6 +27,7 @@ class IDockerTask(ITask):
                 'workDir': '/project',
                 'env': [],
                 'volumes': [],
+                'network': ''
             },
             args['docker'],
         )
@@ -66,6 +68,7 @@ class IDockerTask(ITask):
             self.docker['workDir'],
             self.docker['volumes'],
             self.docker['env'],
+            self.docker['network'],
         )
 
 class Make(IDockerTask):

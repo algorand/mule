@@ -6,7 +6,7 @@ import time
 import atexit
 from termcolor import cprint
 
-def run(image, command, work_dir, volumes, env):
+def run(image, command, work_dir, volumes, env, network):
     container_name = f"mule-{time.time_ns()}"
     docker_command = ['docker', 'run', '--name', container_name, '--rm', '-w', work_dir, '-i', '-v', f"{os.getcwd()}:{work_dir}"]
 
@@ -14,6 +14,8 @@ def run(image, command, work_dir, volumes, env):
         docker_command.extend(['--env', env_var])
     for volume in volumes:
         docker_command.extend(['-v', volume])
+    if len(network) > 0:
+        docker_command.extend(['--network', network])
 
     docker_command.append(image)
     docker_command.extend(command)
@@ -28,14 +30,21 @@ def kill(container_name):
 
 # Build the docker image
 def build(build_args, build_context_path, tags, docker_file_path):
-    build_args_str = ""
-    tags_str = ""
+    docker_command = ['docker', 'build']
     if build_args is not None and len(build_args) > 0 :
-        build_args_str = f"--build-arg {' --build-arg '.join(build_args)}"
+        for build_arg in build_args:
+            docker_command.extend(['--build-arg', build_arg])
     if tags is not None and len(tags) > 0 :
-        tags_str = f"-t {' -t '.join(tags)}"
-    docker_command = f"docker build {build_args_str} {tags_str} -f {docker_file_path} {build_context_path}"
-    subprocess.run(docker_command.split(' '), check=True)
+        for tag in tags:
+            docker_command.extend(['-t', tag])
+    docker_command.extend(['-f', docker_file_path, build_context_path])
+    subprocess.run(docker_command, check=True)
+
+# Push docker images
+def push(images):
+    for image in images:
+        if image is not None and len(image) > 0:
+            subprocess.run(['docker', 'push', image], check=True)
 
 # Check docker hub for the image
 def pullFromDockerHub(docker_image_name):
