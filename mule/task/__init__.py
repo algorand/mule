@@ -124,14 +124,18 @@ class Echo(ITask):
     required_fields = [
         'message'
     ]
+    quiet = False
 
     def __init__(self, args):
         super().__init__(args)
         self.message = args['message']
+        if 'quiet' in args:
+            self.quiet = args['quiet']
 
     def execute(self, job_context):
         super().execute(job_context)
-        print(self.message)
+        if not self.quiet:
+            print(self.message)
         return {
             'message': self.message
         }
