@@ -3,8 +3,11 @@ import subprocess
 
 class IShellTask(ITask):
 
+    command = []
     def execute(self, job_context):
         super().execute(job_context)
+        if type(self.command) == str:
+            self.command = self.command.split(' ')
         subprocess.run(self.command, check=True)
 
 class Shell(IShellTask):
@@ -16,8 +19,6 @@ class Shell(IShellTask):
     def __init__(self, args):
         super().__init__(args)
         self.command = args['command']
-        if type(self.command) == str:
-            self.command = self.command.split(' ')
 
     def execute(self, job_context):
         super().execute(job_context)
