@@ -137,16 +137,20 @@ class BucketCopy(ITask):
                 prefix = src_prefix
                 suffix = ''
 
+                # Currently, we can't just do a file check since we're supporting wildcards such as:
+                #
+                #       s3://my_bucket/foo/bar/*.out
+                #
                 if src_prefix[-1] != '/':
                     path = pathlib.Path(prefix)
                     # We need to check for suffixes here, i.e. .tar.gz, which would return [.tar, .gz].
                     # If we just check for extension, we'll only get .gz, which may not be what we want.
                     suffix = "".join(path.suffixes) if len(path.suffixes) else ''
 
-                    # The current download_files function does not support globs, so we need to futz a bit
+                    # The current download_files function does not support wildcards, so we need to futz a bit
                     # to get the expected behavior.
                     #
-                    # The value of `suffix` begins with a period, so in order to determine if a glob had
+                    # The value of `suffix` begins with a period, so in order to determine if a wildcard had
                     # been given as the filename we need to instead inspect `path.name`, which will be the
                     # full file name, i.e., `1.out` or `*.out`.
                     #
@@ -155,15 +159,18 @@ class BucketCopy(ITask):
                     if len(suffix) and path.name[0] == '*':
                         prefix = os.path.dirname(src_prefix)
 
-                # To get the glob, join the last two tuple elements, i.e., ('', 'bar, 'foo') => 'bar/foo'
+                # To get the wildcard, join the last two tuple elements, i.e., ('', 'bar, 'foo') => 'bar/foo'
                 s3_util.download_files(src_bucket, prefix, suffix, '/'.join((dest_bucket, dest_prefix)))
             else:
                 # Uploading local -> s3.
-                # To get the glob, join the last two tuple elements, i.e., ('', 'bar, '*.out') => 'bar/*.out'
+                if os.path.isdir(self.src):
+                    # This will handle all cases correctly:
+                    # 1. foo -> foo/*
+                    # 2. foo/ -> foo/*
+                    # 3. foo/* -> foo/*
+                    src_prefix = src_prefix.rstrip('*').rstrip('/') + '/*'
 
-                # Handle cases where just the base directory is given (with or without trailing forward slash).
-                if not src_prefix:
-                    src_prefix = '*'
+                # To get the wildcard, join the last two tuple elements, i.e., ('', 'bar, '*.out') => 'bar/*.out'
                 s3_util.upload_files('/'.join((src_bucket, src_prefix)), dest_bucket, dest_prefix)
         else:
             raise ValueError('src and dest configs cannot both be local')
