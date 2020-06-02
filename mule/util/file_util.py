@@ -2,6 +2,7 @@ import os
 import yaml
 from glob import glob
 import tarfile
+import json
 
 def deleteFile(path):
     os.remove(path)
@@ -33,3 +34,7 @@ def compressFiles(file_name, globspecs):
 def decompressTarfile(file_name, target_directory = '.'):
     with tarfile.open(file_name, "r:gz") as tar:
         tar.extractall(target_directory)
+
+def writeJsonFile(file_name, contents):
+    with open(file_name, 'w') as json_file:
+        json.dump(contents, json_file)
