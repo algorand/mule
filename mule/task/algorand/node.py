@@ -27,29 +27,24 @@ class Configure(ITask):
         'data_dir',
         'kmd_dir',
     ]
-    algod_port = 60000
-    kmd_port = 60001
-    archival_node = False
-
+    node_configs = {}
+    kmd_configs = {}
     def __init__(self, args):
         super().__init__(args)
         self.data_dir = args['data_dir']
         self.kmd_dir = args['kmd_dir']
-        if 'algod_port' in args:
-            self.algod_port = args['algod_port']
-        if 'kmd_port' in args:
-            self.kmd_port = args['kmd_port']
-        if 'archival_node' in args:
-            self.archival_node = args['archival_node']
+        if 'node_configs' in args:
+            self.node_configs = args['node_configs']
+        if 'kmd_configs' in args:
+            self.kmd_configs = args['kmd_configs']
 
     def execute(self, job_context):
         super().execute(job_context)
         algorand_util.configure_node(
             self.data_dir,
             self.kmd_dir,
-            self.archival_node,
-            self.algod_port,
-            self.kmd_port
+            self.node_configs,
+            self.kmd_configs
         )
 
 class Start(ITask):

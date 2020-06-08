@@ -24,23 +24,30 @@ tasks:
   name: stable
   data_dir: /etc/algorand/node_dirs/node/stable/latest/data
   kmd_dir: /etc/algorand/node_dirs/node/stable/latest/kmd
-  algod_port: 60000
-  kmd_port: 60001
-  archival_node: true
+  node_configs:
+    EndpointAddress: 0.0.0.0:60000
+    Archival: true
+  kmd_configs:
+    address: 0.0.0.0:60001
 - task: algorand.node.Configure
   name: beta
   data_dir: /etc/algorand/node_dirs/node/beta/latest/data
   kmd_dir: /etc/algorand/node_dirs/node/beta/latest/kmd
-  algod_port: 60002
-  kmd_port: 60003
-  archival_node: true
+  node_configs:
+    EndpointAddress: 0.0.0.0:60002
+    Archival: true
+    DNSBootstrapID: <network>.algodev.network
+  kmd_configs:
+    address: 0.0.0.0:60003
 - task: algorand.node.Configure
   name: test
   data_dir: /etc/algorand/node_dirs/node/test/latest/data
   kmd_dir: /etc/algorand/node_dirs/node/test/latest/kmd
-  algod_port: 60004
-  kmd_port: 60005
-  archival_node: true
+  node_configs:
+    EndpointAddress: 0.0.0.0:60004
+    Archival: true
+  kmd_configs:
+    address: 0.0.0.0:60005
 
 
 - task: algorand.node.Start

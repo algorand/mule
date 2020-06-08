@@ -57,7 +57,7 @@ def install_node(data_dir, bin_dir, channel, node_package_version='latest'):
             os.path.join(data_dir, 'genesis.json')
         )
 
-def configure_node(data_dir, kmd_dir, archival_node=False, algod_port=60000, kmd_port=60001):
+def configure_node(data_dir, kmd_dir, node_config, kmd_config):
 
     data_dir = file_util.ensure_folder(data_dir)
     kmd_dir = file_util.ensure_folder(kmd_dir)
@@ -67,18 +67,14 @@ def configure_node(data_dir, kmd_dir, archival_node=False, algod_port=60000, kmd
     file_util.ensure_file(node_config_path, '{}')
     file_util.ensure_file(kmd_config_path, '{}')
 
-    node_config = file_util.readJsonFile(node_config_path)
-    kmd_config = file_util.readJsonFile(kmd_config_path)
+    current_node_config = file_util.readJsonFile(node_config_path)
+    current_kmd_config = file_util.readJsonFile(kmd_config_path)
 
-    node_config['EndpointAddress'] = f"0.0.0.0:{algod_port}"
-    node_config['Archival'] = archival_node
-    if 'beta' in data_dir:
-        node_config['DNSBootstrapID'] = '<network>.algodev.network'
+    current_node_config.update(node_config)
+    current_kmd_config.update(kmd_config)
 
-    kmd_config['address'] = f"0.0.0.0:{kmd_port}"
-
-    file_util.writeJsonFile(node_config_path, node_config)
-    file_util.writeJsonFile(kmd_config_path, kmd_config)
+    file_util.writeJsonFile(node_config_path, current_node_config)
+    file_util.writeJsonFile(kmd_config_path, current_kmd_config)
 
 def start_node(data_dir, kmd_dir, bin_dir=None):
     goal_args = [
