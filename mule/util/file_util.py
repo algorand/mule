@@ -3,6 +3,7 @@ import yaml
 from glob import glob
 import tarfile
 import json
+import shutil
 
 def deleteFile(path):
     os.remove(path)
@@ -35,6 +36,34 @@ def decompressTarfile(file_name, target_directory = '.'):
     with tarfile.open(file_name, "r:gz") as tar:
         tar.extractall(target_directory)
 
+def readJsonFile(file_name):
+    with open(file_name, 'r') as json_file:
+        return json.load(json_file)
+
 def writeJsonFile(file_name, contents):
     with open(file_name, 'w') as json_file:
         json.dump(contents, json_file)
+
+def ensure_file(file_name, contents=None):
+    if not os.path.exists(file_name):
+        with open(file_name, 'w') as file:
+            if contents is None:
+                pass
+            file.write(contents)
+
+def ensure_folder(folder_name):
+    folder_name = folder_name.replace('~', os.path.expanduser('~'))
+    os.makedirs(folder_name, exist_ok=True)
+    return folder_name
+
+def mv_folder_contents(source, dest, ignore=False):
+    files = os.listdir(source)
+    for file in files:
+        try:
+            shutil.move(os.path.join(source, file), os.path.join(dest, file))
+        except:
+            if not ignore:
+                raise
+
+def mv_file(source, dest):
+    shutil.move(source, dest)

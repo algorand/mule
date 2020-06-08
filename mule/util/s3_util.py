@@ -137,8 +137,11 @@ def list_keys(bucket_name: str, prefix: object = "", suffix: object = ""):
     :param prefix: List keys whose key starts with this prefix (optional).
     :param suffix: List keys whose keys end with this suffix (optional).
     """
-    for keys in get_matching_s3_keys(bucket_name, prefix, suffix):
-        print(keys)
+    matching_keys = []
+    for key in get_matching_s3_keys(bucket_name, prefix, suffix):
+        matching_keys.append(key)
+        print(key)
+    return matching_keys
 
 
 def list_objects(bucket_name: str, prefix: object = "", suffix: object = ""):

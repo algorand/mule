@@ -7,6 +7,7 @@ class Install(ITask):
         'bin_dir',
         'channel'
     ]
+    version = 'latest'
 
     def __init__(self, args):
         super().__init__(args)
@@ -14,9 +15,12 @@ class Install(ITask):
         self.bin_dir = args['bin_dir']
         self.channel = args['channel']
 
+        if 'version' in args:
+            self.version = args['version']
+
     def execute(self, job_context):
         super().execute(job_context)
-        algorand_util.install_node(self.data_dir, self.bin_dir, self.channel)
+        algorand_util.install_node(self.data_dir, self.bin_dir, self.channel, self.version)
 
 class Configure(ITask):
     required_fields = [
