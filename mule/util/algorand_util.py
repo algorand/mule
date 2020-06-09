@@ -18,7 +18,8 @@ def get_latest_package_version(package_type, channel, os_type, cpu_arch_type):
     package_keys = list(s3_util.get_matching_s3_keys(
         'algorand-releases',
         f"channel/{channel}/{package_type}_{channel}_{os_type}-{cpu_arch_type}_",
-        'tar.gz'
+        'tar.gz',
+        s3_auth=False
     ))
     package_versions = list(map(semver_util.parse_version, package_keys))
     latest_version = semver_util.get_highest_version(package_versions)
