@@ -83,15 +83,28 @@ tasks:
   kmd_dir: /etc/algorand/node_dirs/node/test/latest/kmd
   bin_dir: /etc/algorand/node_dirs/node/test/latest/bin
 
+
 - task: shell.Shell
   name: status-beta
   command: /etc/algorand/node_dirs/node/beta/latest/bin/goal -d /etc/algorand/node_dirs/node/beta/latest/data node status
+- task: shell.Shell
+  name: status-stable
+  command: /etc/algorand/node_dirs/node/stable/latest/bin/goal -d /etc/algorand/node_dirs/node/stable/latest/data node status
+- task: shell.Shell
+  name: status-test
+  command: /etc/algorand/node_dirs/node/test/latest/bin/goal -d /etc/algorand/node_dirs/node/test/latest/data node status
 
 
 jobs:
-  status-beta:
+  status-betanet:
     tasks:
     - shell.Shell.status-beta
+  status-mainnet:
+    tasks:
+    - shell.Shell.status-stable
+  status-testnet:
+    tasks:
+    - shell.Shell.status-test
   install-nodes:
     tasks:
     - algorand.node.Install.stable
