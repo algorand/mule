@@ -36,11 +36,11 @@ def decompressTarfile(file_name, target_directory = '.'):
     with tarfile.open(file_name, "r:gz") as tar:
         tar.extractall(target_directory)
 
-def readJsonFile(file_name):
+def read_json_file(file_name):
     with open(file_name, 'r') as json_file:
         return json.load(json_file)
 
-def writeJsonFile(file_name, contents):
+def write_json_file(file_name, contents):
     with open(file_name, 'w') as json_file:
         json.dump(contents, json_file)
 

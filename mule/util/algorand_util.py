@@ -76,8 +76,8 @@ def configure_node(data_dir, kmd_dir, node_config, kmd_config):
     file_util.ensure_file(node_config_path, '{}')
     file_util.ensure_file(kmd_config_path, '{}')
 
-    current_node_config = file_util.readJsonFile(node_config_path)
-    current_kmd_config = file_util.readJsonFile(kmd_config_path)
+    current_node_config = file_util.read_json_file(node_config_path)
+    current_kmd_config = file_util.read_json_file(kmd_config_path)
 
     current_node_config.update(node_config)
     current_kmd_config.update(kmd_config)
@@ -85,8 +85,8 @@ def configure_node(data_dir, kmd_dir, node_config, kmd_config):
     print(f"Updating node configs at {node_config_path} with:\n{json.dumps(node_config, sort_keys=True, indent=4)}")
     print(f"Updating node configs at {kmd_config_path} with:\n{json.dumps(kmd_config, sort_keys=True, indent=4)}")
 
-    file_util.writeJsonFile(node_config_path, current_node_config)
-    file_util.writeJsonFile(kmd_config_path, current_kmd_config)
+    file_util.write_json_file(node_config_path, current_node_config)
+    file_util.write_json_file(kmd_config_path, current_kmd_config)
 
 def start_node(data_dir, kmd_dir, bin_dir=None):
     goal_args = [
