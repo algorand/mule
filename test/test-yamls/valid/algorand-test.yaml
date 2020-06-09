@@ -15,7 +15,7 @@ tasks:
   name: test
   data_dir: /etc/algorand/node_dirs/node/test/latest/data
   bin_dir: /etc/algorand/node_dirs/node/test/latest/bin
-  channel: stable
+  channel: test
   version: latest
 - task: shell.shell
   command: /etc/algorand/node_dirs/node/test/latest/data/genesis
