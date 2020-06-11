@@ -65,6 +65,24 @@ class Start(ITask):
         super().execute(job_context)
         algorand_util.start_node(self.data_dir,  self.kmd_dir, self.bin_dir)
 
+class Restart(ITask):
+    required_fields = [
+        'data_dir',
+        'kmd_dir',
+    ]
+    bin_dir = None
+
+    def __init__(self, args):
+        super().__init__(args)
+        self.data_dir = args['data_dir']
+        self.kmd_dir = args['kmd_dir']
+        if 'bin_dir' in args:
+            self.bin_dir = args['bin_dir']
+
+    def execute(self, job_context):
+        super().execute(job_context)
+        algorand_util.restart_node(self.data_dir,  self.kmd_dir, self.bin_dir)
+
 class Stop(ITask):
     required_fields = [
         'data_dir',

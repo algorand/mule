@@ -104,6 +104,14 @@ def stop_node(data_dir, kmd_dir, bin_dir=None):
     print(f"Stopping node with:\n\tdata_dir: {data_dir}\n\tkmd_dir: {kmd_dir}")
     goal(data_dir, kmd_dir, goal_args, bin_dir)
 
+def restart_node(data_dir, kmd_dir, bin_dir=None):
+    goal_args = [
+        'node',
+        'restart',
+    ]
+    print(f"Restarting node with:\n\tdata_dir: {data_dir}\n\tkmd_dir: {kmd_dir}")
+    goal(data_dir, kmd_dir, goal_args, bin_dir)
+
 def goal(data_dir, kmd_dir, args, bin_dir=None):
     goal_command = ['goal']
     if not bin_dir is None:

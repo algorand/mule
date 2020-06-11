@@ -66,6 +66,22 @@ tasks:
   kmd_dir: /etc/algorand/node_dirs/node/test/latest/kmd
   bin_dir: /etc/algorand/node_dirs/node/test/latest/bin
 
+- task: algorand.node.Restart
+  name: stable
+  data_dir: /etc/algorand/node_dirs/node/stable/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/stable/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/stable/latest/bin
+- task: algorand.node.Restart
+  name: beta
+  data_dir: /etc/algorand/node_dirs/node/beta/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/beta/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/beta/latest/bin
+- task: algorand.node.Restart
+  name: test
+  data_dir: /etc/algorand/node_dirs/node/test/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/test/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/test/latest/bin
+
 
 - task: algorand.node.Stop
   name: stable
@@ -125,3 +141,8 @@ jobs:
     - algorand.node.Stop.stable
     - algorand.node.Stop.beta
     - algorand.node.Stop.test
+  restart-nodes:
+    tasks:
+    - algorand.node.Restart.stable
+    - algorand.node.Restart.beta
+    - algorand.node.Restart.test
