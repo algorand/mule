@@ -18,7 +18,8 @@ setuptools.setup(
         'pyyaml',
         'termcolor',
         'boto3',
-        'botocore'
+        'botocore',
+        'packaging'
     ],
     license='MIT',
     classifiers=[

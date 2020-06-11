@@ -1,0 +1,170 @@
+tasks:
+- task: algorand.node.Install
+  name: stable
+  data_dir: /etc/algorand/node_dirs/node/stable/latest/data
+  bin_dir: /etc/algorand/node_dirs/node/stable/latest/bin
+  channel: stable
+  version: latest
+- task: algorand.node.Install
+  name: beta
+  data_dir: /etc/algorand/node_dirs/node/beta/latest/data
+  bin_dir: /etc/algorand/node_dirs/node/beta/latest/bin
+  channel: beta
+  version: latest
+- task: algorand.node.Install
+  name: test
+  data_dir: /etc/algorand/node_dirs/node/test/latest/data
+  bin_dir: /etc/algorand/node_dirs/node/test/latest/bin
+  channel: test
+  version: latest
+- task: shell.shell
+  command: /etc/algorand/node_dirs/node/test/latest/data/genesis
+
+- task: algorand.node.Configure
+  name: stable
+  data_dir: /etc/algorand/node_dirs/node/stable/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/stable/latest/kmd
+  node_configs:
+    EndpointAddress: 0.0.0.0:60000
+    Archival: true
+  kmd_configs:
+    address: 0.0.0.0:60001
+- task: algorand.node.Configure
+  name: beta
+  data_dir: /etc/algorand/node_dirs/node/beta/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/beta/latest/kmd
+  node_configs:
+    EndpointAddress: 0.0.0.0:60002
+    Archival: true
+    DNSBootstrapID: <network>.algodev.network
+  kmd_configs:
+    address: 0.0.0.0:60003
+- task: algorand.node.Configure
+  name: test
+  data_dir: /etc/algorand/node_dirs/node/test/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/test/latest/kmd
+  node_configs:
+    EndpointAddress: 0.0.0.0:60004
+    Archival: true
+  kmd_configs:
+    address: 0.0.0.0:60005
+
+- task: algorand.node.ShowConfigs
+  name: stable
+  data_dir: /etc/algorand/node_dirs/node/stable/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/stable/latest/kmd
+- task: algorand.node.ShowConfigs
+  name: beta
+  data_dir: /etc/algorand/node_dirs/node/beta/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/beta/latest/kmd
+- task: algorand.node.ShowConfigs
+  name: test
+  data_dir: /etc/algorand/node_dirs/node/test/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/test/latest/kmd
+
+- task: algorand.node.Start
+  name: stable
+  data_dir: /etc/algorand/node_dirs/node/stable/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/stable/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/stable/latest/bin
+- task: algorand.node.Start
+  name: beta
+  data_dir: /etc/algorand/node_dirs/node/beta/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/beta/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/beta/latest/bin
+- task: algorand.node.Start
+  name: test
+  data_dir: /etc/algorand/node_dirs/node/test/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/test/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/test/latest/bin
+
+- task: algorand.node.Restart
+  name: stable
+  data_dir: /etc/algorand/node_dirs/node/stable/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/stable/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/stable/latest/bin
+- task: algorand.node.Restart
+  name: beta
+  data_dir: /etc/algorand/node_dirs/node/beta/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/beta/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/beta/latest/bin
+- task: algorand.node.Restart
+  name: test
+  data_dir: /etc/algorand/node_dirs/node/test/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/test/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/test/latest/bin
+
+
+- task: algorand.node.Stop
+  name: stable
+  data_dir: /etc/algorand/node_dirs/node/stable/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/stable/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/stable/latest/bin
+- task: algorand.node.Stop
+  name: beta
+  data_dir: /etc/algorand/node_dirs/node/beta/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/beta/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/beta/latest/bin
+- task: algorand.node.Stop
+  name: test
+  data_dir: /etc/algorand/node_dirs/node/test/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/test/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/test/latest/bin
+
+
+- task: algorand.node.Status
+  name: stable
+  data_dir: /etc/algorand/node_dirs/node/stable/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/stable/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/stable/latest/bin
+- task: algorand.node.Status
+  name: beta
+  data_dir: /etc/algorand/node_dirs/node/beta/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/beta/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/beta/latest/bin
+- task: algorand.node.Status
+  name: test
+  data_dir: /etc/algorand/node_dirs/node/test/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/test/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/test/latest/bin
+
+jobs:
+  show-configs:
+    tasks:
+    - algorand.node.ShowConfigs.stable
+    - algorand.node.ShowConfigs.beta
+    - algorand.node.ShowConfigs.test
+  status-betanet:
+    tasks:
+    - algorand.node.Status.beta
+  status-mainnet:
+    tasks:
+    - algorand.node.Status.stable
+  status-testnet:
+    tasks:
+    - algorand.node.Status.test
+  install-nodes:
+    tasks:
+    - algorand.node.Install.stable
+    - algorand.node.Install.beta
+    - algorand.node.Install.test
+  configure-nodes:
+    tasks:
+    - algorand.node.Configure.stable
+    - algorand.node.Configure.beta
+    - algorand.node.Configure.test
+  start-nodes:
+    tasks:
+    - algorand.node.Start.stable
+    - algorand.node.Start.beta
+    - algorand.node.Start.test
+  stop-nodes:
+    tasks:
+    - algorand.node.Stop.stable
+    - algorand.node.Stop.beta
+    - algorand.node.Stop.test
+  restart-nodes:
+    tasks:
+    - algorand.node.Restart.stable
+    - algorand.node.Restart.beta
+    - algorand.node.Restart.test

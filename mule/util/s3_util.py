@@ -1,11 +1,17 @@
 import logging
 import boto3
+from botocore import UNSIGNED
+from botocore.client import Config
 from botocore.exceptions import ClientError
 import ntpath
 import os.path
 import glob
 import os
 
+def get_s3_client(auth=True):
+    if not auth:
+        return boto3.client('s3', config=Config(signature_version=UNSIGNED))
+    return boto3.client('s3')
 
 def _path_leaf(path: str) -> str:
     """
@@ -62,7 +68,7 @@ def upload_file(file_name: str, bucket_name: str, object_name=None, preserveDirs
         # If S3 object_name was not specified, use file_name
         if object_name is None:
             object_name = _get_object_name(file_name, preserveDirs)
-        s3_client = boto3.client('s3')
+        s3_client = get_s3_client()
         # Upload the file
         print("uploading file '{}' to bucket '{}' to object '{}'".format(file_name, bucket_name, object_name))
         response = s3_client.upload_file(file_name, bucket_name, object_name)
@@ -74,7 +80,7 @@ def upload_file(file_name: str, bucket_name: str, object_name=None, preserveDirs
     return True
 
 
-def download_file(bucket_name: str, object_name: str, output_dir: str = ".", file_name: str = None) -> bool:
+def download_file(bucket_name: str, object_name: str, output_dir: str = ".", file_name: str = None, s3_auth = True) -> bool:
     """
     Download a file from an S3 bucket.
     :param bucket_name: Name of the S3 bucket.
@@ -89,7 +95,7 @@ def download_file(bucket_name: str, object_name: str, output_dir: str = ".", fil
         else:
             file_path = os.path.join(output_dir, file_name)
         print("downloading object '{}' from bucket '{}' to file '{}'".format(object_name, bucket_name, file_path))
-        s3_client = boto3.client('s3')
+        s3_client = get_s3_client(s3_auth)
         response = s3_client.download_file(bucket_name, object_name, file_path)
         if response is not None:
             print(response)
@@ -99,7 +105,7 @@ def download_file(bucket_name: str, object_name: str, output_dir: str = ".", fil
     return True
 
 
-def download_files(bucket_name: str, prefix: object = "", suffix: object = "", output_dir: str = ".") -> bool:
+def download_files(bucket_name: str, prefix: object = "", suffix: object = "", output_dir: str = ".", s3_auth = True) -> bool:
     """
     Download Files from S3 bucket.
     :param bucket_name: Name of the S3 bucket.
@@ -109,13 +115,13 @@ def download_files(bucket_name: str, prefix: object = "", suffix: object = "", o
     :return: True if successful, otherwise False.
     """
     result = True
-    for key in get_matching_s3_keys(bucket_name, prefix, suffix):
-        result &= download_file(bucket_name, key, output_dir)
+    for key in get_matching_s3_keys(bucket_name, prefix, suffix, s3_auth=s3_auth):
+        result &= download_file(bucket_name, key, output_dir, s3_auth=s3_auth)
     return result
 
 
-def get_bucket_keys(bucket_name: str, prefix: object = "", suffix: object = ""):
-    objects = boto3.client('s3').list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+def get_bucket_keys(bucket_name: str, prefix: object = "", suffix: object = "", s3_auth = True):
+    objects = get_s3_client(s3_auth).list_objects_v2(Bucket=bucket_name, Prefix=prefix)
     return [ obj['Key'] for obj in objects['Contents'] ]
 
 
@@ -130,30 +136,30 @@ def copy_bucket_object(source_bucket: str, source_key: str, dest_bucket: str, de
     s3_client.meta.client.copy(copy_source, dest_bucket, dest_key + '/' + filename)
 
 
-def list_keys(bucket_name: str, prefix: object = "", suffix: object = ""):
+def list_keys(bucket_name: str, prefix: object = "", suffix: object = "", s3_auth = True):
     """
     Print keys in S3 bucket.
     :param bucket_name: Name of the S3 bucket.
     :param prefix: List keys whose key starts with this prefix (optional).
     :param suffix: List keys whose keys end with this suffix (optional).
     """
-    for keys in get_matching_s3_keys(bucket_name, prefix, suffix):
-        print(keys)
+    for key in get_matching_s3_keys(bucket_name, prefix, suffix, s3_auth=s3_auth):
+        print(key)
 
 
-def list_objects(bucket_name: str, prefix: object = "", suffix: object = ""):
+def list_objects(bucket_name: str, prefix: object = "", suffix: object = "", s3_auth = True):
     """
     Print objects in S3 bucket.
     :param bucket_name: Name of the S3 bucket.
     :param prefix: List objects whose key starts with this prefix (optional).
     :param suffix: List objects whose keys end with this suffix (optional).
     """
-    for obj in get_matching_s3_objects(bucket_name, prefix, suffix):
+    for obj in get_matching_s3_objects(bucket_name, prefix, suffix, s3_auth=s3_auth):
         print(obj)
 
 
 # based on https://alexwlchan.net/2019/07/listing-s3-keys/
-def get_matching_s3_objects(bucket: str, prefix: object = "", suffix: object = ""):
+def get_matching_s3_objects(bucket: str, prefix: object = "", suffix: object = "", s3_auth = True):
     """
     Generate objects in an S3 bucket.
     :param bucket: Name of the S3 bucket.
@@ -162,7 +168,7 @@ def get_matching_s3_objects(bucket: str, prefix: object = "", suffix: object = "
     :param suffix: Only fetch objects whose keys end with
         this suffix (optional).
     """
-    s3 = boto3.client("s3")
+    s3 = get_s3_client(s3_auth)
     paginator = s3.get_paginator("list_objects_v2")
 
     kwargs = {'Bucket': bucket}
@@ -194,12 +200,12 @@ def get_matching_s3_objects(bucket: str, prefix: object = "", suffix: object = "
                     yield obj
 
 
-def get_matching_s3_keys(bucket: str, prefix: object = "", suffix: object = ""):
+def get_matching_s3_keys(bucket: str, prefix: object = "", suffix: object = "", s3_auth = True):
     """
     Generate the keys in an S3 bucket.
     :param bucket: Name of the S3 bucket.
     :param prefix: Only fetch keys that start with this prefix (optional).
     :param suffix: Only fetch keys that end with this suffix (optional).
     """
-    for obj in get_matching_s3_objects(bucket, prefix, suffix):
+    for obj in get_matching_s3_objects(bucket, prefix, suffix, s3_auth=s3_auth):
         yield obj["Key"]
