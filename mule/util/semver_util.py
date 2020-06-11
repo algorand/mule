@@ -8,7 +8,7 @@ def get_highest_version(semver_version_strings):
             semver_version_strings
         )
     )
-    return max(semver_versions)
+    return str(max(semver_versions))
 
 def parse_version(string):
     version_re = re.compile(r'(\d*)\.(\d*)\.(\d*)')
