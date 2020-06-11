@@ -112,16 +112,21 @@ tasks:
   bin_dir: /etc/algorand/node_dirs/node/test/latest/bin
 
 
-- task: shell.Shell
-  name: status-beta
-  command: /etc/algorand/node_dirs/node/beta/latest/bin/goal -d /etc/algorand/node_dirs/node/beta/latest/data node status
-- task: shell.Shell
-  name: status-stable
-  command: /etc/algorand/node_dirs/node/stable/latest/bin/goal -d /etc/algorand/node_dirs/node/stable/latest/data node status
-- task: shell.Shell
-  name: status-test
-  command: /etc/algorand/node_dirs/node/test/latest/bin/goal -d /etc/algorand/node_dirs/node/test/latest/data node status
-
+- task: algorand.node.Status
+  name: stable
+  data_dir: /etc/algorand/node_dirs/node/stable/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/stable/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/stable/latest/bin
+- task: algorand.node.Status
+  name: beta
+  data_dir: /etc/algorand/node_dirs/node/beta/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/beta/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/beta/latest/bin
+- task: algorand.node.Status
+  name: test
+  data_dir: /etc/algorand/node_dirs/node/test/latest/data
+  kmd_dir: /etc/algorand/node_dirs/node/test/latest/kmd
+  bin_dir: /etc/algorand/node_dirs/node/test/latest/bin
 
 jobs:
   show-configs:
@@ -131,13 +136,13 @@ jobs:
     - algorand.node.ShowConfigs.test
   status-betanet:
     tasks:
-    - shell.Shell.status-beta
+    - algorand.node.Status.beta
   status-mainnet:
     tasks:
-    - shell.Shell.status-stable
+    - algorand.node.Status.stable
   status-testnet:
     tasks:
-    - shell.Shell.status-test
+    - algorand.node.Status.test
   install-nodes:
     tasks:
     - algorand.node.Install.stable
