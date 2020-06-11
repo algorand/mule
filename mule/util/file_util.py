@@ -65,5 +65,5 @@ def mv_folder_contents(source, dest, ignore=False):
             if not ignore:
                 raise
 
-def mv_file(source, dest):
-    shutil.move(source, dest)
+def copy_file(source, dest):
+    shutil.copy(source, dest)

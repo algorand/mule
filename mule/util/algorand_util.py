@@ -56,12 +56,12 @@ def install_node(data_dir, bin_dir, channel, node_package_version='latest'):
     file_util.mv_folder_contents(f"{node_package_dir}/data", data_dir)
     file_util.mv_folder_contents(f"{node_package_dir}/bin", bin_dir)
     if channel == 'stable':
-        file_util.mv_file(
+        file_util.copy_file(
             os.path.join(node_package_dir, "genesis/mainnet/genesis.json"),
             os.path.join(data_dir, 'genesis.json')
         )
     else:
-        file_util.mv_file(
+        file_util.copy_file(
             os.path.join(node_package_dir, f"genesis/{channel}net/genesis.json"),
             os.path.join(data_dir, 'genesis.json')
         )
