@@ -66,6 +66,21 @@ def install_node(data_dir, bin_dir, channel, node_package_version='latest'):
             os.path.join(data_dir, 'genesis.json')
         )
 
+def show_node_configs(data_dir, kmd_dir):
+    data_dir = file_util.ensure_folder(data_dir)
+    kmd_dir = file_util.ensure_folder(kmd_dir)
+    node_config_path = f"{data_dir}/config.json"
+    kmd_config_path = f"{kmd_dir}/kmd_config.json"
+
+    file_util.ensure_file(node_config_path, '{}')
+    file_util.ensure_file(kmd_config_path, '{}')
+
+    current_node_config = file_util.read_json_file(node_config_path)
+    current_kmd_config = file_util.read_json_file(kmd_config_path)
+
+    print(f"Showing node configs at {node_config_path} with:\n{json.dumps(current_node_config, sort_keys=True, indent=4)}")
+    print(f"Showing node configs at {kmd_config_path} with:\n{json.dumps(current_kmd_config, sort_keys=True, indent=4)}")
+
 def configure_node(data_dir, kmd_dir, node_config, kmd_config):
 
     data_dir = file_util.ensure_folder(data_dir)

@@ -47,6 +47,23 @@ class Configure(ITask):
             self.kmd_configs
         )
 
+class ShowConfigs(ITask):
+    required_fields = [
+        'data_dir',
+        'kmd_dir',
+    ]
+    def __init__(self, args):
+        super().__init__(args)
+        self.data_dir = args['data_dir']
+        self.kmd_dir = args['kmd_dir']
+
+    def execute(self, job_context):
+        super().execute(job_context)
+        algorand_util.show_node_configs(
+            self.data_dir,
+            self.kmd_dir
+        )
+
 class Start(ITask):
     required_fields = [
         'data_dir',
