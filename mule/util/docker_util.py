@@ -59,7 +59,7 @@ def checkForLocalImage(docker_image_name) :
     return found
 
 # Ensure that the docker image exist for the current configuration file
-def ensure(image, arch, build_context_path, docker_file_path):
+def ensure(image, arch, go_version, build_context_path, docker_file_path):
     if checkForLocalImage(image):
         cprint(
             f"Found docker image {image} locally",
@@ -72,7 +72,7 @@ def ensure(image, arch, build_context_path, docker_file_path):
                 'green',
             )
         else:
-            build([f"ARCH={arch}"], build_context_path, [image], docker_file_path)
+            build([f"ARCH={arch}", f"GOLANG_VERSION={go_version}"], build_context_path, [image], docker_file_path)
             cprint(
                 f"Built docker image {image} from {docker_file_path}",
                 'green',

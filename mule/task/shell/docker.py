@@ -31,6 +31,7 @@ class Ensure(ITask):
         'image',
         'dockerFilePath',
         'arch',
+        'goVersion'
     ]
     buildContextPath= "."
 
@@ -40,10 +41,11 @@ class Ensure(ITask):
         self.image = args['image']
         self.version = args['version']
         self.dockerFilePath = args['dockerFilePath']
+        self.goVersion = args['goVersion']
         if 'buildContextPath' in args:
             self.buildContextPath = args['buildContextPath']
 
     def execute(self, job_context):
         super().execute(job_context)
         print('Checking to see if docker image is available')
-        docker.ensure(f"{self.image}:{self.version}", self.arch, self.buildContextPath, self.dockerFilePath)
+        docker.ensure(f"{self.image}:{self.version}", self.arch, self.goVersion, self.buildContextPath, self.dockerFilePath)
