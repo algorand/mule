@@ -1,0 +1,9 @@
+# go_algorand_ci code owners file
+# Lines starting with '#' are comments.
+# Each line is a file pattern followed by one or more owners.
+
+# These owners will be the default owners for everything in the repo.
+*       @btoll
+*       @bricerisignalgorand
+*       @onetechnical
+*       @egieseke
