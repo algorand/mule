@@ -30,10 +30,10 @@ class Ensure(ITask):
         'version',
         'image',
         'dockerFilePath',
-        'arch',
-        'goVersion'
+        'arch'
     ]
-    buildContextPath= "."
+    buildContextPath = "."
+    goVersion = ""
 
     def __init__(self, args):
         super().__init__(args)
@@ -41,9 +41,10 @@ class Ensure(ITask):
         self.image = args['image']
         self.version = args['version']
         self.dockerFilePath = args['dockerFilePath']
-        self.goVersion = args['goVersion']
         if 'buildContextPath' in args:
             self.buildContextPath = args['buildContextPath']
+        if 'goVersion' in args:
+            self.goVersion = args['goVersion']
 
     def execute(self, job_context):
         super().execute(job_context)
