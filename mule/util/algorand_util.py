@@ -147,3 +147,49 @@ def goal(data_dir, kmd_dir, args, bin_dir=None):
     goal_command.extend(args)
 
     subprocess.run(goal_command, check=True)
+
+def algorand_indexer(args, bin_dir=None):
+    algorand_indexer_command = ['algorand-indexer']
+    if not bin_dir is None:
+        algorand_indexer_command = [f"{bin_dir}/algorand-indexer"]
+
+    algorand_indexer_command.extend(args)
+    subprocess.Popen(algorand_indexer_command)
+
+def start_indexer_local_node(node, postgres, bin_dir=None, pid_file=None):
+    algorand_indexer_args = ['daemon']
+
+    algorand_indexer_args.extend([
+        '-d', node['data'],
+        '--postgres', build_indexer_postgress_connection_string(postgres)
+    ])
+
+    if not pid_file is None:
+        algorand_indexer_args.extend([
+            '--pidfile', pid_file
+        ])
+
+    algorand_indexer(algorand_indexer_args, bin_dir)
+
+def start_indexer_remote_node(node, postgres, bin_dir=None, pid_file=None):
+    algorand_indexer_args = ['daemon']
+
+    algorand_indexer_args.extend([
+        '--algod-net', f"{node['host']}:{node['port']}",
+        '--algod-token', node['token'],
+        '--genesis', node['genesis'],
+        '--postgres', build_indexer_postgress_connection_string(postgres)
+    ])
+
+    if not pid_file is None:
+        algorand_indexer_args.extend([
+            '--pidfile', pid_file
+        ])
+
+    algorand_indexer(algorand_indexer_args, bin_dir)
+
+def build_indexer_postgress_connection_string(postgres):
+    postgress_connection_string = []
+    for field in postgres.items():
+        postgress_connection_string.append(f"{field[0]}={field[1]}")
+    return ' '.join(postgress_connection_string)
