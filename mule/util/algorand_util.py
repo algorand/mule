@@ -148,13 +148,16 @@ def goal(data_dir, kmd_dir, args, bin_dir=None):
 
     subprocess.run(goal_command, check=True)
 
-def algorand_indexer(args, bin_dir=None):
+def algorand_indexer(args, bin_dir=None, log_file_name=None):
     algorand_indexer_command = ['algorand-indexer']
     if not bin_dir is None:
         algorand_indexer_command = [f"{bin_dir}/algorand-indexer"]
+    if log_file_name is None:
+        log_file_name = f"indexer-{time_util.get_timestamp()}.log"
 
     algorand_indexer_command.extend(args)
-    subprocess.Popen(algorand_indexer_command)
+    log_file = open(log_file_name, 'w')
+    subprocess.Popen(algorand_indexer_command, stdout=log_file, stderr=log_file)
 
 def start_indexer_local_node(node, postgres, bin_dir=None, pid_file=None):
     algorand_indexer_args = ['daemon']
