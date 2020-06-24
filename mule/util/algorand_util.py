@@ -159,7 +159,7 @@ def algorand_indexer(args, bin_dir=None, log_file_name=None):
     log_file = open(log_file_name, 'w')
     subprocess.Popen(algorand_indexer_command, stdout=log_file, stderr=log_file)
 
-def start_indexer_local_node(node, postgres, bin_dir=None, pid_file=None):
+def start_indexer_local_node(node, postgres, bin_dir=None, pid_file=None, log_file_name=None):
     algorand_indexer_args = ['daemon']
 
     algorand_indexer_args.extend([
@@ -172,9 +172,9 @@ def start_indexer_local_node(node, postgres, bin_dir=None, pid_file=None):
             '--pidfile', pid_file
         ])
 
-    algorand_indexer(algorand_indexer_args, bin_dir)
+    algorand_indexer(algorand_indexer_args, bin_dir, log_file_name)
 
-def start_indexer_remote_node(node, postgres, bin_dir=None, pid_file=None):
+def start_indexer_remote_node(node, postgres, bin_dir=None, pid_file=None, log_file_name=None):
     algorand_indexer_args = ['daemon']
 
     algorand_indexer_args.extend([
@@ -189,7 +189,7 @@ def start_indexer_remote_node(node, postgres, bin_dir=None, pid_file=None):
             '--pidfile', pid_file
         ])
 
-    algorand_indexer(algorand_indexer_args, bin_dir)
+    algorand_indexer(algorand_indexer_args, bin_dir, log_file_name)
 
 def build_indexer_postgress_connection_string(postgres):
     postgress_connection_string = []

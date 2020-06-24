@@ -12,6 +12,7 @@ class Start(ITask):
 
     bin_dir = None
     pid_file = None
+    log_file_name = None
 
     def __init__(self, args):
         super().__init__(args)
@@ -22,6 +23,8 @@ class Start(ITask):
             self.bin_dir = args['bin_dir']
         if 'pid_file' in args:
             self.pid_file = args['pid_file']
+        if 'log_file_name' in args:
+            self.log_file_name = args['log_file_name']
     
     def validate_fields(self, args):
         self.validate_node_fields(args['node'])
@@ -57,6 +60,6 @@ class Start(ITask):
     def execute(self, job_context):
         super().execute(job_context)
         if 'data' in self.node:
-            algorand_util.start_indexer_local_node(self.node, self.postgres, self.bin_dir, self.pid_file)
+            algorand_util.start_indexer_local_node(self.node, self.postgres, self.bin_dir, self.pid_file, self.log_file_name)
         else:
-            algorand_util.start_indexer_remote_node(self.node, self.postgres, self.bin_dir, self.pid_file)
+            algorand_util.start_indexer_remote_node(self.node, self.postgres, self.bin_dir, self.pid_file, self.log_file_name)
