@@ -6,7 +6,6 @@ import mule.validator as validator
 from mule.error import messages
 from mule.util import update_dict
 
-
 class ITask:
 
     required_fields = []
@@ -36,7 +35,7 @@ class ITask:
 
     def getId(self):
         return self.task_id
-    
+
     def evaluateOutputFields(self, job_context):
         ignoredFields = ['dependencies', 'required_fields', 'task_id', 'task_configs']
         fieldDicts = [self.__dict__]
@@ -104,7 +103,7 @@ class Job(ITask):
             task_id = task.getId()
             job_context.add_field(f"{task_id}.outputs", task_outputs)
             job_context.add_field(f"{task_id}.completed", True)
-    
+
     def buildJobContext(self, job_context):
         for task_config in self.task_configs:
             update_dict(task_config, self.configs)
