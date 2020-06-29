@@ -10,9 +10,10 @@ class IShellTask(ITask):
         if self.save_logs:
             print(f"running sub process {self.command}")
             command_logs = subprocess.run(self.command, capture_output=True, check=True)
-            print(f"command logs { command_logs.stdout.decode('utf-8')  }")
             return {
-                'logs': command_logs.stdout.decode('utf-8').rstrip("\n")
+                'stdout': command_logs.stdout.decode('utf-8').rstrip("\n"),
+                'stderr': command_logs.stderr.decode('utf-8').rstrip("\n"),
+                'returncode': command_logs.returncode
             }
         else:
             subprocess.run(self.command, check=True)
