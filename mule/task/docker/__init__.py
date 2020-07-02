@@ -10,33 +10,12 @@ from mule.task import ITask
 from mule.error import messages
 from mule.util import update_dict
 
-import ipdb
-
 class IDockerTask(ITask):
-#    required_typed_fields = [
-#        ('docker', dict),
-#        ('docker.image', str),
-#        ('docker.version', str),
-#    ]
-#    optional_typed_fields = [
-#        ('docker.workDir', str),
-#        ('docker.env', list),
-#        ('docker.shell', str),
-#    ]
-
     def __init__(self, args):
         super().__init__(args)
-#        self.machine = update_dict(
-#            {
-#                'workDir': '/project',
-#                'env': [],
-#                'volumes': [],
-#            },
-#            args['docker'],
-#        )
-#        self.validateDockerConfigs()
 
     def execute(self, machine):
+        self.validateDockerConfigs(machine)
         self.run(
             f"{machine['image']}:{machine['version']}",
             [machine['shell'], '-c', self.command],
@@ -45,7 +24,6 @@ class IDockerTask(ITask):
             machine['env'],
         )
 
-    # This takes container name
     def kill(self, container_name):
         if(len(subprocess.run(f"docker ps -q -f name=^/{container_name}$".split(' '), capture_output=True).stdout) > 0):
             print(f"Cleaning up started docker container {container_name}")
@@ -65,9 +43,8 @@ class IDockerTask(ITask):
         atexit.register(self.kill, container_name)
         subprocess.run(docker_command, check=True)
 
-    def validateDockerConfigs(self):
-        # Validate docker env var onfigs are all strings
-        for env_var_index, env_var in enumerate(self.machine['env']):
+    def validateDockerConfigs(self, machine):
+        for env_var_index, env_var in enumerate(machine['env']):
             if not type(env_var) == str:
                 raise Exception(messages.TASK_FIELD_IS_WRONG_TYPE.format(
                     self.getId(),
@@ -76,9 +53,9 @@ class IDockerTask(ITask):
                     type(env_var)
                 ))
         dockerEnvVarPattern = re.compile(r'.*=.+')
-        self.machine['env'] = [envVar for envVar in self.machine['env'] if dockerEnvVarPattern.match(envVar)]
+        machine['env'] = [envVar for envVar in machine['env'] if dockerEnvVarPattern.match(envVar)]
 
-        for volume_index, volume in enumerate(self.machine['volumes']):
+        for volume_index, volume in enumerate(machine['volumes']):
             if not type(volume) == str:
                 raise Exception(messages.TASK_FIELD_IS_WRONG_TYPE.format(
                     self.getId(),
@@ -87,10 +64,7 @@ class IDockerTask(ITask):
                     type(volume)
                 ))
         dockerVolumePattern = re.compile(r'.+:.+')
-        self.machine['volumes'] = [volume for volume in self.machine['volumes'] if dockerVolumePattern.match(volume)]
-
-        if not 'shell' in self.machine.keys():
-            self.machine['shell'] = 'bash'
+        machine['volumes'] = [volume for volume in machine['volumes'] if dockerVolumePattern.match(volume)]
 
 class Machine():
     required_fields = [
@@ -109,18 +83,7 @@ class Machine():
     }
 
     def __init__(self, machine_config):
-        if 'image' in machine_config:
-            self.machine['image'] = machine_config['image']
-        if 'arch' in machine_config:
-            self.machine['arch'] = machine_config['arch']
-        if 'dockerFilePath' in machine_config:
-            self.machine['dockerFilePath'] = machine_config['dockerFilePath']
-        if 'env' in machine_config:
-            self.machine['env'] = machine_config['env']
-        if 'volumes' in machine_config:
-            self.machine['volumes'] = machine_config['volumes']
-        if 'workDir' in machine_config:
-            self.machine['workDir'] = machine_config['workDir']
+        self.machine.update(machine_config)
 
     def execute(self):
         self.machine['version'] = f"{self.machine['arch']}-{self.compute_digest()}"
@@ -201,19 +164,15 @@ class Make(IDockerTask):
 
     def execute(self, job_context):
         if self.agent:
-            #            self.agent = self['agent']
-            machine_config = [ agent for agent in job_context.get_field('agents') if agent['name'] == self.agent ]
-            if len(machine_config) > 1:
-                pass
-#            raise Exception(messages.TASK_MISSING_REQUIRED_FIELDS.format(
-#                task_id,
-#                field,
-#                str(required_fields)
-#            ))
+            machine_config = [agent for agent in job_context.get_field('agents') if agent['name'] == self.agent]
+            if len(machine_config) == 0:
+                raise Exception(messages.MACHINE_MISSING_NAME.format(self.agent))
+            elif len(machine_config) > 1:
+                raise Exception(messages.MACHINE_DUPLICATE_NAME.format(self.agent))
 
-            machine = Machine(machine_config[0])
-            machine.execute()
-            super().execute(machine.machine)
+            agent = Machine(machine_config[0])
+            agent.execute()
+            super().execute(agent.machine)
         else:
             # TODO
             super().execute()
