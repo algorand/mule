@@ -26,7 +26,7 @@ class IDockerTask(ITask):
 
     def __init__(self, args):
         super().__init__(args)
-#        self.docker = update_dict(
+#        self.machine = update_dict(
 #            {
 #                'workDir': '/project',
 #                'env': [],
@@ -36,15 +36,13 @@ class IDockerTask(ITask):
 #        )
 #        self.validateDockerConfigs()
 
-    def execute(self, job_context):
-        super().execute(job_context)
+    def execute(self, machine):
         self.run(
-            f"{self.docker['image']}:{self.docker['version']}",
-#            [self.docker['shell'], '-c', self.command],
-            ['bash', '-c', self.command],
-            self.docker['workDir'],
-            self.docker['volumes'],
-            self.docker['env'],
+            f"{machine['image']}:{machine['version']}",
+            [machine['shell'], '-c', self.command],
+            machine['workDir'],
+            machine['volumes'],
+            machine['env'],
         )
 
     # This takes container name
@@ -69,7 +67,7 @@ class IDockerTask(ITask):
 
     def validateDockerConfigs(self):
         # Validate docker env var onfigs are all strings
-        for env_var_index, env_var in enumerate(self.docker['env']):
+        for env_var_index, env_var in enumerate(self.machine['env']):
             if not type(env_var) == str:
                 raise Exception(messages.TASK_FIELD_IS_WRONG_TYPE.format(
                     self.getId(),
@@ -78,9 +76,9 @@ class IDockerTask(ITask):
                     type(env_var)
                 ))
         dockerEnvVarPattern = re.compile(r'.*=.+')
-        self.docker['env'] = [envVar for envVar in self.docker['env'] if dockerEnvVarPattern.match(envVar)]
+        self.machine['env'] = [envVar for envVar in self.machine['env'] if dockerEnvVarPattern.match(envVar)]
 
-        for volume_index, volume in enumerate(self.docker['volumes']):
+        for volume_index, volume in enumerate(self.machine['volumes']):
             if not type(volume) == str:
                 raise Exception(messages.TASK_FIELD_IS_WRONG_TYPE.format(
                     self.getId(),
@@ -89,49 +87,47 @@ class IDockerTask(ITask):
                     type(volume)
                 ))
         dockerVolumePattern = re.compile(r'.+:.+')
-        self.docker['volumes'] = [volume for volume in self.docker['volumes'] if dockerVolumePattern.match(volume)]
+        self.machine['volumes'] = [volume for volume in self.machine['volumes'] if dockerVolumePattern.match(volume)]
 
-        if not 'shell' in self.docker.keys():
-            self.docker['shell'] = 'bash'
+        if not 'shell' in self.machine.keys():
+            self.machine['shell'] = 'bash'
 
-class Machine(IDockerTask):
+class Machine():
     required_fields = [
         'image',
     ]
 
-    docker = {
+    machine = {
         'arch': 'amd64',
         'dockerFilePath': 'Dockerfile',
         'env': [],
         'image': '',
+        'shell': 'bash',
         'version': 'latest',
         'volumes': [],
         'workDir': '.',
     }
 
-    def __init__(self, args):
-        ipdb.set_trace()
-        super().__init__(args)
-        if 'image' in args:
-            self.docker['image'] = args['image']
-        if 'arch' in args:
-            self.docker['arch'] = args['arch']
-        if 'dockerFilePath' in args:
-            self.docker['dockerFilePath'] = args['dockerFilePath']
-        if 'env' in args:
-            self.docker['env'] = args['env']
-        if 'volumes' in args:
-            self.docker['volumes'] = args['volumes']
-        if 'workDir' in args:
-            self.docker['workDir'] = args['workDir']
+    def __init__(self, machine_config):
+        if 'image' in machine_config:
+            self.machine['image'] = machine_config['image']
+        if 'arch' in machine_config:
+            self.machine['arch'] = machine_config['arch']
+        if 'dockerFilePath' in machine_config:
+            self.machine['dockerFilePath'] = machine_config['dockerFilePath']
+        if 'env' in machine_config:
+            self.machine['env'] = machine_config['env']
+        if 'volumes' in machine_config:
+            self.machine['volumes'] = machine_config['volumes']
+        if 'workDir' in machine_config:
+            self.machine['workDir'] = machine_config['workDir']
 
-    def execute(self, job_context):
-        self.docker['version'] = f"{self.docker['arch']}-{self.compute_digest()}"
+    def execute(self):
+        self.machine['version'] = f"{self.machine['arch']}-{self.compute_digest()}"
         self.ensure()
-        super().execute(job_context)
 
     def build(self, image):
-        build_args = [f"ARCH={self.docker['arch']}"]
+        build_args = [f"ARCH={self.machine['arch']}"]
         build_args_str = ""
         tags = [image]
         tags_str = ""
@@ -139,7 +135,7 @@ class Machine(IDockerTask):
             build_args_str = f"--build-arg {' --build-arg '.join(build_args)}"
         if tags is not None and len(tags) > 0 :
             tags_str = f"-t {' -t '.join(tags)}"
-        docker_command = f"docker build {build_args_str} {tags_str} -f {self.docker['dockerFilePath']} {self.docker['workDir']}"
+        docker_command = f"docker build {build_args_str} {tags_str} -f {self.machine['dockerFilePath']} {self.machine['workDir']}"
         subprocess.run(docker_command.split(' '), check=True)
 
     def checkForLocalImage(self, image):
@@ -156,7 +152,7 @@ class Machine(IDockerTask):
     def compute_digest(self):
         BLOCK_SIZE = 65536
         file_hash = hashlib.sha1()
-        with open(self.docker['dockerFilePath'], 'rb') as f:
+        with open(self.machine['dockerFilePath'], 'rb') as f:
             fb = f.read(BLOCK_SIZE)
             while len(fb) > 0:
                 file_hash.update(fb)
@@ -164,7 +160,7 @@ class Machine(IDockerTask):
         return file_hash.hexdigest()
 
     def ensure(self):
-        image = f"{self.docker['image']}:{self.docker['version']}"
+        image = f"{self.machine['image']}:{self.machine['version']}"
         if self.checkForLocalImage(image):
             cprint(
                 f"Found docker image {image} locally",
@@ -179,13 +175,13 @@ class Machine(IDockerTask):
             else:
                 self.build(image)
                 cprint(
-                    f"Built docker image {image} from {self.docker['dockerFilePath']}",
+                    f"Built docker image {image} from {self.machine['dockerFilePath']}",
                     'green',
                 )
 
     def pullFromDockerHub(self, image):
         found = False
-        pull_from_docker_hub_command = f"docker pull {self.docker['image']}"
+        pull_from_docker_hub_command = f"docker pull {self.machine['image']}"
         docker_image_result = subprocess.run(pull_from_docker_hub_command.split(" "))
         if docker_image_result.returncode == 0:
             found = True
@@ -200,9 +196,27 @@ class Make(IDockerTask):
         super().__init__(args)
         self.target = args['target']
         self.command = f"make {self.target}"
+        if 'agent' in args:
+            self.agent = args['agent']
 
     def execute(self, job_context):
-        super().execute(job_context)
+        if self.agent:
+            #            self.agent = self['agent']
+            machine_config = [ agent for agent in job_context.get_field('agents') if agent['name'] == self.agent ]
+            if len(machine_config) > 1:
+                pass
+#            raise Exception(messages.TASK_MISSING_REQUIRED_FIELDS.format(
+#                task_id,
+#                field,
+#                str(required_fields)
+#            ))
+
+            machine = Machine(machine_config[0])
+            machine.execute()
+            super().execute(machine.machine)
+        else:
+            # TODO
+            super().execute()
 
 class Shell(IDockerTask):
     required_fields = [
