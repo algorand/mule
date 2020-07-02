@@ -4,6 +4,9 @@ class JobContext:
 
     job_context = {}
 
+    def __init__(self, agent_configs):
+        self.job_context['agents'] = agent_configs
+
     def add_field(self, index, value):
         keys = index.split('.')
         current = self.job_context

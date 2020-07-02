@@ -84,7 +84,10 @@ class Job(ITask):
     ]
 
     required_typed_fields = [('tasks', list)]
-    optional_typed_fields = [('configs', dict)]
+    optional_typed_fields = [
+        ('agent_configs', list),
+        ('configs', dict)
+    ]
     configs = {}
 
     def __init__(self, args):
@@ -93,6 +96,8 @@ class Job(ITask):
         self.task_configs = args['task_configs']
         if 'configs' in args:
             self.configs = args['configs']
+        if 'agent_configs' in args:
+            self.agent_configs = args['agent_configs']
 
     def execute(self, job_context):
         super().execute(job_context)
