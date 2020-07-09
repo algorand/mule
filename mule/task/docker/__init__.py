@@ -10,24 +10,100 @@ from mule.task import ITask
 from mule.error import messages
 from mule.util import update_dict
 
-class IDockerTask(ITask):
+class Docker(ITask):
+    required_fields = [
+        'image',
+    ]
+
+    machine = {
+        'arch': 'amd64',
+        'dockerFilePath': 'Dockerfile',
+        'env': [],
+        'image': '',
+        'shell': 'bash',
+        'version': '',
+        'volumes': [],
+        'workDir': '/project',
+    }
+
     def __init__(self, args):
         super().__init__(args)
 
-    def execute(self, machine):
-        self.validateDockerConfigs(machine)
+    def build(self, image):
+        build_args = [f"ARCH={self.machine['arch']}"]
+        build_args_str = ""
+        tags = [image]
+        tags_str = ""
+        if build_args is not None and len(build_args) > 0 :
+            build_args_str = f"--build-arg {' --build-arg '.join(build_args)}"
+        if tags is not None and len(tags) > 0 :
+            tags_str = f"-t {' -t '.join(tags)}"
+        docker_command = f"docker build {build_args_str} {tags_str} -f {self.machine['dockerFilePath']} {self.machine['workDir']}"
+        subprocess.run(docker_command.split(' '), check=True)
+
+    def checkForLocalImage(self, image):
+        found = False
+        check_for_local_docker_image = f"docker inspect --type=image {image}"
+        docker_inspect_result = subprocess.run(
+            check_for_local_docker_image.split(" "),
+            stdout=subprocess.DEVNULL
+        )
+        if docker_inspect_result.returncode == 0:
+            found = True
+        return found
+
+    def compute_digest(self):
+        BLOCK_SIZE = 65536
+        file_hash = hashlib.sha1()
+        with open(self.machine['version'], 'rb') as f:
+            fb = f.read(BLOCK_SIZE)
+            while len(fb) > 0:
+                file_hash.update(fb)
+                fb = f.read(BLOCK_SIZE)
+        return file_hash.hexdigest()
+
+    def ensure(self, image):
+        if self.checkForLocalImage(image):
+            cprint(
+                f"Found docker image {image} locally",
+                'green',
+            )
+        else:
+            if self.pullFromDockerHub(image):
+                cprint(
+                    f"Found docker image {image} on DockerHub",
+                    'green',
+                )
+            else:
+                self.build(image)
+                cprint(
+                    f"Built docker image {image} from {self.machine['dockerFilePath']}",
+                    'green',
+                )
+
+    def execute(self, image):
+        self.ensure(image)
+        self.validateDockerConfigs(self.machine)
         self.run(
-            f"{machine['image']}:{machine['version']}",
-            [machine['shell'], '-c', self.command],
-            machine['workDir'],
-            machine['volumes'],
-            machine['env'],
+            image,
+            [self.machine['shell'], '-c', self.command],
+            self.machine['workDir'],
+            self.machine['volumes'],
+            self.machine['env'],
         )
 
     def kill(self, container_name):
         if(len(subprocess.run(f"docker ps -q -f name=^/{container_name}$".split(' '), capture_output=True).stdout) > 0):
             print(f"Cleaning up started docker container {container_name}")
             subprocess.run(f"docker kill {container_name}".split(' '), stdout=subprocess.DEVNULL)
+
+    def pullFromDockerHub(self, image):
+        found = False
+        pull_from_docker_hub_command = f"docker pull {self.machine['image']}"
+        docker_image_result = subprocess.run(pull_from_docker_hub_command.split(" "))
+        if docker_image_result.returncode == 0:
+            found = True
+        return found
 
     def run(self, image, command, work_dir, volumes, env):
         container_name = f"mule-{time.time_ns()}"
@@ -66,126 +142,41 @@ class IDockerTask(ITask):
         dockerVolumePattern = re.compile(r'.+:.+')
         machine['volumes'] = [volume for volume in machine['volumes'] if dockerVolumePattern.match(volume)]
 
-class Machine():
+
+class Make(Docker):
     required_fields = [
-        'image',
-    ]
-
-    machine = {
-        'arch': 'amd64',
-        'dockerFilePath': 'Dockerfile',
-        'env': [],
-        'image': '',
-        'shell': 'bash',
-        'version': 'latest',
-        'volumes': [],
-        'workDir': '.',
-    }
-
-    def __init__(self, machine_config):
-        self.machine.update(machine_config)
-
-    def execute(self):
-        self.machine['version'] = f"{self.machine['arch']}-{self.compute_digest()}"
-        self.ensure()
-
-    def build(self, image):
-        build_args = [f"ARCH={self.machine['arch']}"]
-        build_args_str = ""
-        tags = [image]
-        tags_str = ""
-        if build_args is not None and len(build_args) > 0 :
-            build_args_str = f"--build-arg {' --build-arg '.join(build_args)}"
-        if tags is not None and len(tags) > 0 :
-            tags_str = f"-t {' -t '.join(tags)}"
-        docker_command = f"docker build {build_args_str} {tags_str} -f {self.machine['dockerFilePath']} {self.machine['workDir']}"
-        subprocess.run(docker_command.split(' '), check=True)
-
-    def checkForLocalImage(self, image):
-        found = False
-        check_for_local_docker_image = f"docker inspect --type=image {image}"
-        docker_inspect_result = subprocess.run(
-            check_for_local_docker_image.split(" "),
-            stdout=subprocess.DEVNULL
-        )
-        if docker_inspect_result.returncode == 0:
-            found = True
-        return found
-
-    def compute_digest(self):
-        BLOCK_SIZE = 65536
-        file_hash = hashlib.sha1()
-        with open(self.machine['dockerFilePath'], 'rb') as f:
-            fb = f.read(BLOCK_SIZE)
-            while len(fb) > 0:
-                file_hash.update(fb)
-                fb = f.read(BLOCK_SIZE)
-        return file_hash.hexdigest()
-
-    def ensure(self):
-        image = f"{self.machine['image']}:{self.machine['version']}"
-        if self.checkForLocalImage(image):
-            cprint(
-                f"Found docker image {image} locally",
-                'green',
-            )
-        else:
-            if self.pullFromDockerHub(image):
-                cprint(
-                    f"Found docker image {image} on DockerHub",
-                    'green',
-                )
-            else:
-                self.build(image)
-                cprint(
-                    f"Built docker image {image} from {self.machine['dockerFilePath']}",
-                    'green',
-                )
-
-    def pullFromDockerHub(self, image):
-        found = False
-        pull_from_docker_hub_command = f"docker pull {self.machine['image']}"
-        docker_image_result = subprocess.run(pull_from_docker_hub_command.split(" "))
-        if docker_image_result.returncode == 0:
-            found = True
-        return found
-
-class Make(IDockerTask):
-    required_fields = [
+        'agent',
         'target'
     ]
 
     def __init__(self, args):
         super().__init__(args)
+        self.agent = args['agent']
         self.target = args['target']
         self.command = f"make {self.target}"
-        if 'agent' in args:
-            self.agent = args['agent']
 
     def execute(self, job_context):
-        if self.agent:
-            machine_config = [agent for agent in job_context.get_field('agents') if agent['name'] == self.agent]
-            if len(machine_config) == 0:
-                raise Exception(messages.MACHINE_MISSING_NAME.format(self.agent))
-            elif len(machine_config) > 1:
-                raise Exception(messages.MACHINE_DUPLICATE_NAME.format(self.agent))
+        machine_config = [agent for agent in job_context.get_field('agents') if agent['name'] == self.agent]
+        if len(machine_config) == 0:
+            raise Exception(messages.MACHINE_MISSING_NAME.format(self.agent))
+        elif len(machine_config) > 1:
+            raise Exception(messages.MACHINE_DUPLICATE_NAME.format(self.agent))
+        self.machine.update(machine_config[0])
+        super().execute(f"{self.machine['image']}:{self.machine['arch']}-{self.compute_digest()}")
 
-            agent = Machine(machine_config[0])
-            agent.execute()
-            super().execute(agent.machine)
-        else:
-            # TODO
-            super().execute()
 
-class Shell(IDockerTask):
+class Shell(Docker):
     required_fields = [
-        'command',
+        'agent',
+        'command'
     ]
 
     def __init__(self, args):
         super().__init__(args)
+        self.agent = args['agent']
         self.command = args['command']
 
     def execute(self, job_context):
-        super().execute(job_context)
+        super().execute(self.agent)
+
 
