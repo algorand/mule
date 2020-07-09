@@ -17,6 +17,7 @@ class Docker(ITask):
 
     machine = {
         'arch': 'amd64',
+        'buildArgs': [],
         'dockerFilePath': 'Dockerfile',
         'env': [],
         'image': '',
@@ -30,7 +31,7 @@ class Docker(ITask):
         super().__init__(args)
 
     def build(self, image):
-        build_args = [f"ARCH={self.machine['arch']}"]
+        build_args = [f"ARCH={self.machine['arch']}"] + self.evaluateBuildArgs()
         build_args_str = ""
         tags = [image]
         tags_str = ""
@@ -91,6 +92,17 @@ class Docker(ITask):
             self.machine['volumes'],
             self.machine['env'],
         )
+
+    def evaluateBuildArgs(self):
+        args = []
+        for build_arg in self.machine['buildArgs']:
+            symbol, value = build_arg.split('=')
+            if value[0] == '`':
+                ret = subprocess.run(value.strip('`'), capture_output=True)
+                args.append('='.join((symbol, ret.stdout.decode('utf-8').rstrip('\n'))))
+            else:
+                args.append(build_arg)
+        return args
 
     def kill(self, container_name):
         if(len(subprocess.run(f"docker ps -q -f name=^/{container_name}$".split(' '), capture_output=True).stdout) > 0):
