@@ -84,7 +84,7 @@ class Docker(ITask):
 
     def execute(self, image):
         self.ensure(image)
-        self.validateDockerConfigs(self.machine)
+        self.validateDockerConfigs()
         self.run(
             image,
             [self.machine['shell'], '-c', self.command],
@@ -131,8 +131,8 @@ class Docker(ITask):
         atexit.register(self.kill, container_name)
         subprocess.run(docker_command, check=True)
 
-    def validateDockerConfigs(self, machine):
-        for env_var_index, env_var in enumerate(machine['env']):
+    def validateDockerConfigs(self):
+        for env_var_index, env_var in enumerate(self.machine['env']):
             if not type(env_var) == str:
                 raise Exception(messages.TASK_FIELD_IS_WRONG_TYPE.format(
                     self.getId(),
@@ -141,9 +141,9 @@ class Docker(ITask):
                     type(env_var)
                 ))
         dockerEnvVarPattern = re.compile(r'.*=.+')
-        machine['env'] = [envVar for envVar in machine['env'] if dockerEnvVarPattern.match(envVar)]
+        self.machine['env'] = [envVar for envVar in self.machine['env'] if dockerEnvVarPattern.match(envVar)]
 
-        for volume_index, volume in enumerate(machine['volumes']):
+        for volume_index, volume in enumerate(self.machine['volumes']):
             if not type(volume) == str:
                 raise Exception(messages.TASK_FIELD_IS_WRONG_TYPE.format(
                     self.getId(),
@@ -152,7 +152,7 @@ class Docker(ITask):
                     type(volume)
                 ))
         dockerVolumePattern = re.compile(r'.+:.+')
-        machine['volumes'] = [volume for volume in machine['volumes'] if dockerVolumePattern.match(volume)]
+        self.machine['volumes'] = [volume for volume in self.machine['volumes'] if dockerVolumePattern.match(volume)]
 
 
 class Make(Docker):
