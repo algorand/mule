@@ -32,7 +32,7 @@ def getValidatedMuleYaml(mule_config):
 
     task_configs = mule_config['tasks']
     jobs_configs = mule_config['jobs']
-    agent_configs = mule_config['agents']
+    agent_configs = mule_config['agents'] if 'agents' in mule_config else []
 
     try:
         validateJobConfigs(jobs_configs)
