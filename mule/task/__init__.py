@@ -88,14 +88,12 @@ class Job(ITask):
         ('agent_configs', list),
         ('configs', dict)
     ]
-    configs = {}
 
     def __init__(self, args):
         super().__init__(args)
         self.dependencies = args['tasks']
         self.task_configs = args['task_configs']
-        if 'configs' in args:
-            self.configs = args['configs']
+        self.job_configs = args['configs'] if 'configs' in args else {}
         if 'agent_configs' in args:
             self.agent_configs = args['agent_configs']
 
@@ -111,7 +109,7 @@ class Job(ITask):
 
     def buildJobContext(self, job_context):
         for task_config in self.task_configs:
-            update_dict(task_config, self.configs)
+            update_dict(task_config, self.job_configs)
             validator.validateTaskConfig(task_config)
             if 'name' in task_config:
                 job_context.add_field(f"{task_config['task']}.{task_config['name']}.inputs", task_config)
