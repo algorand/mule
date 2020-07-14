@@ -6,7 +6,6 @@ import mule.validator as validator
 from mule.error import messages
 from mule.util import update_dict
 
-
 class ITask:
 
     required_fields = []
@@ -36,7 +35,7 @@ class ITask:
 
     def getId(self):
         return self.task_id
-    
+
     def evaluateOutputFields(self, job_context):
         ignoredFields = ['dependencies', 'required_fields', 'task_id', 'task_configs']
         fieldDicts = [self.__dict__]
@@ -85,15 +84,18 @@ class Job(ITask):
     ]
 
     required_typed_fields = [('tasks', list)]
-    optional_typed_fields = [('configs', dict)]
-    configs = {}
+    optional_typed_fields = [
+        ('agent_configs', list),
+        ('configs', dict)
+    ]
 
     def __init__(self, args):
         super().__init__(args)
         self.dependencies = args['tasks']
         self.task_configs = args['task_configs']
-        if 'configs' in args:
-            self.configs = args['configs']
+        self.job_configs = args['configs'] if 'configs' in args else {}
+        if 'agent_configs' in args:
+            self.agent_configs = args['agent_configs']
 
     def execute(self, job_context):
         super().execute(job_context)
@@ -104,10 +106,10 @@ class Job(ITask):
             task_id = task.getId()
             job_context.add_field(f"{task_id}.outputs", task_outputs)
             job_context.add_field(f"{task_id}.completed", True)
-    
+
     def buildJobContext(self, job_context):
         for task_config in self.task_configs:
-            update_dict(task_config, self.configs)
+            update_dict(task_config, self.job_configs)
             validator.validateTaskConfig(task_config)
             if 'name' in task_config:
                 job_context.add_field(f"{task_config['task']}.{task_config['name']}.inputs", task_config)

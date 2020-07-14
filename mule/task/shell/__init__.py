@@ -1,25 +1,7 @@
 from mule.task import ITask
 import subprocess
 
-class IShellTask(ITask):
-
-    save_logs = False
-
-    def execute(self, job_context):
-        super().execute(job_context)
-        if self.save_logs:
-            print(f"running sub process {self.command}")
-            command_logs = subprocess.run(self.command, capture_output=True, check=True)
-            return {
-                'stdout': command_logs.stdout.decode('utf-8').rstrip("\n"),
-                'stderr': command_logs.stderr.decode('utf-8').rstrip("\n"),
-                'returncode': command_logs.returncode
-            }
-        else:
-            subprocess.run(self.command, check=True)
-
-class Shell(IShellTask):
-
+class Shell(ITask):
     required_fields = [
         'command'
     ]
@@ -29,14 +11,13 @@ class Shell(IShellTask):
         self.command = args['command']
         if type(self.command) == str:
             self.command = self.command.split(' ')
-        if 'saveLogs' in args:
-            self.save_logs = args['saveLogs']
 
     def execute(self, job_context):
-        return super().execute(job_context)
+        super().execute(job_context)
+        subprocess.run(self.command, check=True)
 
-class Make(IShellTask):
 
+class Make(ITask):
     required_fields = [
         'target',
     ]
@@ -44,7 +25,9 @@ class Make(IShellTask):
     def __init__(self, args):
         super().__init__(args)
         self.target = args['target']
-        self.command = f"make {self.target}".split(' ')
 
     def execute(self, job_context):
         super().execute(job_context)
+        subprocess.run(f"make {self.target}".split(' '), check=True)
+
+
