@@ -2,7 +2,7 @@ tasks:
 - task: stash.Stash
   bucketName: algorand-uploads
   stashId: test/test-basic-stash
-  globSpec: test/resources/stash/**
+  globSpecs: test/resources/stash/**
 - task: stash.Unstash
   bucketName: algorand-uploads
   stashId: test/test-basic-stash
