@@ -4,7 +4,7 @@ Mule is a generalized automation framework for organizing the execution of defin
 
 ## The problem
 
-Today there are hundreds, or even thousands, of tools on the market that are very good at executing very specific actions that are useful as part of an application's CICD process. The problem is that in order to use these tools, engineers need to write scripts that execute the features they need, while taking very special care that they execute them in the correct order. 
+Today there are hundreds, or even thousands, of tools on the market that are very good at executing very specific actions that are useful as part of an application's CICD process. The problem is that in order to use these tools, engineers need to write scripts that execute the features they need, while taking very special care that they execute them in the correct order.
 
 In most cases, this leads to brittle scripts that are tightly coupled to the application the developer is working on. At [Algorand](https://www.algorand.com/), we work on many different stacks to ensure that developers can consume all of the great features we provide on our platform. Therefore, tightly coupled scripts will not work for us at scale.
 
@@ -36,6 +36,12 @@ This abstraction has helped us to start organizing our CICD process and given us
 # Concepts
 
 Before getting into how to use mule to execute automation, the following docs will introduce you to the key concepts of the Mule framework.
+
+## Agents
+
+An agent needs to be defined when using any operation that requires a container runtime. Currently, only `docker` is supported.
+
+Please see our [agent documentation](agents/README.md) for more information.
 
 ## Tasks
 
@@ -104,7 +110,7 @@ One more interesting thing here is the dependencies field in Echo.B. This field 
 When job-b is invoked, we see the following response:
 
 ```
-$ mule -f path/to/mule.yaml job-b   
+$ mule -f path/to/mule.yaml job-b
 Message for the console
 Another message for the console
 ```
@@ -221,5 +227,7 @@ Note this also works with dependencies as well. The only requirement for one tas
 These are the key features of our yaml language. Our current list of available tasks are documented [here](tasks/README.md). Feel free to try out your new skills with some more useful tasks!
 
 # Navigation
+
 * [Task Documentation](tasks/README.md)
 * [Home](../README.md)
+

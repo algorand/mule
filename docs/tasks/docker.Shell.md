@@ -1,30 +1,63 @@
 # docker.Shell
 
 ## Description
-This task executes a shell command from within a docker container.
+
+This task executes a shell command from within a docker container.  Please see our [agent documentation](agents/README.md) for more information on defining agents.
 
 ## Required Parameters
 
-* docker
-  * image
-    * Name of the docker image that will be used to create the container that the command will be run inside of.
-  * version
-    * Version of the docker image that will be used to create the container that the command will be run inside of.
-* command
-  * Shell command that will be executed inside of the created container.
+* agent
+  * An existing image name or name of an agent defined in the `agents` block.
 
-## Optional Parameters
-* docker
-  * shell
-    * Shell that will be used in the docker container (`'bash'` by default).
-  * workDir
-    * Working directory that the task will use inside of the container (`'/project'` by default).
-      * The directory that the task is called from will be mounted to this directory on the created container.
-  * env
-    * Environment variables that are set in the started container ([] by default)
-  * volumes
-    * This used to list any extra volumes you would like to mount on to the started container, using the syntax of the docker run `-v` option. ([] by default)
+* command
+  * Make target will be executed inside of the created container.
+
+## Examples
+
+The first example mandates the existence of an `agents` block because the `docker.Shell` task references it in its `agent` config.
+
+```
+agents:
+  - name: ubuntu
+    dockerFilePath: Dockerfile.test
+    image: algorand/go-algorand-ci-linux-ubuntu
+    version: README.md
+    buildArgs:
+      - GOLANG_VERSION=`./get_golang_version.sh`
+      - PWD=`pwd`
+      - Z=ZED
+    env:
+      - A=${A}
+      - B=${B}
+    workDir: $HOME/projects/go-algorand
+
+tasks:
+  - task: docker.Shell
+    agent: ubuntu
+    command: cat /etc/*release
+
+jobs:
+  cat-release:
+    tasks:
+    - docker.Shell
+```
+
+The second example is a kind of shorthand as it references an existing image (either locally or on Docker Hub) in its `agent` config.
+
+```
+tasks:
+  - task: docker.Shell
+    command: cat /etc/*release
+    agent: amd64/alpine:latest
+
+jobs:
+  cat-release:
+    tasks:
+    - docker.Shell
+```
 
 # Navigation
+
 * [Home](../../README.md)
 * [Task Documentation](README.md)
+
