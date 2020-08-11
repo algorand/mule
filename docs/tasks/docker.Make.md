@@ -1,29 +1,49 @@
 # docker.Make
 
 ## Description
+
 This task executes a make target from within a docker container. This task requires that there is a Makefile in the directory from where the task was called.
+
+Please see our [agent documentation](agents/README.md) for more information on defining agents.
 
 ## Required Parameters
 
-* docker
-  * image
-    * Name of the docker image that will be used to create the container that the make target will be run inside of.
-  * version
-    * Version of the docker image that will be used to create the container that the make target will be run inside of.
+* agent
+  * The name of an agent defined in the `agents` block.
+
 * target
   * Make target will be executed inside of the created container.
 
-## Optional Parameters
-* docker
-  * shell
-    * Shell that will be used in the docker container (`'bash'` by default).
-  * workDir
-    * Working directory that the task will use inside of the container (`'/project'` by default).
-      * The directory that the task is called from will be mounted to this directory on the created container.
-  * env
-    * Environment variables that are set in the started container ([] by default)
-  * volumes
-    * This used to list any extra volumes you would like to mount on to the started container, using the syntax of the docker run `-v` option. ([] by default)
+## Examples
+
+```
+agents:
+  - name: ubuntu
+    dockerFilePath: Dockerfile.test
+    image: algorand/go-algorand-ci-linux-ubuntu
+    version: README.md
+    buildArgs:
+      - GOLANG_VERSION=`./get_golang_version.sh`
+      - PWD=`pwd`
+      - Z=ZED
+    env:
+      - A=${A}
+      - B=${B}
+    workDir: $HOME/projects/go-algorand
+
+tasks:
+  - task: docker.Make
+    agent: ubuntu
+    target: build
+
+jobs:
+  build:
+    tasks:
+    - docker.Make
+```
+
 # Navigation
+
 * [Home](../../README.md)
 * [Task Documentation](README.md)
+
