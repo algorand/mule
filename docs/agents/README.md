@@ -2,7 +2,7 @@
 
 ## Description
 
-This task executes a make target from within a docker container. This task requires that there is a Makefile in the directory from where the task was called.
+`agents` are lists of objects that define an agent for running `mule` tasks.  The only type of agent currently supported is `docker`, but this will be expanded to include others in the future.
 
 ## Required Parameters
 
@@ -16,11 +16,12 @@ This task executes a make target from within a docker container. This task requi
 ## Optional Parameters
 
 * buildArgs
-  * Environment variables that are set in the started container ([] by default)
+  * `docker` build arguments that are passed to the `docker build` command.
+  * [Command substitution](https://www.gnu.org/software/bash/manual/html_node/Command-Substitution.html) is supported for build argument values.
 * env
-  * Environment variables that are set in the started container ([] by default)
+  * Environment variables that are set in the started container (`[]` by default).
 * volumes
-  * This used to list any extra volumes you would like to mount on to the started container, using the syntax of the docker run `-v` option. ([] by default)
+  * This used to list any extra volumes you would like to mount on to the started container, using the syntax of the docker run `-v` option (`[]` by default).
 * shell
   * Shell that will be used in the docker container (`'bash'` by default).
 * workDir
