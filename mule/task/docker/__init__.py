@@ -25,6 +25,7 @@ class Docker(ITask):
         'version': '',
         'volumes': [],
         'workDir': '/project',
+        'context': '.'
     }
 
     def __init__(self, args):
@@ -39,7 +40,7 @@ class Docker(ITask):
             build_args_str = f"--build-arg {' --build-arg '.join(build_args)}"
         if tags is not None and len(tags) > 0 :
             tags_str = f"-t {' -t '.join(tags)}"
-        docker_command = f"docker build {build_args_str} {tags_str} -f {self.machine['dockerFilePath']} {self.machine['workDir']}"
+        docker_command = f"docker build {build_args_str} {tags_str} -f {self.machine['dockerFilePath']} {self.machine['context']}"
         subprocess.run(docker_command.split(' '), check=True)
 
     def checkForLocalImage(self, image):
@@ -111,7 +112,7 @@ class Docker(ITask):
 
     def pullFromDockerHub(self, image):
         found = False
-        pull_from_docker_hub_command = f"docker pull {self.machine['image']}"
+        pull_from_docker_hub_command = f"docker pull {image}"
         docker_image_result = subprocess.run(pull_from_docker_hub_command.split(" "))
         if docker_image_result.returncode == 0:
             found = True
