@@ -16,7 +16,8 @@ def parseArgs():
     parser.add_argument(
         '-f',
         '--file',
-        default = 'mule.yaml',
+        action='append',
+        default = [],
         help = "path to yaml defining mule jobs (default: mule.yaml)",
     )
     group = parser.add_mutually_exclusive_group(

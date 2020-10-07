@@ -1,0 +1,49 @@
+tasks:
+- task: Echo
+  message: A
+  name: A
+- task: Echo
+  message: B
+  name: B
+- task: Echo
+  message: '{{ Echo.B.outputs.message }}'
+- task: Echo
+  name: echo-with-name
+  message: '{{ Echo.A.outputs.message }}'
+- task: Echo
+  name: multi-level-input
+  message:
+    test-string: '{{ Echo.B.outputs.message }}'
+    test-list:
+      - '{{ Echo.B.outputs.message }}'
+      - '{{ Echo.A.outputs.message }}'
+      - test-list-dict: '{{ Echo.B.outputs.message }}'
+    test-number: 0
+  dependencies: Echo.B Echo.A
+- task: Echo
+  name: print-multi-level-input
+  message: |
+    test-string: {{ Echo.multi-level-input.outputs.message.test-string }}
+    test-list:
+      {{ #Echo.multi-level-input.outputs.message.test-list }}
+      - {{.}}
+      {{ /Echo.multi-level-input.outputs.message.test-list }}
+    test-number: {{ Echo.multi-level-input.outputs.message.test-number }}
+  dependencies: Echo.multi-level-input
+jobs:
+  echo-task-output:
+    tasks:
+    - Echo.B
+    - Echo
+  echo-with-name-task-output-test:
+    tasks:
+    - Echo.A
+    - Echo.echo-with-name
+  echo-with-name-multi-level-test:
+    tasks:
+    - Echo.print-multi-level-input
+  echo-configs-override:
+    configs:
+      message: test
+    tasks:
+    - Echo

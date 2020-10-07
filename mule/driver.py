@@ -2,7 +2,7 @@ import yaml
 import mule.parser
 import mule.validator as validator
 import mule.util.yaml.env_var_loader as yaml_util
-from mule.util import JobContext, file_util
+from mule.util import JobContext, file_util, update_dict
 from mule.error import messages
 from mule.task import Job
 from termcolor import cprint
@@ -11,7 +11,10 @@ import sys
 def main():
     args = mule.parser.parseArgs()
     try:
-        mule_config = file_util.readYamlFile(args.file)
+        mule_yamls = args.file
+        if len(args.file) == 0:
+            mule_yamls.append('mule.yaml')
+        mule_config = _read_mule_yamls(mule_yamls)
         parsed_mule_config = yaml_util.readYamlWithEnvVars(yaml.dump(mule_config))
         jobs_config, task_configs, agent_configs = validator.getValidatedMuleYaml(parsed_mule_config)
         if args.list_jobs:
@@ -28,6 +31,16 @@ def main():
             file = sys.stderr
         )
         raise error
+
+def _read_mule_yamls(mule_yamls):
+    mule_config = {}
+    for mule_yaml in mule_yamls:
+        update_dict(
+            mule_config,
+            file_util.readYamlFile(mule_yaml),
+            overwrite_lists=False
+        )
+    return mule_config
 
 def _list_jobs(jobs_config):
     for job in jobs_config.keys():
