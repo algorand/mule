@@ -60,6 +60,11 @@ def install_node(data_dir, bin_dir, channel, node_package_version='latest'):
             os.path.join(node_package_dir, "genesis/mainnet/genesis.json"),
             os.path.join(data_dir, 'genesis.json')
         )
+    elif channel == 'nightly':
+        file_util.copy_file(
+            os.path.join(node_package_dir, "genesis/devnet/genesis.json"),
+            os.path.join(data_dir, 'genesis.json')
+        )
     else:
         file_util.copy_file(
             os.path.join(node_package_dir, f"genesis/{channel}net/genesis.json"),
