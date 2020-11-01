@@ -14,6 +14,11 @@ def parseArgs():
     )
 
     parser.add_argument(
+        '--verbose',
+        action = 'store_true',
+    )
+
+    parser.add_argument(
         '-f',
         '--file',
         action='append',
@@ -22,6 +27,13 @@ def parseArgs():
     )
     group = parser.add_mutually_exclusive_group(
         required=True,
+    )
+
+    group.add_argument(
+        '--list-agents',
+        action = 'store_true',
+        dest = 'list_agents',
+        help = 'lists agents in mule yaml file',
     )
 
     group.add_argument(

@@ -1,8 +1,9 @@
+from termcolor import cprint
 import os
 import re
 import yaml
+
 from mule.error import messages
-from termcolor import cprint
 
 env_var_path_matcher = re.compile(r'.*\$\{?([^}^{]+)\}?.*')
 tag = '!path'
@@ -18,12 +19,17 @@ def path_constructor(loader, node):
         return ''
     return value
 
-def getYamlLoaderWithEnvVars():
+def resolveEnvVars():
     yaml.add_implicit_resolver(tag, env_var_path_matcher)
     yaml.add_constructor(tag, path_constructor)
     return yaml
 
-def readYamlWithEnvVars(stream):
-    loader = getYamlLoaderWithEnvVars()
+def readYaml(mule_config, raw=True):
+    loader = yaml
+    stream = yaml.dump(mule_config)
+
+    if not raw:
+        loader = resolveEnvVars()
+
     return loader.load(stream, Loader=yaml.FullLoader)
 

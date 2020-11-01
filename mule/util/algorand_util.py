@@ -1,13 +1,14 @@
-import os
-import subprocess
 import json
+import os
+import platform
+import subprocess
 import urllib.request
+
 from mule.util import os_util
 from mule.util import file_util
 from mule.util import time_util
 from mule.util import s3_util
 from mule.util import semver_util
-import platform
 
 def build_algo_release_url(package_type, channel, os_type, cpu_arch_type, package_version):
     return f"https://algorand-releases.s3.amazonaws.com/channel/{channel}/{package_type}_{channel}_{os_type}-{cpu_arch_type}_{package_version}.tar.gz"
@@ -196,3 +197,7 @@ def build_indexer_postgress_connection_string(postgres):
     for field in postgres.items():
         postgress_connection_string.append(f"{field[0]}={field[1]}")
     return ' '.join(postgress_connection_string)
+
+def pjson(raw_json):
+    return json.dumps(raw_json, indent=4, sort_keys=False)
+
