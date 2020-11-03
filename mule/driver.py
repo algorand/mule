@@ -5,7 +5,7 @@ import mule.parser
 import mule.validator as validator
 import mule.util.yaml.env_var_loader as yaml_util
 from mule.util import JobContext, file_util, update_dict
-from mule.util.algorand_util import pjson
+from mule.util.algorand_util import prettify_json
 from mule.error import messages
 from mule.task import Job
 
@@ -18,10 +18,10 @@ def main():
         mule_config = _read_mule_yamls(mule_yamls)
 
         if args.list_agents:
-            parsed_mule_config = yaml_util.readYaml(mule_config)
+            parsed_mule_config = yaml_util.read_yaml(mule_config)
             _list_agents(parsed_mule_config["agents"], args.verbose)
         else:
-            parsed_mule_config = yaml_util.readYaml(mule_config, raw=False)
+            parsed_mule_config = yaml_util.read_yaml(mule_config, raw=False)
             jobs_config, task_configs, agent_configs = validator.getValidatedMuleYaml(parsed_mule_config)
             if args.list_jobs:
                 _list_jobs(jobs_config, args.verbose)
@@ -51,20 +51,20 @@ def _read_mule_yamls(mule_yamls):
 def _list_agents(agent_configs, verbose):
     for agent in agent_configs:
         if verbose:
-            print(agent['name'], pjson(agent_configs))
+            print(agent['name'], prettify_json(agent_configs))
         else:
             print(agent['name'])
 
 def _list_jobs(jobs_config, verbose):
     for job in jobs_config.keys():
         if verbose:
-            print(job, pjson(jobs_config[job]))
+            print(job, prettify_json(jobs_config[job]))
         else:
             print(job)
 
 def _list_tasks(task_configs, verbose):
     if verbose:
-        print(pjson(task_configs))
+        print(prettify_json(task_configs))
     else:
         for task in task_configs:
             if 'name' in task.keys():

@@ -198,6 +198,6 @@ def build_indexer_postgress_connection_string(postgres):
         postgress_connection_string.append(f"{field[0]}={field[1]}")
     return ' '.join(postgress_connection_string)
 
-def pjson(raw_json):
+def prettify_json(raw_json):
     return json.dumps(raw_json, indent=4, sort_keys=False)
 
