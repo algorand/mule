@@ -13,22 +13,19 @@ def main():
     args = mule.parser.parseArgs()
     try:
         mule_yamls = args.file
-        if len(args.file) == 0:
+        if len(mule_yamls) == 0:
             mule_yamls.append('mule.yaml')
         mule_config = _read_mule_yamls(mule_yamls)
-
+        parsed_mule_config = yaml_util.read_yaml(mule_config, raw=yaml_read_raw(args))
+        agent_configs, jobs_config, task_configs = validator.get_validated_mule_yaml(parsed_mule_config)
         if args.list_agents:
-            parsed_mule_config = yaml_util.read_yaml(mule_config)
-            _list_agents(parsed_mule_config["agents"], args.verbose)
+            _list_agents(agent_configs, args.verbose)
+        elif args.list_jobs:
+            _list_jobs(jobs_config, args.verbose)
+        elif args.list_tasks:
+            _list_tasks(task_configs, args.verbose)
         else:
-            parsed_mule_config = yaml_util.read_yaml(mule_config, raw=False)
-            jobs_config, task_configs, agent_configs = validator.getValidatedMuleYaml(parsed_mule_config)
-            if args.list_jobs:
-                _list_jobs(jobs_config, args.verbose)
-            elif args.list_tasks:
-                _list_tasks(task_configs, args.verbose)
-            else:
-                _execute_job(jobs_config, task_configs, agent_configs, args.JOB)
+            _execute_job(jobs_config, task_configs, agent_configs, args.JOB)
     except Exception as error:
         cprint(
             messages.MULE_DRIVER_EXCEPTION.format(args.JOB, args.file, error),
@@ -85,4 +82,7 @@ def _execute_job(jobs_config, task_configs, agent_configs, job):
     job_context = JobContext(agent_configs)
 
     return job.execute(job_context)
+
+def yaml_read_raw(args):
+    return args.list_agents
 
