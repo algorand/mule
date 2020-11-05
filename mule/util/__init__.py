@@ -1,3 +1,4 @@
+import json
 import time
 
 class JobContext:
@@ -32,6 +33,9 @@ def get_dict_value(dictionary, keys):
         if key_index == len(keys) - 1:
             return dictionary[key]
         dictionary = dictionary[key]
+
+def prettify_json(raw_json):
+    return json.dumps(raw_json, indent=4, sort_keys=False)
 
 def update_dict(current, new, overwrite_lists=True):
     levels = [(current, new)]

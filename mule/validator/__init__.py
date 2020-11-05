@@ -22,7 +22,9 @@ def getValidatedMuleConfigFile():
         mule_configs.update(mule_configs_from_file)
     return mule_configs
 
-def getValidatedMuleYaml(mule_config):
+def get_validated_mule_yaml(mule_config):
+    # Note that agents are optional!
+
     mule_config_keys = mule_config.keys()
 
     if not 'jobs' in mule_config_keys:
@@ -30,38 +32,41 @@ def getValidatedMuleYaml(mule_config):
     if not 'tasks' in mule_config_keys:
         raise Exception(messages.FIELD_NOT_FOUND.format('tasks'))
 
-    task_configs = mule_config['tasks']
-    jobs_configs = mule_config['jobs']
     agent_configs = mule_config['agents'] if 'agents' in mule_config else []
+    jobs_configs = mule_config['jobs']
+    task_configs = mule_config['tasks']
 
-    try:
-        validateJobConfigs(jobs_configs)
-    except Exception as error:
-        raise Exception(messages.FIELD_VALUE_COULD_NOT_BE_VALIDATED.format(
-            'jobs',
-            str(error)
-        ))
+    mule_configs = [
+        ("jobs", jobs_configs, validate_block),
+        ("tasks", task_configs, validate_tasks)
+    ]
 
-    try:
-        validateTaskConfigs(task_configs)
-    except Exception as error:
-        raise Exception(messages.FIELD_VALUE_COULD_NOT_BE_VALIDATED.format(
-            'tasks',
-            str(error)
-        ))
+    if len(agent_configs):
+        mule_configs.append(("agents", agent_configs, validate_list))
 
-    return jobs_configs, task_configs, agent_configs
+    for (name, config, fn) in mule_configs:
+        try:
+            fn(name, config)
+        except Exception as error:
+            raise Exception(messages.FIELD_VALUE_COULD_NOT_BE_VALIDATED.format(
+                name,
+                str(error)
+            ))
 
-def validateJobConfigs(job_configs):
-    if not type(job_configs) == dict:
-        raise Exception(messages.FIELD_VALUE_WRONG_TYPE.format('jobs', dict, type(job_configs)))
+    return agent_configs, jobs_configs, task_configs
 
-def validateTaskConfigs(task_configs):
-    if not type(task_configs) == list:
-        raise Exception(messages.FIELD_VALUE_WRONG_TYPE.format('tasks', list, type(task_configs)))
-    for task_config_index, task_config in enumerate(task_configs):
-        if not type(task_config) == dict:
-            raise Exception(messages.FIELD_VALUE_WRONG_TYPE.format(f"tasks[{task_config_index}]", dict, type(task_configs)))
+def validate_block(name, config):
+    if not type(config) == dict:
+        raise Exception(messages.FIELD_VALUE_WRONG_TYPE.format(name, dict, type(config)))
+
+def validate_list(name, config):
+    if not type(config) == list:
+        raise Exception(messages.FIELD_VALUE_WRONG_TYPE.format(name, list, type(config)))
+
+def validate_tasks(name, task_configs):
+    validate_list(name, task_configs)
+    for index, config in enumerate(task_configs):
+        validate_block(name, config)
 
 def validateTypedFields(task_id, task_fields, task_required_typed_fields, task_optional_typed_fields):
     for required_field, required_field_type in task_required_typed_fields:
