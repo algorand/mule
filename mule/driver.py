@@ -4,8 +4,7 @@ import sys
 import mule.parser
 import mule.validator as validator
 import mule.util.yaml.env_var_loader as yaml_util
-from mule.util import JobContext, file_util, update_dict
-from mule.util.algorand_util import prettify_json
+from mule.util import JobContext, file_util, prettify_json, update_dict
 from mule.error import messages
 from mule.task import Job
 
