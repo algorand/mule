@@ -19,17 +19,15 @@ def path_constructor(loader, node):
         return ''
     return value
 
-def resolveEnvVars():
-    yaml.add_implicit_resolver(tag, env_var_path_matcher)
-    yaml.add_constructor(tag, path_constructor)
+def get_loader(raw):
+    if not raw:
+        # Evaluate the env vars.
+        yaml.add_implicit_resolver(tag, env_var_path_matcher)
+        yaml.add_constructor(tag, path_constructor)
+        return yaml
     return yaml
 
-def readYaml(mule_config, raw=True):
-    loader = yaml
+def read_yaml(mule_config, raw=True):
     stream = yaml.dump(mule_config)
-
-    if not raw:
-        loader = resolveEnvVars()
-
-    return loader.load(stream, Loader=yaml.FullLoader)
+    return get_loader(raw).load(stream, Loader=yaml.FullLoader)
 

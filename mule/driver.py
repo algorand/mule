@@ -5,8 +5,7 @@ import sys
 import mule.parser
 import mule.validator as validator
 import mule.util.yaml.env_var_loader as yaml_util
-from mule.util import JobContext, file_util, update_dict
-from mule.util.algorand_util import pjson
+from mule.util import JobContext, file_util, prettify_json, update_dict
 from mule.error import messages
 from mule.task import Job
 
@@ -17,21 +16,52 @@ def main():
         if len(mule_yamls) == 0:
             mule_yamls.append('mule.yaml')
         mule_config = _read_mule_yamls(mule_yamls)
-
+        parsed_mule_config = yaml_util.read_yaml(mule_config, raw=yaml_read_raw(args))
+        agent_configs, jobs_config, task_configs = validator.get_validated_mule_yaml(parsed_mule_config)
         if args.list_agents:
-            _, _, agent_configs = _get_list_configs(mule_config)
+#<<<<<<< HEAD
+#            _, _, agent_configs = _get_list_configs(mule_config)
+#            _list_agents(agent_configs, args.verbose)
+#        elif args.list_env:
+#            job_name = args.list_env
+#            _list_env(mule_config, job_name, args.verbose)
+#||||||| merged common ancestors
+#            parsed_mule_config = yaml_util.readYaml(mule_config)
+#            _list_agents(parsed_mule_config["agents"], args.verbose)
+#=======
+#            _list_agents(agent_configs, args.verbose)
+#        elif args.list_jobs:
+#            _list_jobs(jobs_config, args.verbose)
+#        elif args.list_tasks:
+#            _list_tasks(task_configs, args.verbose)
+#>>>>>>> develop
             _list_agents(agent_configs, args.verbose)
-        elif args.list_env:
-            job_name = args.list_env
-            _list_env(mule_config, job_name, args.verbose)
+        elif args.list_jobs:
+            _list_jobs(jobs_config, args.verbose)
+        elif args.list_tasks:
+            _list_tasks(task_configs, args.verbose)
         else:
-            jobs_config, task_configs, agent_configs = _get_list_configs(mule_config, False)
-            if args.list_jobs:
-                _list_jobs(jobs_config, args.verbose)
-            elif args.list_tasks:
-                _list_tasks(task_configs, args.verbose)
-            else:
-                _execute_job(jobs_config, task_configs, agent_configs, args.JOB)
+#<<<<<<< HEAD
+#            jobs_config, task_configs, agent_configs = _get_list_configs(mule_config, False)
+#            if args.list_jobs:
+#                _list_jobs(jobs_config, args.verbose)
+#            elif args.list_tasks:
+#                _list_tasks(task_configs, args.verbose)
+#            else:
+#                _execute_job(jobs_config, task_configs, agent_configs, args.JOB)
+#||||||| merged common ancestors
+#            parsed_mule_config = yaml_util.readYaml(mule_config, raw=False)
+#            jobs_config, task_configs, agent_configs = validator.getValidatedMuleYaml(parsed_mule_config)
+#            if args.list_jobs:
+#                _list_jobs(jobs_config, args.verbose)
+#            elif args.list_tasks:
+#                _list_tasks(task_configs, args.verbose)
+#            else:
+#                _execute_job(jobs_config, task_configs, agent_configs, args.JOB)
+#=======
+#            _execute_job(jobs_config, task_configs, agent_configs, args.JOB)
+#>>>>>>> develop
+            _execute_job(jobs_config, task_configs, agent_configs, args.JOB)
     except Exception as error:
         cprint(
             messages.MULE_DRIVER_EXCEPTION.format(args.JOB, args.file, error),
@@ -58,7 +88,7 @@ def _read_mule_yamls(mule_yamls):
 def _list_agents(agent_configs, verbose):
     for agent in agent_configs:
         if verbose:
-            print(agent['name'], pjson(agent_configs))
+            print(agent['name'], prettify_json(agent_configs))
         else:
             print(agent['name'])
 
@@ -107,13 +137,13 @@ def _list_env(mule_config, job_name, verbose):
 def _list_jobs(jobs_config, verbose):
     for job in jobs_config.keys():
         if verbose:
-            print(job, pjson(jobs_config[job]))
+            print(job, prettify_json(jobs_config[job]))
         else:
             print(job)
 
 def _list_tasks(task_configs, verbose):
     if verbose:
-        print(pjson(task_configs))
+        print(prettify_json(task_configs))
     else:
         for task in task_configs:
             if 'name' in task.keys():
@@ -134,4 +164,7 @@ def _execute_job(jobs_config, task_configs, agent_configs, job):
     job_context = JobContext(agent_configs)
 
     return job.execute(job_context)
+
+def yaml_read_raw(args):
+    return args.list_agents
 

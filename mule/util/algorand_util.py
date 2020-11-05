@@ -61,6 +61,11 @@ def install_node(data_dir, bin_dir, channel, node_package_version='latest'):
             os.path.join(node_package_dir, "genesis/mainnet/genesis.json"),
             os.path.join(data_dir, 'genesis.json')
         )
+    elif channel == 'nightly':
+        file_util.copy_file(
+            os.path.join(node_package_dir, "genesis/devnet/genesis.json"),
+            os.path.join(data_dir, 'genesis.json')
+        )
     else:
         file_util.copy_file(
             os.path.join(node_package_dir, f"genesis/{channel}net/genesis.json"),
@@ -197,7 +202,4 @@ def build_indexer_postgress_connection_string(postgres):
     for field in postgres.items():
         postgress_connection_string.append(f"{field[0]}={field[1]}")
     return ' '.join(postgress_connection_string)
-
-def pjson(raw_json):
-    return json.dumps(raw_json, indent=4, sort_keys=False)
 
