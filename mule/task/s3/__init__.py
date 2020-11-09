@@ -2,6 +2,7 @@ import re
 import os
 import pathlib
 
+from mule.error import messages
 from mule.task import ITask
 from mule.util import s3_util
 
@@ -173,7 +174,7 @@ class BucketCopy(ITask):
                 # To get the wildcard, join the last two tuple elements, i.e., ('', 'bar, '*.out') => 'bar/*.out'
                 s3_util.upload_files('/'.join((src_bucket, src_prefix)), dest_bucket, dest_prefix)
         else:
-            raise ValueError('src and dest configs cannot both be local')
+            raise ValueError("\n".join((messages.BUCKET_UPLOAD_SRC_DEST, messages.POSSIBLE_MISSING_ENV_VARS)).format(src_bucket, dest_bucket))
 
     def execute(self, job_context):
         super().execute(job_context)

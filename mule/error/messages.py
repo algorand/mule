@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+BUCKET_UPLOAD_SRC_DEST="Source '{}' and destination '{}' configs cannot both be local"
 CANNOT_EVALUATE_ENV_VAR="Could not evaluate environment variable {} referenced in mule yaml file"
 CANNOT_LOCATE_TASK="Could not locate task with name {}\nPlease reference documentation or submit an issue"
 CANNOT_LOCATE_TASK_CONFIGS="Task {} listed another task {} as a dependency, but the task configs could not be found"
@@ -13,6 +14,7 @@ JOB_NOT_FOUND="Could not find job for name {}"
 MACHINE_DUPLICATE_NAME="Machine name '{}' not unique"
 MACHINE_MISSING_NAME="Could not find machine name '{}'"
 MULE_DRIVER_EXCEPTION="Mule could not execute job {} in file {}\n{}\n"
+POSSIBLE_MISSING_ENV_VARS="Are all needed environment variables set?"
 STASH_ID_EXCEPTION="Task {} has an invalid stash_id\nThis may be caused by an unresolved environment variable"
 TASK_DEPENDENCY_CHAIN_TIMEOUT="Could not evaluate dependency chain of your job\nAn infinite loop may have been found in your job's task dependencies"
 TASK_DEPENDENCY_CYCLIC_DEPENDENCY="Task {} has requested task {} twice in your job's execution chain\nTask dependencies must be acyclic"
@@ -20,3 +22,4 @@ TASK_FIELD_EVALUATION_TIMEOUT="Could not evaluate parameterized task fields for 
 TASK_FIELD_IS_WRONG_TYPE="Task {} has a field '{}' with the wrong type, expected {} got {}"
 TASK_FIELD_MISSING="A task is missing its task field"
 TASK_MISSING_REQUIRED_FIELDS="Task {} is missing required field {}.\nThe following fields are required {}"
+
