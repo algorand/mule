@@ -16,7 +16,7 @@ def main():
         if len(mule_yamls) == 0:
             mule_yamls.append('mule.yaml')
         mule_config = _read_mule_yamls(mule_yamls)
-        agent_configs, jobs_config, task_configs = _get_list_configs(mule_config, raw=yaml_read_raw(args))
+        agent_configs, jobs_config, task_configs = _get_configs(mule_config, raw=yaml_read_raw(args))
 
         if args.list_agents:
             _list_agents(agent_configs, args.verbose)
@@ -37,7 +37,7 @@ def main():
         )
         raise error
 
-def _get_list_configs(mule_config, raw):
+def _get_configs(mule_config, raw):
     parsed_mule_config = yaml_util.read_yaml(mule_config, raw)
     return validator.get_validated_mule_yaml(parsed_mule_config)
 
