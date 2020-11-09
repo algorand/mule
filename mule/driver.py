@@ -47,7 +47,7 @@ def _read_mule_yamls(mule_yamls):
 def _list_agents(agent_configs, verbose):
     for agent in agent_configs:
         if verbose:
-            print(agent['name'], prettify_json(agent_configs))
+            print(agent['name'], prettify_json(agent))
         else:
             print(agent['name'])
 
