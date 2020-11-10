@@ -71,7 +71,11 @@ def _list_env(agent_configs, jobs_config, task_configs, job_name, verbose):
             # to determine the agent defined for the specified tasks.
             for t_c in task_configs:
                 # Recall that tasks may not have a "name" key.
-                if t_c["task"] in task and "name" in t_c and t_c["name"] in task:
+                if (
+                    # For example, "".join((t_c["task"], ".", t_c["name"])) matches `docker.Make.deb`.
+                    "name" in t_c and "".join((t_c["task"], ".", t_c["name"])) == task or
+                    t_c["task"] == task
+                ):
                     agents.add(t_c["agent"])
 
         # If we're not concerned with knowing each agent config and whether or not
