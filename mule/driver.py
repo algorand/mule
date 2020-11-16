@@ -1,6 +1,7 @@
 from termcolor import cprint
 import os
 import sys
+import yaml
 
 import mule.parser
 import mule.validator as validator
@@ -86,6 +87,7 @@ def _list_env(agent_configs, jobs_config, task_configs, job_name, verbose):
         #
         # However, it's useful to know the names of which agent configs DON'T
         # contain any env vars, for example, so then we can print that to STDOUT.
+        items = {}
         for agent in agents:
             for a_c in agent_configs:
                 if agent == a_c["name"]:
@@ -97,9 +99,12 @@ def _list_env(agent_configs, jobs_config, task_configs, job_name, verbose):
                             for env in a_c["env"]:
                                 [name, value] = env.split("=")
                                 envs.append("=".join((name, os.path.expandvars(value))))
-                        print(f"agent `{agent}`: {prettify_json(envs)}")
+                        items[agent] = envs
                     else:
-                        print(f"agent `{agent}`: None")
+                        items[agent] = None
+
+        print(yaml.dump(items))
+        return items
 
 def _list_jobs(jobs_config, verbose):
     for job in jobs_config.keys():
