@@ -18,6 +18,7 @@ class Docker(ITask):
     machine = {
         'arch': 'amd64',
         'buildArgs': [],
+        'destroy': True,
         'dockerFilePath': 'Dockerfile',
         'env': [],
         'image': '',
@@ -86,13 +87,7 @@ class Docker(ITask):
     def execute(self, image):
         self.ensure(image)
         self.validateDockerConfigs()
-        self.run(
-            image,
-            [self.machine['shell'], '-c', self.command],
-            self.machine['workDir'],
-            self.machine['volumes'],
-            self.machine['env'],
-        )
+        self.run(image)
 
     def evaluateBuildArgs(self):
         args = []
@@ -118,17 +113,19 @@ class Docker(ITask):
             found = True
         return found
 
-    def run(self, image, command, work_dir, volumes, env):
+    def run(self, image):
+        work_dir = self.machine['workDir']
+        rm_container = '--rm' if self.machine['destroy'] else ''
         container_name = f"mule-{time.time_ns()}"
-        docker_command = ['docker', 'run', '--name', container_name, '--rm', '-w', work_dir, '-i', '-v', f"{os.getcwd()}:{work_dir}"]
+        docker_command = ['docker', 'run', '--name', container_name, rm_container, '-w', work_dir, '-i', '-v', f"{os.getcwd()}:{work_dir}"]
 
-        for env_var in env:
+        for env_var in self.machine['env']:
             docker_command.extend(['--env', env_var])
-        for volume in volumes:
+        for volume in self.machine['volumes']:
             docker_command.extend(['-v', volume])
 
         docker_command.append(image)
-        docker_command.extend(command)
+        docker_command.extend([self.machine['shell'], '-c', self.command])
         atexit.register(self.kill, container_name)
         subprocess.run(docker_command, check=True)
 
