@@ -51,6 +51,13 @@ def parseArgs():
     )
 
     group.add_argument(
+        '--list-env',
+        action = 'store',
+        dest = 'list_env',
+        help = 'lists the env vars needed for the given job',
+    )
+
+    group.add_argument(
         'JOB',
         help="name of job you would like to execute",
         nargs='?',
