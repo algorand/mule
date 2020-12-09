@@ -125,13 +125,20 @@ class Docker(ITask):
 
         for env_var in self.eval_args(self.machine['env']):
             docker_command.extend(['--env', env_var])
-        for volume in self.machine['volumes']:
+        for volume in self.validate_volumes(self.machine['volumes']):
             docker_command.extend(['-v', volume])
 
         docker_command.append(image)
         docker_command.extend([self.machine['shell'], '-c', self.command])
         atexit.register(self.kill, container_name)
         subprocess.run(docker_command, check=True)
+
+    def validate_volumes(self, volumes):
+        volume_re = re.compile(r'.+:.+')
+        bad_volumes = [volume for volume in volumes if not volume_re.match(volume)]
+        if len(bad_volumes):
+            raise Exception(messages.BAD_VOLUME_CONFIG.format(", ".join(bad_volumes)))
+        return volumes
 
 
 class Make(Docker):
