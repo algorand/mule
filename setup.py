@@ -6,7 +6,6 @@ from mule import __version__
 setuptools.setup(
     name='mulecli',
     version=__version__,
-    scripts=['bin/mule'],
     description='Script for executing automated tasks',
     packages=setuptools.find_packages(),
     python_requires='>=3.5',
@@ -30,4 +29,9 @@ setuptools.setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.7',
     ],
+    entry_points={
+        "console_scripts": [
+            "mule = mule.driver:main"
+        ]
+    }
 )
