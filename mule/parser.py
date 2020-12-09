@@ -51,6 +51,7 @@ def parseArgs():
     )
 
     group.add_argument(
+        '-l',
         '--list-env',
         action = 'store',
         dest = 'list_env',

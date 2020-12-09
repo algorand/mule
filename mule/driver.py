@@ -10,6 +10,7 @@ from mule.util import JobContext, file_util, prettify_json, update_dict
 from mule.error import messages
 from mule.task import Job
 
+
 def main():
     args = mule.parser.parseArgs()
     try:
@@ -77,33 +78,37 @@ def _list_env(agent_configs, jobs_config, task_configs, job_name, verbose):
                     "name" in t_c and "".join((t_c["task"], ".", t_c["name"])) == task or
                     t_c["task"] == task
                 ):
-                    agents.add(t_c["agent"])
+                    if "agent" in t_c:
+                        agents.add(t_c["agent"])
 
-        # If we're not concerned with knowing each agent config and whether or not
-        # it has defined env vars (or anything else), we could improve this from
-        # O(n^2) time to O(n) by simply checking if an agent_config["name"] is in
-        # the set and then hoovering up the env vars (however, we wouldn't then know
-        # anything about individual agents).
-        #
-        # However, it's useful to know the names of which agent configs DON'T
-        # contain any env vars, for example, so then we can print that to STDOUT.
         items = {}
-        for agent in agents:
-            for a_c in agent_configs:
-                if agent == a_c["name"]:
-                    if "env" in a_c and a_c["name"] in agents:
-                        envs = a_c['env']
-                        # Only evaluate the env vars if `verbose` flag is set.
-                        if verbose:
-                            envs = []
-                            for env in a_c["env"]:
-                                [name, value] = env.split("=")
-                                envs.append("=".join((name, os.path.expandvars(value))))
-                        items[agent] = envs
-                    else:
-                        items[agent] = None
+        if len(agents):
+            # If we're not concerned with knowing each agent config and whether or not
+            # it has defined env vars (or anything else), we could improve this from
+            # O(n^2) time to O(n) by simply checking if an agent_config["name"] is in
+            # the set and then hoovering up the env vars (however, we wouldn't then know
+            # anything about individual agents).
+            #
+            # However, it's useful to know the names of which agent configs DON'T
+            # contain any env vars, for example, so then we can print that to STDOUT.
+            for agent in agents:
+                for a_c in agent_configs:
+                    if agent == a_c["name"]:
+                        if "env" in a_c and a_c["name"] in agents:
+                            envs = a_c['env']
+                            # Only evaluate the env vars if `verbose` flag is set.
+                            if verbose:
+                                envs = []
+                                for env in a_c["env"]:
+                                    [name, value] = env.split("=")
+                                    envs.append("=".join((name, os.path.expandvars(value))))
+                            items[agent] = envs
+                        else:
+                            items[agent] = None
 
-        print(yaml.dump(items))
+            print(yaml.dump(items))
+        else:
+            print(f"The job `{job_name}` has no agents and no environment.")
         return items
 
 def _list_jobs(jobs_config, verbose):
