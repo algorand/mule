@@ -88,6 +88,11 @@ class Docker(ITask):
 
     def execute(self, image):
         self.ensure(image)
+        validations = [
+                ('env', '=', re.compile(r'.*=.+')),
+                ('volumes', ':', re.compile(r'.+:.+'))]
+        for field, delimiter, regex in validations:
+            self.validate_configs(field, delimiter, regex)
         self.run(image)
 
     def eval_args(self, args_list):
@@ -123,9 +128,9 @@ class Docker(ITask):
         container_name = f"mule-{time.time_ns()}"
         docker_command = ['docker', 'run', '--name', container_name, rm_container, '-w', work_dir, '-i', '-v', f"{os.getcwd()}:{work_dir}"]
 
-        for env_var in self.eval_args(self.machine['env']):
+        for env_var in self.machine['env']:
             docker_command.extend(['--env', env_var])
-        for volume in self.validate_volumes(self.machine['volumes']):
+        for volume in self.machine['volumes']:
             docker_command.extend(['-v', volume])
 
         docker_command.append(image)
@@ -133,12 +138,31 @@ class Docker(ITask):
         atexit.register(self.kill, container_name)
         subprocess.run(docker_command, check=True)
 
-    def validate_volumes(self, volumes):
-        volume_re = re.compile(r'.+:.+')
-        bad_volumes = [volume for volume in volumes if not volume_re.match(volume)]
-        if len(bad_volumes):
-            raise Exception(messages.BAD_VOLUME_CONFIG.format(", ".join(bad_volumes)))
-        return volumes
+    def validate(self, field, re):
+        try:
+            if not re.match(field):
+                raise ValueError
+            return True
+        except TypeError:
+            raise Exception(messages.AGENT_FIELD_WRONG_TYPE.format(
+                self.machine['name'],
+                field,
+                str,
+                type(field)
+            ))
+        except ValueError:
+            raise Exception(messages.AGENT_FIELD_WRONG_FORMAT.format(
+                self.machine['name'],
+                field
+            ))
+
+    def validate_configs(self, field, delimiter, regex):
+        if type(self.machine[field]) is dict:
+            self.machine[field] = [f"{k}{delimiter}{v}" for k, v in self.machine[field].items()]
+        elif type(self.machine[field]) is list:
+            self.machine[field] = [f for f in self.machine[field] if self.validate(f, regex)]
+        else:
+            raise Exception("Unsupported type")
 
 
 class Make(Docker):

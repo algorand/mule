@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-BAD_VOLUME_CONFIG="One or more docker volumes are misconfigured: '{}'"
+AGENT_FIELD_WRONG_FORMAT="Agent `{}` has an item '{}' with the wrong format"
+AGENT_FIELD_WRONG_TYPE="Agent `{}` has an item '{}' with the wrong type, expected {} got {}"
 BUCKET_UPLOAD_SRC_DEST="Source '{}' and destination '{}' configs cannot both be local"
 CANNOT_EVALUATE_ENV_VAR="Could not evaluate environment variable {} referenced in mule yaml file"
 CANNOT_LOCATE_TASK="Could not locate task with name {}\nPlease reference documentation or submit an issue"
