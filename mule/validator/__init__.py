@@ -6,6 +6,8 @@ from mule.error import messages
 from mule.util import file_util
 from mule.util import get_dict_value
 
+import ipdb
+
 DEFAULT_MULE_CONFIGS = {
     'packages': [
         'mule.task'
@@ -53,7 +55,11 @@ def get_validated_mule_yaml(mule_config):
                 str(error)
             ))
 
-    return agent_configs, jobs_configs, task_configs
+    return {
+        "agents": agent_configs,
+        "jobs": jobs_configs,
+        "tasks": task_configs
+    }
 
 def validate_block(name, config):
     if not type(config) == dict:
@@ -110,7 +116,7 @@ def getValidatedTask(task_config):
             return task_obj(task_config)
     raise Exception(messages.CANNOT_LOCATE_TASK.format(task_name))
 
-def getValidatedTaskDependencyChain(job_context, dependency_edges):
+def get_validated_task_dependency_chain(job_context, dependency_edges):
     # This is basically dfs, so these tuples represent edges
     # Index 0 is the requested task and index 1 is the
     # requesting task. Organizing the problem this way helps
@@ -124,8 +130,8 @@ def getValidatedTaskDependencyChain(job_context, dependency_edges):
     # an infinite loop
     timeout = time.time() + 10
     while len(dependency_edges) > 0:
-        if time.time() > timeout:
-            raise Exception(messages.TASK_DEPENDENCY_CHAIN_TIMEOUT)
+#        if time.time() > timeout:
+#            raise Exception(messages.TASK_DEPENDENCY_CHAIN_TIMEOUT)
         dependency_edge = dependency_edges.pop(0)
         if dependency_edge in seen_dependency_edges:
             raise Exception(messages.TASK_DEPENDENCY_CYCLIC_DEPENDENCY.format(dependency_edge[1], dependency_edge[0]))
@@ -135,16 +141,16 @@ def getValidatedTaskDependencyChain(job_context, dependency_edges):
             raise Exception(messages.CANNOT_LOCATE_TASK_CONFIGS.format(dependency_edge[1], dependency_edge[0]))
         if not 'completed' in task_context:
             if not 'task' in task_context:
-                task_context['task'] = getValidatedTask(task_context['inputs'])
-            if task_context['task'] in tasks_tbd:
+                task_instance = getValidatedTask(task_context['inputs'])
+            if task_instance in tasks_tbd:
                 # Our graph has different nodes with the same name.
                 # These nodes are the same as far as we're concerned
                 # so when we see repeats, we'll delete the earlier
                 # nodes. The ones that show up later get executed
                 # first, and we only want these to be executed once.
-                tasks_tbd.remove(task_context['task'])
-            tasks_tbd.append(task_context['task'])
-            for dependency_edge in task_context['task'].getDependencyEdges():
+                tasks_tbd.remove(task_instance)
+            tasks_tbd.append(task_instance)
+            for dependency_edge in task_instance.get_dependency_edges():
                 dependency_edges.insert(0, dependency_edge)
     # Reversing the list because we started with
     # the targeted task and ended with the earliest

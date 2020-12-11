@@ -8,7 +8,8 @@ import time
 
 from mule.task import ITask
 from mule.error import messages
-from mule.util import update_dict
+
+import ipdb
 
 class Docker(ITask):
     required_fields = [
@@ -133,7 +134,7 @@ class Docker(ITask):
         for env_var_index, env_var in enumerate(self.machine['env']):
             if not type(env_var) == str:
                 raise Exception(messages.TASK_FIELD_IS_WRONG_TYPE.format(
-                    self.getId(),
+                    self.get_id(),
                     f"docker.env[{env_var_index}]",
                     str,
                     type(env_var)
@@ -144,7 +145,7 @@ class Docker(ITask):
         for volume_index, volume in enumerate(self.machine['volumes']):
             if not type(volume) == str:
                 raise Exception(messages.TASK_FIELD_IS_WRONG_TYPE.format(
-                    self.getId(),
+                    self.get_id(),
                     f"docker.env[{volume_index}]",
                     str,
                     type(volume)

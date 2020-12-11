@@ -59,7 +59,7 @@ def parseArgs():
     )
 
     group.add_argument(
-        'JOB',
+        'job',
         help="name of job you would like to execute",
         nargs='?',
         default = None,
