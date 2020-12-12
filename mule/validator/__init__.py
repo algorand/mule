@@ -6,7 +6,6 @@ from mule.error import messages
 from mule.util import file_util
 from mule.util import get_dict_value
 
-import ipdb
 
 DEFAULT_MULE_CONFIGS = {
     'packages': [
@@ -130,8 +129,8 @@ def get_validated_task_dependency_chain(job_context, dependency_edges):
     # an infinite loop
     timeout = time.time() + 10
     while len(dependency_edges) > 0:
-#        if time.time() > timeout:
-#            raise Exception(messages.TASK_DEPENDENCY_CHAIN_TIMEOUT)
+        if time.time() > timeout:
+            raise Exception(messages.TASK_DEPENDENCY_CHAIN_TIMEOUT)
         dependency_edge = dependency_edges.pop(0)
         if dependency_edge in seen_dependency_edges:
             raise Exception(messages.TASK_DEPENDENCY_CYCLIC_DEPENDENCY.format(dependency_edge[1], dependency_edge[0]))

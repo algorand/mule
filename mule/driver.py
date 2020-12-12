@@ -10,17 +10,24 @@ from mule.util import JobContext, file_util, prettify_json, update_dict
 from mule.error import messages
 from mule.task import Job
 
-import ipdb
 
 def main():
     args = mule.parser.parseArgs()
     try:
         mule_yamls = args.file
-        if len(mule_yamls) == 0:
+        if not len(mule_yamls):
             mule_yamls.append('mule.yaml')
+
+        if args.recipe and len(args.recipe):
+            with open(args.recipe[0], "r") as fp:
+                job_config = yaml.safe_load(fp.read())
+            _execute_job(job_config)
+            return
+
         mule_config = _get_configs(
                 _read_mule_yamls(mule_yamls),
                 raw=yaml_read_raw(args))
+
         if args.list_agents:
             _list_agents(mule_config['agents'], args.verbose)
         elif args.list_jobs:
@@ -30,7 +37,10 @@ def main():
         elif args.list_tasks:
             _list_tasks(mule_config['tasks'], args.verbose)
         else:
-            _execute_job(mule_config, args.job)
+            if args.job not in mule_config['jobs']:
+                raise Exception(messages.JOB_NOT_FOUND.format(args.job))
+            job_config =_get_job_config(mule_config, args.job)
+            _execute_job(job_config)
     except Exception as error:
         cprint(
             messages.MULE_DRIVER_EXCEPTION.format(args.job, args.file, error),
@@ -41,10 +51,7 @@ def main():
         raise error
 
 
-def _execute_job(mule_config, job):
-    if job not in mule_config['jobs']:
-        raise Exception(messages.JOB_NOT_FOUND.format(job))
-    job_config =_get_job_config(mule_config, job)
+def _execute_job(job_config):
     job = Job(job_config)
     job_context = JobContext(job_config)
     return job.execute(job_context)

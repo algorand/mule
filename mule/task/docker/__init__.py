@@ -9,7 +9,6 @@ import time
 from mule.task import ITask
 from mule.error import messages
 
-import ipdb
 
 class Docker(ITask):
     required_fields = [

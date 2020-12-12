@@ -30,6 +30,13 @@ def parseArgs():
     )
 
     group.add_argument(
+        '-r',
+        '--recipe',
+        action='append',
+        help = "recipe file / pre-defined job environment",
+    )
+
+    group.add_argument(
         '--list-agents',
         action = 'store_true',
         dest = 'list_agents',
