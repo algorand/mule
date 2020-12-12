@@ -6,6 +6,7 @@ from mule.error import messages
 from mule.util import file_util
 from mule.util import get_dict_value
 
+import ipdb
 
 DEFAULT_MULE_CONFIGS = {
     'packages': [
@@ -73,7 +74,7 @@ def validate_tasks(name, task_configs):
     for index, config in enumerate(task_configs):
         validate_block(name, config)
 
-def validateTypedFields(task_id, task_fields, task_required_typed_fields, task_optional_typed_fields):
+def validate_typed_fields(task_id, task_fields, task_required_typed_fields, task_optional_typed_fields):
     for required_field, required_field_type in task_required_typed_fields:
         required_field_index = required_field.split('.')
         required_field_value = get_dict_value(task_fields, required_field_index)
@@ -159,7 +160,7 @@ def get_validated_task_dependency_chain(job_context, dependency_edges):
     tasks_tbd.reverse()
     return tasks_tbd
 
-def validateRequiredTaskFieldsPresent(task_id, fields, required_fields):
+def validate_required_tasks_fields_present(task_id, fields, required_fields):
     for field in required_fields:
         if not field in fields.keys():
             raise Exception(messages.TASK_MISSING_REQUIRED_FIELDS.format(
