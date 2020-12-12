@@ -4,8 +4,8 @@ import pystache
 
 import mule.validator as validator
 from mule.error import messages
-from mule.util import update_dict
 
+import ipdb
 
 class ITask:
     required_fields = []
@@ -103,7 +103,7 @@ class Job(ITask):
 
     def build_job_context(self, job_context):
         for task_config in job_context.get_field('task_configs'):
-            update_dict(task_config, job_context.get_field('configs'))
+            task_config.update(job_context.get_field('configs'))
             validator.validateTaskConfig(task_config)
             if 'name' in task_config:
                 job_context.add_field(f"{task_config['task']}.{task_config['name']}.inputs", task_config)
