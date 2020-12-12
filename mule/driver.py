@@ -62,33 +62,23 @@ def _get_configs(mule_config, raw):
     return validator.get_validated_mule_yaml(parsed_mule_config)
 
 
-def _get_task(mule_config, job_task):
-    for task in mule_config["tasks"]:
-        if "name" in task:
-            name = ".".join((task["task"], task["name"]))
-        else:
-            name = task["task"]
-        if name == job_task:
-            return task
-
-
 def _get_job_config(mule_config, job):
     job_def = mule_config["jobs"].get(job)
     job_configs = job_def.get("configs", {})
     tasks = job_def.get("tasks", [])
-    agents = []
     task_configs = []
+    agents = []
     for job_task in tasks:
-        task = _get_task(mule_config, job_task)
+        name, task = _get_task(mule_config, job_task)
         task_configs.append(task)
         if "dependencies" in task:
-            task_configs += [_get_task(mule_config, dependency) for dependency in task["dependencies"]]
+            for dependency in task["dependencies"]:
+                _, task = _get_task(mule_config, dependency)
+                task_configs.append(task)
         # Recall not all tasks have an agent!
         if "agent" in task and job_task == name:
             agent = task["agent"]
-            for item in mule_config["agents"]:
-                if agent == item["name"]:
-                    agents.append(item)
+            agents = [item for item in mule_config["agents"] if task["agent"] == item["name"]]
     return {
         "name": job,
         "configs": job_configs,
@@ -96,6 +86,16 @@ def _get_job_config(mule_config, job):
         "tasks": tasks,
         "task_configs": task_configs,
     }
+
+
+def _get_task(mule_config, job_task):
+    for task in mule_config["tasks"]:
+        if "name" in task:
+            name = ".".join((task["task"], task["name"]))
+        else:
+            name = task["task"]
+        if name == job_task:
+            return name, task
 
 
 def _list_agents(agent_configs, verbose):
