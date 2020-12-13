@@ -20,7 +20,7 @@ def getValidatedMuleConfigFile():
     config_file_path = os.path.abspath(os.path.expanduser(DEFAULT_MULE_CONFIG_PATH))
     mule_configs = DEFAULT_MULE_CONFIGS
     if os.path.isfile(config_file_path):
-        mule_configs_from_file = file_util.readYamlFile(config_file_path)
+        mule_configs_from_file = file_util.read_yaml_file(config_file_path)
         mule_configs.update(mule_configs_from_file)
     return mule_configs
 

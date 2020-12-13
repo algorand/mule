@@ -10,6 +10,7 @@ from mule.util import JobContext, file_util, prettify_json, update_dict
 from mule.error import messages
 from mule.task import Job
 
+import ipdb
 
 def main():
     args = mule.parser.parseArgs()
@@ -20,7 +21,8 @@ def main():
 
         if args.recipe and len(args.recipe):
             with open(args.recipe[0], "r") as fp:
-                job_config = yaml.safe_load(fp.read())
+                job_yaml = yaml.safe_load(fp.read())
+                job_config = yaml_util.read_yaml(job_yaml, raw=False)
             _execute_job(job_config)
             return
 
@@ -182,7 +184,7 @@ def _read_mule_yamls(mule_yamls):
     for mule_yaml in mule_yamls:
         update_dict(
             mule_config,
-            file_util.readYamlFile(mule_yaml),
+            file_util.read_yaml_file(mule_yaml),
             overwrite_lists=False
         )
     return mule_config

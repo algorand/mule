@@ -25,6 +25,7 @@ def parseArgs():
         default = [],
         help = "path to yaml defining mule jobs (default: mule.yaml)",
     )
+
     group = parser.add_mutually_exclusive_group(
         required=True,
     )
