@@ -10,6 +10,8 @@ from mule.task import ITask
 from mule.error import messages
 from mule.util import update_dict
 
+# TODO: isolate all `subprocess.run` calls to a single location
+
 class Docker(ITask):
     required_fields = [
         'image',
@@ -33,7 +35,7 @@ class Docker(ITask):
         super().__init__(args)
 
     def build(self, image):
-        build_args = [f"ARCH={self.machine['arch']}"] + self.evaluateBuildArgs()
+        build_args = [f"ARCH={self.machine['arch']}"] + self.eval_args(self.machine['buildArgs'])
         build_args_str = ""
         tags = [image]
         tags_str = ""
@@ -44,7 +46,7 @@ class Docker(ITask):
         docker_command = f"docker build {build_args_str} {tags_str} -f {self.machine['dockerFilePath']} {self.machine['context']}"
         subprocess.run(docker_command.split(' '), check=True)
 
-    def checkForLocalImage(self, image):
+    def check_for_local_image(self, image):
         found = False
         check_for_local_docker_image = f"docker inspect --type=image {image}"
         docker_inspect_result = subprocess.run(
@@ -66,13 +68,13 @@ class Docker(ITask):
         return file_hash.hexdigest()
 
     def ensure(self, image):
-        if self.checkForLocalImage(image):
+        if self.check_for_local_image(image):
             cprint(
                 f"Found docker image {image} locally",
                 'green',
             )
         else:
-            if self.pullFromDockerHub(image):
+            if self.pull_from_docker_hub(image):
                 cprint(
                     f"Found docker image {image} on DockerHub",
                     'green',
@@ -86,18 +88,25 @@ class Docker(ITask):
 
     def execute(self, image):
         self.ensure(image)
-        self.validateDockerConfigs()
+        validations = [
+                ('env', '=', re.compile(r'.*=.+')),
+                ('volumes', ':', re.compile(r'.+:.+'))]
+        for field, delimiter, regex in validations:
+            self.validate_configs(field, delimiter, regex)
         self.run(image)
 
-    def evaluateBuildArgs(self):
+    def eval_args(self, args_list):
         args = []
-        for build_arg in self.machine['buildArgs']:
-            symbol, value = build_arg.split('=')
-            if value[0] == '`':
-                ret = subprocess.run(value.strip('`'), capture_output=True)
-                args.append('='.join((symbol, ret.stdout.decode('utf-8').rstrip('\n'))))
-            else:
-                args.append(build_arg)
+        for arg in args_list:
+            # If an env var isn't set, then `arg` will be empty ("").
+            # This *usually* is ok, as env vars can be optional.
+            if arg:
+                symbol, value = arg.split('=')
+                if value[0] == '`':
+                    ret = subprocess.run(value.strip('`').split(), capture_output=True)
+                    args.append('='.join((symbol, ret.stdout.decode('utf-8').rstrip('\n'))))
+                else:
+                    args.append(arg)
         return args
 
     def kill(self, container_name):
@@ -105,7 +114,7 @@ class Docker(ITask):
             print(f"Cleaning up started docker container {container_name}")
             subprocess.run(f"docker kill {container_name}".split(' '), stdout=subprocess.DEVNULL)
 
-    def pullFromDockerHub(self, image):
+    def pull_from_docker_hub(self, image):
         found = False
         pull_from_docker_hub_command = f"docker pull {image}"
         docker_image_result = subprocess.run(pull_from_docker_hub_command.split(" "))
@@ -129,28 +138,31 @@ class Docker(ITask):
         atexit.register(self.kill, container_name)
         subprocess.run(docker_command, check=True)
 
-    def validateDockerConfigs(self):
-        for env_var_index, env_var in enumerate(self.machine['env']):
-            if not type(env_var) == str:
-                raise Exception(messages.TASK_FIELD_IS_WRONG_TYPE.format(
-                    self.getId(),
-                    f"docker.env[{env_var_index}]",
-                    str,
-                    type(env_var)
-                ))
-        dockerEnvVarPattern = re.compile(r'.*=.+')
-        self.machine['env'] = [envVar for envVar in self.machine['env'] if dockerEnvVarPattern.match(envVar)]
+    def validate(self, field, re):
+        try:
+            if not re.match(field):
+                raise ValueError
+            return True
+        except TypeError:
+            raise Exception(messages.AGENT_FIELD_WRONG_TYPE.format(
+                self.machine['name'],
+                field,
+                str,
+                type(field)
+            ))
+        except ValueError:
+            raise Exception(messages.AGENT_FIELD_WRONG_FORMAT.format(
+                self.machine['name'],
+                field
+            ))
 
-        for volume_index, volume in enumerate(self.machine['volumes']):
-            if not type(volume) == str:
-                raise Exception(messages.TASK_FIELD_IS_WRONG_TYPE.format(
-                    self.getId(),
-                    f"docker.env[{volume_index}]",
-                    str,
-                    type(volume)
-                ))
-        dockerVolumePattern = re.compile(r'.+:.+')
-        self.machine['volumes'] = [volume for volume in self.machine['volumes'] if dockerVolumePattern.match(volume)]
+    def validate_configs(self, field, delimiter, regex):
+        if type(self.machine[field]) is dict:
+            self.machine[field] = [f"{k}{delimiter}{v}" for k, v in self.machine[field].items()]
+        elif type(self.machine[field]) is list:
+            self.machine[field] = [f for f in self.machine[field] if self.validate(f, regex)]
+        else:
+            raise Exception("Unsupported type")
 
 
 class Make(Docker):
