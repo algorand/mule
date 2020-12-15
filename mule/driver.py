@@ -18,10 +18,9 @@ def main():
         if not len(mule_yamls):
             mule_yamls.append('mule.yaml')
 
-        if args.recipe and len(args.recipe):
-            with open(args.recipe[0], "r") as fp:
-                job_yaml = yaml.safe_load(fp.read())
-                job_configs = yaml_util.read_yaml(job_yaml.get("items"), raw=False)
+        if args.recipe:
+            job_yaml = yaml.safe_load(args.recipe)
+            job_configs = yaml_util.read_yaml(job_yaml.get("items"), raw=False)
             for j_c in job_configs:
                 _execute_job(j_c)
             return

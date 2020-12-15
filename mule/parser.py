@@ -33,8 +33,8 @@ def parseArgs():
     group.add_argument(
         '-r',
         '--recipe',
-        action='append',
-        help = "recipe file / pre-defined job environment",
+        help='Compiled environment from recipe',
+        type=argparse.FileType('r')
     )
 
     group.add_argument(
