@@ -22,8 +22,9 @@ def main():
         if args.recipe and len(args.recipe):
             with open(args.recipe[0], "r") as fp:
                 job_yaml = yaml.safe_load(fp.read())
-                job_config = yaml_util.read_yaml(job_yaml, raw=False)
-            _execute_job(job_config)
+                job_configs = yaml_util.read_yaml(job_yaml.get("items"), raw=False)
+            for j_c in job_configs:
+                _execute_job(j_c)
             return
 
         mule_config = _get_configs(

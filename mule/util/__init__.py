@@ -3,10 +3,8 @@ import ipdb
 
 
 class JobContext:
-    job_context = {}
-
     def __init__(self, job_config):
-        self.job_context.update(job_config)
+        self.job_context = job_config
 
     def add_field(self, index, value):
         keys = index.split('.')
