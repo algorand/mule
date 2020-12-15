@@ -5,7 +5,6 @@ import pystache
 import mule.validator as validator
 from mule.error import messages
 
-import ipdb
 
 class ITask:
     required_fields = []

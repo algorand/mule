@@ -10,7 +10,6 @@ from mule.util import JobContext, file_util, prettify_json, update_dict
 from mule.error import messages
 from mule.task import Job
 
-import ipdb
 
 def main():
     args = mule.parser.parseArgs()

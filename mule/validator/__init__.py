@@ -1,4 +1,5 @@
 import os
+import re
 import time
 from pydoc import locate
 
@@ -6,7 +7,6 @@ from mule.error import messages
 from mule.util import file_util
 from mule.util import get_dict_value
 
-import ipdb
 
 DEFAULT_MULE_CONFIGS = {
     'packages': [
@@ -16,6 +16,13 @@ DEFAULT_MULE_CONFIGS = {
 
 DEFAULT_MULE_CONFIG_PATH = "~/.mule/config.yaml"
 
+
+validators = {
+    "env": re.compile(r".*=.+"),
+    "volumes": re.compile(r".+:.+")
+}
+
+
 def getValidatedMuleConfigFile():
     config_file_path = os.path.abspath(os.path.expanduser(DEFAULT_MULE_CONFIG_PATH))
     mule_configs = DEFAULT_MULE_CONFIGS
@@ -24,19 +31,57 @@ def getValidatedMuleConfigFile():
         mule_configs.update(mule_configs_from_file)
     return mule_configs
 
-def get_validated_mule_yaml(mule_config):
-    # Note that agents are optional!
+def validate(field, f):
+    try:
+        if not validators[field].match(f):
+            raise ValueError
+        return True
+    except TypeError:
+        raise Exception(messages.AGENT_FIELD_WRONG_TYPE.format(
+            field,
+            f,
+            str,
+            type(field)
+        ))
+    except ValueError:
+        raise Exception(messages.AGENT_FIELD_WRONG_FORMAT.format(
+            field,
+            f
+        ))
 
+
+def validate_agent_block(agent_block, field):
+    if field not in agent_block:
+        return
+    fields = agent_block[field]
+    if type(fields) is list:
+        for f in fields:
+            validate(field, f)
+        validate_list(f"agent.{field}", fields)
+    else:
+        validate_block(f"agent.{field}", fields)
+
+
+def get_validated_mule_yaml(mule_config):
     mule_config_keys = mule_config.keys()
 
-    if not 'jobs' in mule_config_keys:
-        raise Exception(messages.FIELD_NOT_FOUND.format('jobs'))
-    if not 'tasks' in mule_config_keys:
-        raise Exception(messages.FIELD_NOT_FOUND.format('tasks'))
+    if not "jobs" in mule_config_keys:
+        raise Exception(messages.FIELD_NOT_FOUND.format("jobs"))
+    if not "tasks" in mule_config_keys:
+        raise Exception(messages.FIELD_NOT_FOUND.format("tasks"))
 
-    agent_configs = mule_config['agents'] if 'agents' in mule_config else []
-    jobs_configs = mule_config['jobs']
-    task_configs = mule_config['tasks']
+    # Note that agents are optional!
+    if "agents" in mule_config:
+        for field in ["env", "volumes"]:
+            # Note that "env" and "volumes" fields are optional in an agent.
+            for agent in mule_config["agents"]:
+                validate_agent_block(agent, field)
+        agent_configs = mule_config["agents"]
+    else:
+        agent_configs = []
+
+    jobs_configs = mule_config["jobs"]
+    task_configs = mule_config["tasks"]
 
     mule_configs = [
         ("jobs", jobs_configs, validate_block),

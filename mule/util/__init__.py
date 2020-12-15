@@ -1,10 +1,10 @@
+import copy
 import json
-import ipdb
 
 
 class JobContext:
     def __init__(self, job_config):
-        self.job_context = job_config
+        self.job_context = copy.deepcopy(job_config)
 
     def add_field(self, index, value):
         keys = index.split('.')
