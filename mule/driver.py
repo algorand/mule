@@ -19,13 +19,17 @@ def main():
             mule_yamls.append('mule.yaml')
 
         if args.recipe:
-            saddle = mule.validator.get_plugin("saddle")[0]
-            out = saddle.get_compiled(args.recipe)
-            job_yaml = yaml.safe_load(out)
-            job_configs = yaml_util.read_yaml(job_yaml.get("items"), raw=False)
-            for j_c in job_configs:
-                _execute_job(j_c)
-            return
+            plugins = mule.validator.get_plugin("saddle")
+            if not len(plugins):
+                raise Exception(messages.PLUGIN_NOT_FOUND.format("saddle"))
+            else:
+                saddle = plugins[0]
+                out = saddle.get_compiled(args.recipe)
+                job_yaml = yaml.safe_load(out)
+                job_configs = yaml_util.read_yaml(job_yaml.get("items"), raw=False)
+                for j_c in job_configs:
+                    _execute_job(j_c)
+                return
 
         mule_config = _get_configs(
                 _read_mule_yamls(mule_yamls),

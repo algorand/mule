@@ -8,7 +8,6 @@ from mule.error import messages
 from mule.util import file_util
 from mule.util import get_dict_value
 
-
 DEFAULT_MULE_CONFIGS = {
     'packages': [
         'mule.task'
@@ -63,6 +62,8 @@ def validate(field, f):
 
 
 def validate_agent_block(agent_block, field):
+    # Note that "env" and "volumes" fields are optional in an agent,
+    # so it's ok to return if not found in dict.
     if field not in agent_block:
         return
     fields = agent_block[field]
@@ -85,7 +86,6 @@ def get_validated_mule_yaml(mule_config):
     # Note that agents are optional!
     if "agents" in mule_config:
         for field in ["env", "volumes"]:
-            # Note that "env" and "volumes" fields are optional in an agent.
             for agent in mule_config["agents"]:
                 validate_agent_block(agent, field)
         agent_configs = mule_config["agents"]
