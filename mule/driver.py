@@ -19,7 +19,9 @@ def main():
             mule_yamls.append('mule.yaml')
 
         if args.recipe:
-            job_yaml = yaml.safe_load(args.recipe)
+            saddle = mule.validator.get_plugin("saddle")[0]
+            out = saddle.get_compiled(args.recipe)
+            job_yaml = yaml.safe_load(out)
             job_configs = yaml_util.read_yaml(job_yaml.get("items"), raw=False)
             for j_c in job_configs:
                 _execute_job(j_c)

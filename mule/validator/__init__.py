@@ -1,4 +1,5 @@
 import os
+import pkg_resources
 import re
 import time
 from pydoc import locate
@@ -23,6 +24,14 @@ validators = {
 }
 
 
+def get_plugin(name):
+    return [
+        entry_point.load()
+        for entry_point in pkg_resources.iter_entry_points(group="mule.plugin")
+        if name == entry_point.name
+    ]
+
+
 def getValidatedMuleConfigFile():
     config_file_path = os.path.abspath(os.path.expanduser(DEFAULT_MULE_CONFIG_PATH))
     mule_configs = DEFAULT_MULE_CONFIGS
@@ -31,8 +40,11 @@ def getValidatedMuleConfigFile():
         mule_configs.update(mule_configs_from_file)
     return mule_configs
 
+
 def validate(field, f):
     try:
+        if not f:
+            return
         if not validators[field].match(f):
             raise ValueError
         return True
@@ -106,18 +118,22 @@ def get_validated_mule_yaml(mule_config):
         "tasks": task_configs
     }
 
+
 def validate_block(name, config):
     if not type(config) == dict:
         raise Exception(messages.FIELD_VALUE_WRONG_TYPE.format(name, dict, type(config)))
+
 
 def validate_list(name, config):
     if not type(config) == list:
         raise Exception(messages.FIELD_VALUE_WRONG_TYPE.format(name, list, type(config)))
 
+
 def validate_tasks(name, task_configs):
     validate_list(name, task_configs)
     for index, config in enumerate(task_configs):
         validate_block(name, config)
+
 
 def validate_typed_fields(task_id, task_fields, task_required_typed_fields, task_optional_typed_fields):
     for required_field, required_field_type in task_required_typed_fields:
@@ -148,9 +164,11 @@ def validate_typed_fields(task_id, task_fields, task_required_typed_fields, task
                     type(optional_field_value)
                 ))
 
+
 def validateTaskConfig(task_config):
     if not 'task' in task_config:
         raise Exception(messages.TASK_FIELD_MISSING)
+
 
 def getValidatedTask(task_config):
     mule_config = getValidatedMuleConfigFile()
@@ -160,6 +178,7 @@ def getValidatedTask(task_config):
         if not task_obj is None:
             return task_obj(task_config)
     raise Exception(messages.CANNOT_LOCATE_TASK.format(task_name))
+
 
 def get_validated_task_dependency_chain(job_context, dependency_edges):
     # This is basically dfs, so these tuples represent edges
@@ -205,6 +224,7 @@ def get_validated_task_dependency_chain(job_context, dependency_edges):
     tasks_tbd.reverse()
     return tasks_tbd
 
+
 def validate_required_tasks_fields_present(task_id, fields, required_fields):
     for field in required_fields:
         if not field in fields.keys():
@@ -213,4 +233,3 @@ def validate_required_tasks_fields_present(task_id, fields, required_fields):
                 field,
                 str(required_fields)
             ))
-
