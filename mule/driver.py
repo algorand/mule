@@ -24,7 +24,7 @@ def main():
                 raise Exception(messages.PLUGIN_NOT_FOUND.format("saddle"))
             else:
                 saddle = plugins[0]
-                out = saddle.get_compiled(args.recipe)
+                out = saddle.compile(args.recipe)
                 job_yaml = yaml.safe_load(out)
                 job_configs = yaml_util.read_yaml(job_yaml.get("items"), raw=False)
                 for j_c in job_configs:
