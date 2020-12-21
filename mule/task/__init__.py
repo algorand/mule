@@ -12,22 +12,23 @@ class ITask:
     optional_typed_fields = []
     dependencies = []
 
-    def __init__(self, job_config):
+    def __init__(self, task_config):
+        ipdb.set_trace()
         package_ref = self.__class__.__module__.replace('mule.task', '')
         self.task_id = f"{package_ref}.{self.__class__.__name__}".lstrip('.')
         # Include name in task id if one is provided
-        if 'name' in job_config:
-            self.task_id = f"{self.task_id}.{job_config['name']}"
-        if 'dependencies' in job_config:
-            self.dependencies = job_config['dependencies']
+        if 'name' in task_config:
+            self.task_id = f"{self.task_id}.{task_config['name']}"
+        if 'dependencies' in task_config:
+            self.dependencies = task_config['dependencies']
         validator.validate_required_task_fields_present(
             self.task_id,
-            job_config,
+            task_config,
             self.required_fields
         )
         validator.validate_typed_fields(
             self.task_id,
-            job_config,
+            task_config,
             self.required_typed_fields,
             self.optional_typed_fields
         )
