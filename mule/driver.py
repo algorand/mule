@@ -124,15 +124,15 @@ def _list_env(mule_config, job_name, verbose):
         for task in tasks:
             # Now that we have each task, loop over the yaml task configs (i.e., `tasks`)
             # to determine the agent defined for the specified tasks.
-            for t_c in mule_config["tasks"]:
+            for task_config in mule_config["tasks"]:
                 # Recall that tasks may not have a "name" key.
                 if (
-                    # For example, "".join((t_c["task"], ".", t_c["name"])) matches `docker.Make.deb`.
-                    "name" in t_c and "".join((t_c["task"], ".", t_c["name"])) == task or
-                    t_c["task"] == task
+                    # For example, "".join((task_config["task"], ".", task_config["name"])) matches `docker.Make.deb`.
+                    "name" in task_config and "".join((task_config["task"], ".", task_config["name"])) == task or
+                    task_config["task"] == task
                 ):
-                    if "agent" in t_c:
-                        agents.add(t_c["agent"])
+                    if "agent" in task_config:
+                        agents.add(task_config["agent"])
 
         items = {}
         if len(agents):
