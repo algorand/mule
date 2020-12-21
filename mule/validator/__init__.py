@@ -225,7 +225,7 @@ def get_validated_task_dependency_chain(job_context, dependency_edges):
     return tasks_tbd
 
 
-def validate_required_tasks_fields_present(task_id, fields, required_fields):
+def validate_required_task_fields_present(task_id, fields, required_fields):
     for field in required_fields:
         if not field in fields.keys():
             raise Exception(messages.TASK_MISSING_REQUIRED_FIELDS.format(

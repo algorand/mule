@@ -20,7 +20,7 @@ class ITask:
             self.task_id = f"{self.task_id}.{job_config['name']}"
         if 'dependencies' in job_config:
             self.dependencies = job_config['dependencies']
-        validator.validate_required_tasks_fields_present(
+        validator.validate_required_task_fields_present(
             self.task_id,
             job_config,
             self.required_fields

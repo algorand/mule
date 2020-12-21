@@ -1,6 +1,6 @@
 from mule.task import ITask
 from mule.util import algorand_util
-from mule.validator import validate_required_tasks_fields_present
+from mule.validator import validate_required_task_fields_present
 
 class Start(ITask):
     required_fields = [
@@ -37,13 +37,13 @@ class Start(ITask):
         contains_local_node_fields = all(field in node for field in local_node_fields)
         if not contains_remote_node_fields and not contains_local_node_fields:
             if not contains_remote_node_fields:
-                validate_required_tasks_fields_present(
+                validate_required_task_fields_present(
                     self.task_id,
                     node,
                     remote_node_fields
                 )
             else:
-                validate_required_tasks_fields_present(
+                validate_required_task_fields_present(
                     self.task_id,
                     node,
                     local_node_fields
@@ -51,7 +51,7 @@ class Start(ITask):
 
     def validate_postgres_fields(self, postgres):
         postgres_fields = ['host', 'port', 'user', 'password']
-        validate_required_tasks_fields_present(
+        validate_required_task_fields_present(
             self.task_id,
             postgres,
             postgres_fields
