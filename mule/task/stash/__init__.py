@@ -17,7 +17,7 @@ class Stash(ITask):
         self.bucketName = args['bucketName']
         self.stashId = args['stashId']
         if not type(self.stashId) == str or len(self.stashId) == 0:
-            raise Exception(messages.STASH_ID_EXCEPTION.format(self.getId()))
+            raise Exception(messages.STASH_ID_EXCEPTION.format(self.get_id()))
 
     def stash(self):
         file_name = f"stash-{time_util.get_timestamp()}.tar.gz"

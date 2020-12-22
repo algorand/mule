@@ -8,7 +8,7 @@ import time
 
 from mule.task import ITask
 from mule.error import messages
-from mule.util import update_dict
+
 
 # TODO: isolate all `subprocess.run` calls to a single location
 
@@ -45,6 +45,14 @@ class Docker(ITask):
             tags_str = f"-t {' -t '.join(tags)}"
         docker_command = f"docker build {build_args_str} {tags_str} -f {self.machine['dockerFilePath']} {self.machine['context']}"
         subprocess.run(docker_command.split(' '), check=True)
+
+    # The mule schema supports defining agent.{env,volumes} as either dicts or lists,
+    # but we want to operate on lists in this module because it's easier to build out
+    # the docker api.
+    def check_block_format(self, l, delimiter):
+        if type(l) is dict:
+            l = [f"{k}{delimiter}{v}" for k, v in l.items()]
+        return l
 
     def check_for_local_image(self, image):
         found = False
@@ -88,11 +96,6 @@ class Docker(ITask):
 
     def execute(self, image):
         self.ensure(image)
-        validations = [
-                ('env', '=', re.compile(r'.*=.+')),
-                ('volumes', ':', re.compile(r'.+:.+'))]
-        for field, delimiter, regex in validations:
-            self.validate_configs(field, delimiter, regex)
         self.run(image)
 
     def eval_args(self, args_list):
@@ -128,41 +131,16 @@ class Docker(ITask):
         container_name = f"mule-{time.time_ns()}"
         docker_command = ['docker', 'run', '--name', container_name, rm_container, '-w', work_dir, '-i', '-v', f"{os.getcwd()}:{work_dir}"]
 
-        for env_var in self.machine['env']:
+        for env_var in self.check_block_format(self.machine['env'], "="):
             docker_command.extend(['--env', env_var])
-        for volume in self.machine['volumes']:
+
+        for volume in self.check_block_format(self.machine['volumes'], ":"):
             docker_command.extend(['-v', volume])
 
         docker_command.append(image)
         docker_command.extend([self.machine['shell'], '-c', self.command])
         atexit.register(self.kill, container_name)
         subprocess.run(docker_command, check=True)
-
-    def validate(self, field, re):
-        try:
-            if not re.match(field):
-                raise ValueError
-            return True
-        except TypeError:
-            raise Exception(messages.AGENT_FIELD_WRONG_TYPE.format(
-                self.machine['name'],
-                field,
-                str,
-                type(field)
-            ))
-        except ValueError:
-            raise Exception(messages.AGENT_FIELD_WRONG_FORMAT.format(
-                self.machine['name'],
-                field
-            ))
-
-    def validate_configs(self, field, delimiter, regex):
-        if type(self.machine[field]) is dict:
-            self.machine[field] = [f"{k}{delimiter}{v}" for k, v in self.machine[field].items()]
-        elif type(self.machine[field]) is list:
-            self.machine[field] = [f for f in self.machine[field] if self.validate(f, regex)]
-        else:
-            raise Exception("Unsupported type")
 
 
 class Make(Docker):
@@ -200,5 +178,3 @@ class Shell(Docker):
 
     def execute(self, job_context):
         super().execute(self.agent)
-
-

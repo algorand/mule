@@ -8,7 +8,7 @@ import shutil
 def deleteFile(path):
     os.remove(path)
 
-def readYamlFile(path):
+def read_yaml_file(path):
     with open(path) as configs:
         return yaml.load(configs, Loader=yaml.FullLoader)
 

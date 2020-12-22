@@ -25,8 +25,16 @@ def parseArgs():
         default = [],
         help = "path to yaml defining mule jobs (default: mule.yaml)",
     )
+
     group = parser.add_mutually_exclusive_group(
         required=True,
+    )
+
+    group.add_argument(
+        '-r',
+        '--recipe',
+        help='Compiled environment from recipe',
+        type=argparse.FileType('r')
     )
 
     group.add_argument(
@@ -59,7 +67,7 @@ def parseArgs():
     )
 
     group.add_argument(
-        'JOB',
+        'job',
         help="name of job you would like to execute",
         nargs='?',
         default = None,

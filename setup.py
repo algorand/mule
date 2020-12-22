@@ -11,14 +11,14 @@ setuptools.setup(
     python_requires='>=3.5',
     include_package_data=True,
     install_requires=[
-        'pystache',
-        'gitpython',
-        'pygithub',
-        'pyyaml',
-        'termcolor',
         'boto3',
         'botocore',
-        'packaging'
+        'gitpython',
+        'packaging',
+        'pygithub',
+        'pystache',
+        'pyyaml',
+        'termcolor',
     ],
     license='MIT',
     classifiers=[
@@ -32,6 +32,12 @@ setuptools.setup(
     entry_points={
         "console_scripts": [
             "mule = mule.driver:main"
-        ]
+        ],
+        "mule.plugin": [
+            "docker = mule.task.docker",
+            "s3 = mule.task.s3",
+            "shell = mule.task.shell",
+            "stash = mule.task.stash",
+        ],
     }
 )

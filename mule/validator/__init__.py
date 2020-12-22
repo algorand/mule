@@ -1,4 +1,6 @@
 import os
+import pkg_resources
+import re
 import time
 from pydoc import locate
 
@@ -14,27 +16,84 @@ DEFAULT_MULE_CONFIGS = {
 
 DEFAULT_MULE_CONFIG_PATH = "~/.mule/config.yaml"
 
+
+validators = {
+    "env": re.compile(r".*=.+"),
+    "volumes": re.compile(r".+:.+")
+}
+
+
+def get_plugin(name):
+    return [
+        entry_point.load()
+        for entry_point in pkg_resources.iter_entry_points(group="mule.plugin")
+        if name == entry_point.name
+    ]
+
+
 def getValidatedMuleConfigFile():
     config_file_path = os.path.abspath(os.path.expanduser(DEFAULT_MULE_CONFIG_PATH))
     mule_configs = DEFAULT_MULE_CONFIGS
     if os.path.isfile(config_file_path):
-        mule_configs_from_file = file_util.readYamlFile(config_file_path)
+        mule_configs_from_file = file_util.read_yaml_file(config_file_path)
         mule_configs.update(mule_configs_from_file)
     return mule_configs
 
-def get_validated_mule_yaml(mule_config):
-    # Note that agents are optional!
 
+def validate(field, f):
+    try:
+        if not f:
+            return
+        if not validators[field].match(f):
+            raise ValueError
+        return True
+    except TypeError:
+        raise Exception(messages.AGENT_FIELD_WRONG_TYPE.format(
+            field,
+            f,
+            str,
+            type(field)
+        ))
+    except ValueError:
+        raise Exception(messages.AGENT_FIELD_WRONG_FORMAT.format(
+            field,
+            f
+        ))
+
+
+def validate_agent_block(agent_block, field):
+    # Note that "env" and "volumes" fields are optional in an agent,
+    # so it's ok to return if not found in dict.
+    if field not in agent_block:
+        return
+    fields = agent_block[field]
+    if type(fields) is list:
+        for f in fields:
+            validate(field, f)
+        validate_list(f"agent.{field}", fields)
+    else:
+        validate_block(f"agent.{field}", fields)
+
+
+def get_validated_mule_yaml(mule_config):
     mule_config_keys = mule_config.keys()
 
-    if not 'jobs' in mule_config_keys:
-        raise Exception(messages.FIELD_NOT_FOUND.format('jobs'))
-    if not 'tasks' in mule_config_keys:
-        raise Exception(messages.FIELD_NOT_FOUND.format('tasks'))
+    if not "jobs" in mule_config_keys:
+        raise Exception(messages.FIELD_NOT_FOUND.format("jobs"))
+    if not "tasks" in mule_config_keys:
+        raise Exception(messages.FIELD_NOT_FOUND.format("tasks"))
 
-    agent_configs = mule_config['agents'] if 'agents' in mule_config else []
-    jobs_configs = mule_config['jobs']
-    task_configs = mule_config['tasks']
+    # Note that agents are optional!
+    if "agents" in mule_config:
+        for field in ["env", "volumes"]:
+            for agent in mule_config["agents"]:
+                validate_agent_block(agent, field)
+        agent_configs = mule_config["agents"]
+    else:
+        agent_configs = []
+
+    jobs_configs = mule_config["jobs"]
+    task_configs = mule_config["tasks"]
 
     mule_configs = [
         ("jobs", jobs_configs, validate_block),
@@ -53,22 +112,30 @@ def get_validated_mule_yaml(mule_config):
                 str(error)
             ))
 
-    return agent_configs, jobs_configs, task_configs
+    return {
+        "agents": agent_configs,
+        "jobs": jobs_configs,
+        "tasks": task_configs
+    }
+
 
 def validate_block(name, config):
     if not type(config) == dict:
         raise Exception(messages.FIELD_VALUE_WRONG_TYPE.format(name, dict, type(config)))
 
+
 def validate_list(name, config):
     if not type(config) == list:
         raise Exception(messages.FIELD_VALUE_WRONG_TYPE.format(name, list, type(config)))
+
 
 def validate_tasks(name, task_configs):
     validate_list(name, task_configs)
     for index, config in enumerate(task_configs):
         validate_block(name, config)
 
-def validateTypedFields(task_id, task_fields, task_required_typed_fields, task_optional_typed_fields):
+
+def validate_typed_fields(task_id, task_fields, task_required_typed_fields, task_optional_typed_fields):
     for required_field, required_field_type in task_required_typed_fields:
         required_field_index = required_field.split('.')
         required_field_value = get_dict_value(task_fields, required_field_index)
@@ -97,9 +164,11 @@ def validateTypedFields(task_id, task_fields, task_required_typed_fields, task_o
                     type(optional_field_value)
                 ))
 
+
 def validateTaskConfig(task_config):
     if not 'task' in task_config:
         raise Exception(messages.TASK_FIELD_MISSING)
+
 
 def getValidatedTask(task_config):
     mule_config = getValidatedMuleConfigFile()
@@ -110,7 +179,8 @@ def getValidatedTask(task_config):
             return task_obj(task_config)
     raise Exception(messages.CANNOT_LOCATE_TASK.format(task_name))
 
-def getValidatedTaskDependencyChain(job_context, dependency_edges):
+
+def get_validated_task_dependency_chain(job_context, dependency_edges):
     # This is basically dfs, so these tuples represent edges
     # Index 0 is the requested task and index 1 is the
     # requesting task. Organizing the problem this way helps
@@ -135,16 +205,16 @@ def getValidatedTaskDependencyChain(job_context, dependency_edges):
             raise Exception(messages.CANNOT_LOCATE_TASK_CONFIGS.format(dependency_edge[1], dependency_edge[0]))
         if not 'completed' in task_context:
             if not 'task' in task_context:
-                task_context['task'] = getValidatedTask(task_context['inputs'])
-            if task_context['task'] in tasks_tbd:
+                task_instance = getValidatedTask(task_context['inputs'])
+            if task_instance in tasks_tbd:
                 # Our graph has different nodes with the same name.
                 # These nodes are the same as far as we're concerned
                 # so when we see repeats, we'll delete the earlier
                 # nodes. The ones that show up later get executed
                 # first, and we only want these to be executed once.
-                tasks_tbd.remove(task_context['task'])
-            tasks_tbd.append(task_context['task'])
-            for dependency_edge in task_context['task'].getDependencyEdges():
+                tasks_tbd.remove(task_instance)
+            tasks_tbd.append(task_instance)
+            for dependency_edge in task_instance.get_dependency_edges():
                 dependency_edges.insert(0, dependency_edge)
     # Reversing the list because we started with
     # the targeted task and ended with the earliest
@@ -154,7 +224,8 @@ def getValidatedTaskDependencyChain(job_context, dependency_edges):
     tasks_tbd.reverse()
     return tasks_tbd
 
-def validateRequiredTaskFieldsPresent(task_id, fields, required_fields):
+
+def validate_required_task_fields_present(task_id, fields, required_fields):
     for field in required_fields:
         if not field in fields.keys():
             raise Exception(messages.TASK_MISSING_REQUIRED_FIELDS.format(
@@ -162,4 +233,3 @@ def validateRequiredTaskFieldsPresent(task_id, fields, required_fields):
                 field,
                 str(required_fields)
             ))
-
