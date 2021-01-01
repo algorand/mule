@@ -3,12 +3,13 @@ import os
 import sys
 import yaml
 
-import mule.parser
-import mule.validator as validator
-import mule.util.yaml.env_var_loader as yaml_util
-from mule.util import JobContext, file_util, prettify_json, update_dict
 from mule.error import messages
+from mule.logger import logger
 from mule.task import Job
+from mule.util import JobContext, file_util, prettify_json, update_dict
+import mule.parser
+import mule.util.yaml.env_var_loader as yaml_util
+import mule.validator as validator
 
 
 def main():
@@ -31,18 +32,21 @@ def main():
                     _execute_job(j_c)
                 return
 
+        if args.verbose:
+            logger.setLevel(10)
+
         mule_config = _get_configs(
                 _read_mule_yamls(mule_yamls),
                 raw=yaml_read_raw(args))
 
         if args.list_agents:
-            _list_agents(mule_config['agents'], args.verbose)
+            _list_agents(mule_config['agents'])
         elif args.list_jobs:
-            _list_jobs(mule_config['jobs'], args.verbose)
+            _list_jobs(mule_config['jobs'])
         elif args.list_env:
             _list_env(mule_config, args.list_env, args.verbose)
         elif args.list_tasks:
-            _list_tasks(mule_config['tasks'], args.verbose)
+            _list_tasks(mule_config['tasks'])
         else:
             if args.job not in mule_config['jobs']:
                 raise Exception(messages.JOB_NOT_FOUND.format(args.job))
@@ -105,12 +109,11 @@ def _get_task(mule_config, job_task):
             return name, task
 
 
-def _list_agents(agent_configs, verbose):
+def _list_agents(agent_configs):
     for agent in agent_configs:
-        if verbose:
-            print(agent['name'], prettify_json(agent))
-        else:
-            print(agent['name'])
+        #        logger.debug(agent['name'], prettify_json(agent))
+        logger.debug(prettify_json(agent))
+        print(agent['name'])
 
 
 def _list_env(mule_config, job_name, verbose):
@@ -165,23 +168,19 @@ def _list_env(mule_config, job_name, verbose):
         return items
 
 
-def _list_jobs(jobs_config, verbose):
+def _list_jobs(jobs_config):
     for job in jobs_config.keys():
-        if verbose:
-            print(job, prettify_json(jobs_config[job]))
+        logger.debug(job, prettify_json(jobs_config[job]))
+        print(job)
+
+
+def _list_tasks(task_configs):
+    logger.debug(prettify_json(task_configs))
+    for task in task_configs:
+        if 'name' in task.keys():
+            print(f"{task['task']}.{task['name']}")
         else:
-            print(job)
-
-
-def _list_tasks(task_configs, verbose):
-    if verbose:
-        print(prettify_json(task_configs))
-    else:
-        for task in task_configs:
-            if 'name' in task.keys():
-                print(f"{task['task']}.{task['name']}")
-            else:
-                print(task['task'])
+            print(task['task'])
 
 
 def _read_mule_yamls(mule_yamls):

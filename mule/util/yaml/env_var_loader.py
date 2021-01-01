@@ -4,6 +4,7 @@ import re
 import yaml
 
 from mule.error import messages
+from mule.logger import logger
 
 env_var_path_matcher = re.compile(r'.*\$\{?([^}^{]+)\}?.*')
 tag = '!path'
@@ -11,11 +12,12 @@ tag = '!path'
 def path_constructor(loader, node):
     value = os.path.expandvars(node.value)
     if env_var_path_matcher.match(value):
-        cprint(
-            messages.CANNOT_EVALUATE_ENV_VAR.format(node.value),
-            'yellow',
-            attrs=['bold']
-        )
+        logger.info("you are a foo")
+#        cprint(
+#            messages.CANNOT_EVALUATE_ENV_VAR.format(node.value),
+#            'yellow',
+#            attrs=['bold']
+#        )
         return ''
     return value
 
