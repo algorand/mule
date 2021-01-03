@@ -1,4 +1,3 @@
-from termcolor import cprint
 import os
 import re
 import yaml
@@ -12,13 +11,8 @@ tag = '!path'
 def path_constructor(loader, node):
     value = os.path.expandvars(node.value)
     if env_var_path_matcher.match(value):
-        logger.debug("you are a foo")
-#        cprint(
-#            messages.CANNOT_EVALUATE_ENV_VAR.format(node.value),
-#            'yellow',
-#            attrs=['bold']
-#        )
-        return ''
+        logger.debug(messages.CANNOT_EVALUATE_ENV_VAR.format(node.value))
+        return ""
     return value
 
 def get_loader(raw):

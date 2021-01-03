@@ -1,4 +1,3 @@
-from termcolor import cprint
 import os
 import sys
 import yaml
@@ -40,25 +39,23 @@ def main():
                 raw=yaml_read_raw(args))
 
         if args.list_agents:
-            _list_agents(mule_config['agents'])
+            for agent in list_agents(mule_config.get("agents")):
+                print(agent)
         elif args.list_jobs:
-            _list_jobs(mule_config['jobs'])
+            for job in list_jobs(mule_config.get("jobs")):
+                print(job)
         elif args.list_env:
-            _list_env(mule_config, args.list_env, args.verbose)
+            list_env(mule_config, args.list_env, args.verbose)
         elif args.list_tasks:
-            _list_tasks(mule_config['tasks'])
+            for task in list_tasks(mule_config.get("tasks")):
+                print(task)
         else:
             if args.job not in mule_config['jobs']:
                 raise Exception(messages.JOB_NOT_FOUND.format(args.job))
             job_config =_get_job_config(mule_config, args.job)
             _execute_job(job_config)
     except Exception as error:
-        cprint(
-            messages.MULE_DRIVER_EXCEPTION.format(args.job, args.file, error),
-            'red',
-            attrs=['bold'],
-            file=sys.stderr
-        )
+        logger.error(messages.MULE_DRIVER_EXCEPTION.format(args.job, args.file, error))
         raise error
 
 
@@ -109,13 +106,15 @@ def _get_task(mule_config, job_task):
             return name, task
 
 
-def _list_agents(agent_configs):
+def list_agents(agent_configs):
+    agents = []
     for agent in agent_configs:
-        logger.info(agent['name'])
+        agents.append(agent.get("name"))
         logger.debug(prettify_json(agent))
+    return agents
 
 
-def _list_env(mule_config, job_name, verbose):
+def list_env(mule_config, job_name, verbose):
     if job_name not in mule_config["jobs"]:
         raise Exception(messages.JOB_NOT_FOUND.format(job_name))
     else:
@@ -167,19 +166,23 @@ def _list_env(mule_config, job_name, verbose):
         return items
 
 
-def _list_jobs(jobs_config):
+def list_jobs(jobs_config):
+    jobs = []
     for job in jobs_config.keys():
-        logger.info(job)
-        logger.debug(prettify_json(jobs_config[job]))
+        jobs.append(job)
+        logger.debug(prettify_json(jobs_config.get(job)))
+    return jobs
 
 
-def _list_tasks(task_configs):
+def list_tasks(task_configs):
+    logger.debug(prettify_json(task_configs))
+    tasks = []
     for task in task_configs:
         if 'name' in task.keys():
-            logger.info(f"{task['task']}.{task['name']}")
+            tasks.append(f"{task.get('task')}.{task.get('name')}")
         else:
-            logger.info(task['task'])
-    logger.debug(prettify_json(task_configs))
+            tasks.append(task.get('task'))
+    return tasks
 
 
 def _read_mule_yamls(mule_yamls):

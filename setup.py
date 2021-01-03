@@ -13,12 +13,12 @@ setuptools.setup(
     install_requires=[
         'boto3',
         'botocore',
+        'colorlog',
         'gitpython',
         'packaging',
         'pygithub',
         'pystache',
         'pyyaml',
-        'termcolor',
     ],
     license='MIT',
     classifiers=[
