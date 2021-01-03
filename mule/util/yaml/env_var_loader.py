@@ -12,7 +12,7 @@ tag = '!path'
 def path_constructor(loader, node):
     value = os.path.expandvars(node.value)
     if env_var_path_matcher.match(value):
-        logger.info("you are a foo")
+        logger.debug("you are a foo")
 #        cprint(
 #            messages.CANNOT_EVALUATE_ENV_VAR.format(node.value),
 #            'yellow',

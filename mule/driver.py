@@ -111,9 +111,8 @@ def _get_task(mule_config, job_task):
 
 def _list_agents(agent_configs):
     for agent in agent_configs:
-        #        logger.debug(agent['name'], prettify_json(agent))
+        logger.info(agent['name'])
         logger.debug(prettify_json(agent))
-        print(agent['name'])
 
 
 def _list_env(mule_config, job_name, verbose):
@@ -162,25 +161,25 @@ def _list_env(mule_config, job_name, verbose):
                         else:
                             items[agent] = None
 
-            print(yaml.dump(items))
+            logger.info(yaml.dump(items))
         else:
-            print(f"The job `{job_name}` has no agents and no environment.")
+            logger.info(f"The job `{job_name}` has no agents and no environment.")
         return items
 
 
 def _list_jobs(jobs_config):
     for job in jobs_config.keys():
-        logger.debug(job, prettify_json(jobs_config[job]))
-        print(job)
+        logger.info(job)
+        logger.debug(prettify_json(jobs_config[job]))
 
 
 def _list_tasks(task_configs):
-    logger.debug(prettify_json(task_configs))
     for task in task_configs:
         if 'name' in task.keys():
-            print(f"{task['task']}.{task['name']}")
+            logger.info(f"{task['task']}.{task['name']}")
         else:
-            print(task['task'])
+            logger.info(task['task'])
+    logger.debug(prettify_json(task_configs))
 
 
 def _read_mule_yamls(mule_yamls):
