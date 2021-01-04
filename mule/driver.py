@@ -16,7 +16,7 @@ def main():
     try:
         mule_yamls = args.file
         if not len(mule_yamls):
-            mule_yamls.append('mule.yaml')
+            mule_yamls.append("mule.yaml")
 
         if args.recipe:
             plugins = mule.validator.get_plugin("saddle")
@@ -50,7 +50,7 @@ def main():
             else:
                 print("\n".join(list_jobs(mule_config.get("jobs"))))
         elif args.list_env:
-            list_env(mule_config, args.list_env, args.verbose)
+            print(prettify_json(list_env(mule_config, args.list_env, args.verbose)))
         elif args.list_tasks:
             if args.verbose:
                 print(prettify_json({task.get("name"): task for task in mule_config.get("tasks")}))
@@ -163,9 +163,6 @@ def list_env(mule_config, job_name, verbose):
                         else:
                             items[agent] = None
 
-            logger.info(yaml.dump(items))
-        else:
-            logger.info(f"The job `{job_name}` has no agents and no environment.")
         return items
 
 
