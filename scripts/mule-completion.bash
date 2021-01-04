@@ -27,14 +27,14 @@ _mule_completion() {
         do
             if [[ "$item" =~ $SELECTED_FILE ]]
             then
-                jobs=$(mule -f "$item" --list-jobs)
+                jobs=$(mule -f "$item" --list-jobs 2> /dev/null)
                 break
             fi
         done
         COMPREPLY=($(compgen -W "$jobs" "$curr_arg"))
     elif [[ "$last_arg" =~ $SELECTED_FILE ]]
     then
-        jobs=$(mule -f "$last_arg" --list-jobs)
+        jobs=$(mule -f "$last_arg" --list-jobs 2> /dev/null)
         COMPREPLY=($(compgen -W "$jobs" "$curr_arg"))
     fi
 }
