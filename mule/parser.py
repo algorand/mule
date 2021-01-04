@@ -19,6 +19,11 @@ def parseArgs():
     )
 
     parser.add_argument(
+        '--debug',
+        action = 'store_true',
+    )
+
+    parser.add_argument(
         '-f',
         '--file',
         action='append',

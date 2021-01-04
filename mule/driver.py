@@ -31,7 +31,7 @@ def main():
                     _execute_job(j_c)
                 return
 
-        if args.verbose:
+        if args.debug:
             logger.setLevel(10)
 
         mule_config = _get_configs(
@@ -39,18 +39,25 @@ def main():
                 raw=yaml_read_raw(args))
 
         if args.list_agents:
-            for agent in list_agents(mule_config.get("agents")):
-                print(agent)
+            if args.verbose:
+                print(prettify_json({agent.get("name"): agent for agent in mule_config.get("agents")}))
+            else:
+                print("\n".join(list_agents(mule_config.get("agents"))))
         elif args.list_jobs:
-            for job in list_jobs(mule_config.get("jobs")):
-                print(job)
+            if args.verbose:
+                jobs_config = mule_config.get("jobs")
+                print(prettify_json({job: jobs_config.get(job) for job in jobs_config}))
+            else:
+                print("\n".join(list_jobs(mule_config.get("jobs"))))
         elif args.list_env:
             list_env(mule_config, args.list_env, args.verbose)
         elif args.list_tasks:
-            for task in list_tasks(mule_config.get("tasks")):
-                print(task)
+            if args.verbose:
+                print(prettify_json({task.get("name"): task for task in mule_config.get("tasks")}))
+            else:
+                print("\n".join(list_tasks(mule_config.get("tasks"))))
         else:
-            if args.job not in mule_config['jobs']:
+            if args.job not in mule_config.get("jobs"):
                 raise Exception(messages.JOB_NOT_FOUND.format(args.job))
             job_config =_get_job_config(mule_config, args.job)
             _execute_job(job_config)
@@ -107,11 +114,7 @@ def _get_task(mule_config, job_task):
 
 
 def list_agents(agent_configs):
-    agents = []
-    for agent in agent_configs:
-        agents.append(agent.get("name"))
-        logger.debug(prettify_json(agent))
-    return agents
+    return [agent.get("name") for agent in agent_configs]
 
 
 def list_env(mule_config, job_name, verbose):
@@ -167,22 +170,11 @@ def list_env(mule_config, job_name, verbose):
 
 
 def list_jobs(jobs_config):
-    jobs = []
-    for job in jobs_config.keys():
-        jobs.append(job)
-        logger.debug(prettify_json(jobs_config.get(job)))
-    return jobs
+    return [job for job in jobs_config.keys()]
 
 
 def list_tasks(task_configs):
-    logger.debug(prettify_json(task_configs))
-    tasks = []
-    for task in task_configs:
-        if 'name' in task.keys():
-            tasks.append(f"{task.get('task')}.{task.get('name')}")
-        else:
-            tasks.append(task.get('task'))
-    return tasks
+    return [f"{task.get('task')}.{task.get('name')}" if "name" in task.keys() else task.get("task") for task in task_configs]
 
 
 def _read_mule_yamls(mule_yamls):

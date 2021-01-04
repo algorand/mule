@@ -12,6 +12,8 @@ colors = {
     "ERROR": "red",
     "CRITICAL": "red",
 }
+
+log_date_format = "%Y-%m-%d %H:%M:%S"
 log_format = "[%(asctime)s] %(levelname)-8s %(name)-12s %(message)s"
 stream_format = "%(log_color)s%(levelname)-4s%(reset)s %(message)s"
 
@@ -21,7 +23,7 @@ def setup_file_logger(logger):
     fileHandler.setLevel(logging.DEBUG)
     file_formatter = ColoredFormatter(
         log_format,
-        datefmt=None,
+        datefmt=log_date_format,
         reset=True,
         log_colors=colors
     )

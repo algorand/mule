@@ -105,7 +105,7 @@ class Docker(ITask):
 
     def kill(self, container_name):
         if(len(subprocess.run(f"docker ps -q -f name=^/{container_name}$".split(' '), capture_output=True).stdout) > 0):
-            print(f"Cleaning up started docker container {container_name}")
+            logger.info(f"Cleaning up started docker container {container_name}")
             subprocess.run(f"docker kill {container_name}".split(' '), stdout=subprocess.DEVNULL)
 
     def pull_from_docker_hub(self, image):

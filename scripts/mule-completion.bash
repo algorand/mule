@@ -3,7 +3,7 @@
 
 # https://www.gnu.org/software/grep/manual/html_node/Character-Classes-and-Bracket-Expressions.html
 SELECTED_FILE="[[:graph:]]*.yaml"
-FIELDS="--file --list-agents --list-env --list-jobs --list-tasks --recipe --verbose --version"
+FIELDS="--debug -f --file --list-agents --list-env --list-jobs --list-tasks -r --recipe --verbose -v --version"
 
 _mule_completion() {
     local curr_arg="${COMP_WORDS[COMP_CWORD]}"
