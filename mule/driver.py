@@ -3,7 +3,7 @@ import sys
 import yaml
 
 from mule.error import messages
-from mule.logger import logger
+from mule.logger import logger, start_debug
 from mule.task import Job
 from mule.util import JobContext, file_util, prettify_json, update_dict
 import mule.parser
@@ -32,7 +32,7 @@ def main():
                 return
 
         if args.debug:
-            logger.setLevel(10)
+            start_debug(args)
 
         mule_config = _get_configs(
                 _read_mule_yamls(mule_yamls),

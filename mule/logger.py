@@ -1,5 +1,5 @@
+from datetime import datetime
 import logging
-import tempfile
 
 
 from colorlog import ColoredFormatter
@@ -18,8 +18,8 @@ log_format = "[%(asctime)s] %(levelname)-8s %(name)-12s %(message)s"
 stream_format = "%(log_color)s%(levelname)-4s%(reset)s %(message)s"
 
 
-def setup_file_logger(logger):
-    fileHandler = logging.FileHandler("/tmp/foo.log")
+def setup_file_logger(logger, tempfile):
+    fileHandler = logging.FileHandler(tempfile)
     fileHandler.setLevel(logging.DEBUG)
     file_formatter = ColoredFormatter(
         log_format,
@@ -32,7 +32,6 @@ def setup_file_logger(logger):
 
 def setup_logger():
     logger = logging.getLogger(__name__)
-    setup_file_logger(logger)
     setup_stream_logger(logger)
     return logger
 
@@ -50,6 +49,18 @@ def setup_stream_logger(logger):
     )
     logger.addHandler(console_handler)
     logger.setLevel(logging.INFO)
+
+
+def start_debug(args):
+    utc_time = datetime.utcnow().isoformat()
+    tempfile = f"/tmp/mule.{utc_time}.log"
+    setup_file_logger(logger, tempfile)
+    logger.setLevel(logging.DEBUG)
+    logger.info(f"Logs for this session are available in {tempfile}")
+    logger.debug("--------------------------")
+    logger.debug(utc_time)
+    logger.debug(args)
+    logger.debug("--------------------------")
 
 
 logger = setup_logger()
