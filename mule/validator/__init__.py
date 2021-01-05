@@ -18,7 +18,7 @@ DEFAULT_MULE_CONFIG_PATH = "~/.mule/config.yaml"
 
 
 validators = {
-    "env": re.compile(r"[a-zA-Z_][a-zA-Z0-9_]+=[a-zA-Z_$][a-zA-Z0-9_]+"),
+    "env": re.compile(r"[a-zA-Z_][a-zA-Z0-9_]*=.+"),
     "volumes": re.compile(r".+:.+")
 }
 

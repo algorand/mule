@@ -19,15 +19,15 @@ stream_format = "%(log_color)s%(levelname)-4s%(reset)s %(message)s"
 
 
 def setup_file_logger(logger, tempfile):
-    fileHandler = logging.FileHandler(tempfile)
-    fileHandler.setLevel(logging.DEBUG)
+    file_handler = logging.FileHandler(tempfile)
+    file_handler.setLevel(logging.DEBUG)
     file_formatter = ColoredFormatter(
         log_format,
         datefmt=log_date_format,
         reset=True,
         log_colors=colors
     )
-    logger.addHandler(fileHandler)
+    logger.addHandler(file_handler)
 
 
 def setup_logger():
