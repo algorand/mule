@@ -4,7 +4,7 @@ import sys
 
 import mule
 from mule.error import messages
-from mule.util import file_util, parse_mule_file
+from mule.util import file_util, update_mule_file
 import mule.util.yaml.env_var_loader as yaml_util
 import mule.validator
 
@@ -12,7 +12,7 @@ import mule.validator
 def _read_mule_yamls(mule_yamls):
     mule_config = {}
     for mule_yaml in mule_yamls:
-        parse_mule_file(
+        update_mule_file(
             mule_config,
             file_util.read_yaml_file(mule_yaml),
             overwrite_lists=False
