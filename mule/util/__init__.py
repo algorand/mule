@@ -38,7 +38,7 @@ def prettify_json(raw_json):
     return json.dumps(raw_json, indent=4, sort_keys=False)
 
 
-def update_dict(current, new, overwrite_lists=True):
+def update_mule_file(current, new, overwrite_lists=True):
     levels = [(current, new)]
     while len(levels) > 0:
         level = levels.pop(0)

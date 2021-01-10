@@ -1,22 +1,18 @@
-from termcolor import cprint
 import os
 import re
 import yaml
 
 from mule.error import messages
+from mule.logger import logger
 
-env_var_path_matcher = re.compile(r'.*\$\{?([^}^{]+)\}?.*')
+env_var_path_matcher = re.compile(r'.*\$\{?([^{}]+)\}?.*')
 tag = '!path'
 
 def path_constructor(loader, node):
     value = os.path.expandvars(node.value)
     if env_var_path_matcher.match(value):
-        cprint(
-            messages.CANNOT_EVALUATE_ENV_VAR.format(node.value),
-            'yellow',
-            attrs=['bold']
-        )
-        return ''
+        logger.debug(messages.CANNOT_EVALUATE_ENV_VAR.format(node.value))
+        return ""
     return value
 
 def get_loader(raw):

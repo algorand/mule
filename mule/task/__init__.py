@@ -13,7 +13,6 @@ class ITask:
     dependencies = []
 
     def __init__(self, task_config):
-        ipdb.set_trace()
         package_ref = self.__class__.__module__.replace('mule.task', '')
         self.task_id = f"{package_ref}.{self.__class__.__name__}".lstrip('.')
         # Include name in task id if one is provided

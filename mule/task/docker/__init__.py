@@ -3,11 +3,11 @@ import hashlib
 import os
 import re
 import subprocess
-from termcolor import cprint
 import time
 
-from mule.task import ITask
 from mule.error import messages
+from mule.logger import logger
+from mule.task import ITask
 
 
 # TODO: isolate all `subprocess.run` calls to a single location
@@ -77,22 +77,13 @@ class Docker(ITask):
 
     def ensure(self, image):
         if self.check_for_local_image(image):
-            cprint(
-                f"Found docker image {image} locally",
-                'green',
-            )
+            logger.info(f"Found docker image {image} locally")
         else:
             if self.pull_from_docker_hub(image):
-                cprint(
-                    f"Found docker image {image} on DockerHub",
-                    'green',
-                )
+                logger.info(f"Found docker image {image} on DockerHub")
             else:
                 self.build(image)
-                cprint(
-                    f"Built docker image {image} from {self.machine['dockerFilePath']}",
-                    'green',
-                )
+                logger.info(f"Built docker image {image} from {self.machine['dockerFilePath']}")
 
     def execute(self, image):
         self.ensure(image)
@@ -114,7 +105,7 @@ class Docker(ITask):
 
     def kill(self, container_name):
         if(len(subprocess.run(f"docker ps -q -f name=^/{container_name}$".split(' '), capture_output=True).stdout) > 0):
-            print(f"Cleaning up started docker container {container_name}")
+            logger.info(f"Cleaning up started docker container {container_name}")
             subprocess.run(f"docker kill {container_name}".split(' '), stdout=subprocess.DEVNULL)
 
     def pull_from_docker_hub(self, image):
