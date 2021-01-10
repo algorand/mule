@@ -10,7 +10,7 @@ import mule.validator
 
 
 def _read_mule_yamls(mule_yamls):
-    if mule_yamls is not list:
+    if type(mule_yamls) is not list:
         mule_yamls = [mule_yamls]
     mule_config = {}
     for mule_yaml in mule_yamls:

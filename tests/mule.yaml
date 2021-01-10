@@ -20,9 +20,12 @@ agents:
     version: scripts/configure_dev-deps.sh
     buildArgs:
       - GOLANG_VERSION=`./scripts/get_golang_version.sh`
+#    env:
+#      - NETWORK=$NETWORK
+#      - VERSION=$VERSION
     env:
-      - NETWORK=$NETWORK
-      - VERSION=$VERSION
+      NETWORK: $NETWORK
+      VERSION: $VERSION
     volumes:
       $XDG_RUNTIME_DIR/gnupg/S.gpg-agent: /root/.gnupg/S.gpg-agent
       $HOME/.gnupg/pubring.kbx: /root/.gnupg/pubring.kbx
@@ -38,6 +41,11 @@ tasks:
     name: goodbye
     agent: deb
     target: goodbye
+
+  - task: docker.Make
+    name: play
+    agent: rpm
+    target: play
 
   - task: Echo
     name: A
@@ -73,4 +81,9 @@ jobs:
   goodbye:
     tasks:
       - docker.Make.goodbye
+
+  double_dip:
+    tasks:
+    - docker.Make.hello
+    - docker.Make.play
 

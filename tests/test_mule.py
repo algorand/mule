@@ -1,8 +1,22 @@
+import pytest
+
 from mule import mule
 
 
-def test_get_configs(mule_configs):
-    assert list(mule_configs.keys()) == ["agents", "jobs", "tasks"]
+@pytest.fixture(scope="module")
+def mule_configs():
+    return mule.get_configs("mule.yaml", raw=True)
+
+
+@pytest.mark.parametrize("mule_yaml, raw", [
+    ("mule.yaml", True),
+    ("mule.yaml", False),
+    (["mule.yaml"], True),
+    (["mule.yaml"], False),
+])
+def test_get_configs(mule_yaml, raw):
+    mule_configs = mule.get_configs(mule_yaml, raw)
+    assert set(mule_configs.keys()) == set(["agents", "jobs", "tasks"])
 
 
 def test_get_version():
@@ -13,24 +27,30 @@ def test_get_version():
 
 def test_list_agents(mule_configs):
     agents = mule.list_agents(mule_configs.get("agents"))
-    assert agents == ["deb", "rpm"]
+    assert set(agents) == set(["deb", "rpm"])
 
 
-def test_list_env(mule_configs):
-    env = mule.list_env(mule_configs, "goodbye")
-    agents = env.keys()
-    assert len(agents) == 1
-    assert list(agents) == ["deb"]
-    agent_keys = env.get("deb").keys()
-    assert len(agent_keys) == 2
-    assert list(agent_keys) == ["NETWORK", "VERSION"]
+# Applying `indirect` will reference the fixture.
+# https://docs.pytest.org/en/latest/example/parametrize.html#apply-indirect-on-particular-arguments
+@pytest.mark.parametrize("mule_configs, job, agent", [
+    (mule_configs, "goodbye", ["deb"]),
+    (mule_configs, "hello", ["deb"]),
+    (mule_configs, "echo", []),
+    (mule_configs, "double_dip", ["deb", "rpm"]),
+], indirect=["mule_configs"])
+def test_list_env(mule_configs, job, agent):
+    env = mule.list_env(mule_configs, job)
+    assert set(env.keys()) == set(agent)
+    if len(agent):
+        agent_keys = {key for ag in agent for key in env.get(ag).keys()}
+        assert agent_keys == set(["NETWORK", "VERSION"])
 
 
 def test_list_jobs(mule_configs):
     jobs = mule.list_jobs(mule_configs.get("jobs"))
-    assert jobs == ["echo", "echoes", "goodbye", "hello"]
+    assert set(jobs) == set(["double_dip", "echo", "echoes", "goodbye", "hello"])
 
 
 def test_list_tasks(mule_configs):
     tasks = mule.list_tasks(mule_configs.get("tasks"))
-    assert tasks == ["docker.Make.hello", "docker.Make.goodbye", "Echo.A", "Echo.B", "Echo.C"]
+    assert set(tasks) == set(["docker.Make.hello", "docker.Make.goodbye", "docker.Make.play", "Echo.A", "Echo.B", "Echo.C"])
