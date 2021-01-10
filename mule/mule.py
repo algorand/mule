@@ -37,7 +37,7 @@ def list_agents(agent_configs):
 
 
 def list_env(mule_config, job_name, verbose=False):
-    if job_name not in mule_config["jobs"]:
+    if job_name not in mule_config.get("jobs"):
         raise Exception(messages.JOB_NOT_FOUND.format(job_name))
     else:
         tasks = mule_config["jobs"][job_name]["tasks"]

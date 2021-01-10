@@ -46,6 +46,14 @@ def test_list_env(mule_configs, job, agent):
         assert agent_keys == set(["NETWORK", "VERSION"])
 
 
+def test_list_env_exception(mule_configs):
+    job = "ddddderppppp"
+    with pytest.raises(Exception) as exception_info:
+        mule.list_env(mule_configs, job)
+    assert exception_info.typename == "Exception"
+    assert exception_info.match(f"Could not find job for name {job}")
+
+
 def test_list_jobs(mule_configs):
     jobs = mule.list_jobs(mule_configs.get("jobs"))
     assert set(jobs) == set(["double_dip", "echo", "echoes", "goodbye", "hello"])
