@@ -5,6 +5,7 @@ import yaml
 from mule.error import messages
 from mule.logger import logger
 
+
 env_var_path_matcher = re.compile(r'.*\$\{?([^{}]+)\}?.*')
 tag = '!path'
 
