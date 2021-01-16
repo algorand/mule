@@ -20,9 +20,6 @@ agents:
     version: scripts/configure_dev-deps.sh
     buildArgs:
       - GOLANG_VERSION=`./scripts/get_golang_version.sh`
-#    env:
-#      - NETWORK=$NETWORK
-#      - VERSION=$VERSION
     env:
       NETWORK: $NETWORK
       VERSION: $VERSION
