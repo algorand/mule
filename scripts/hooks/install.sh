@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "$(tput setaf 2)[INFO]$(tput sgr0) Adding pre-commit hooks to .gitconfig..."
-git config --global --add hooks.pre-commit.mule "pycodestyle.sh"
-git config --global --add hooks.pre-commit.mule "pytest.sh"
+echo "$(tput setaf 2)[INFO]$(tput sgr0) Adding local pre-commit hooks to .git/config..."
+git config --local --add hooks.pre-commit.mule "pycodestyle.sh"
+git config --local --add hooks.pre-commit.mule "pytest.sh"
 
