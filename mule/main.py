@@ -23,6 +23,7 @@ def _get_job_config(mule_config, job):
     tasks = job_def.get("tasks", [])
     mule_agents = mule_config.get("agents", [])
     task_configs = []
+    agents = []
     for job_task in tasks:
         task = _get_task(mule_config, job_task)
         task_configs.append(task)

@@ -17,6 +17,7 @@ setuptools.setup(
         'packaging',
         'pygithub',
         'pystache',
+        'pytest',
         'pyyaml',
     ],
     license='MIT',

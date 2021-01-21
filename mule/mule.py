@@ -10,6 +10,8 @@ import mule.validator
 
 
 def _read_mule_yamls(mule_yamls):
+    if type(mule_yamls) is not list:
+        mule_yamls = [mule_yamls]
     mule_config = {}
     for mule_yaml in mule_yamls:
         update_mule_file(
@@ -34,8 +36,8 @@ def list_agents(agent_configs):
     return [agent.get("name") for agent in agent_configs]
 
 
-def list_env(mule_config, job_name, verbose):
-    if job_name not in mule_config["jobs"]:
+def list_env(mule_config, job_name, verbose=False):
+    if job_name not in mule_config.get("jobs"):
         raise Exception(messages.JOB_NOT_FOUND.format(job_name))
     else:
         tasks = mule_config["jobs"][job_name]["tasks"]
