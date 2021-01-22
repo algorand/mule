@@ -39,9 +39,9 @@ class Docker(ITask):
         build_args_str = ""
         tags = [image]
         tags_str = ""
-        if build_args is not None and len(build_args) > 0 :
+        if build_args is not None and len(build_args) > 0:
             build_args_str = f"--build-arg {' --build-arg '.join(build_args)}"
-        if tags is not None and len(tags) > 0 :
+        if tags is not None and len(tags) > 0:
             tags_str = f"-t {' -t '.join(tags)}"
         docker_command = f"docker build {build_args_str} {tags_str} -f {self.machine['dockerFilePath']} {self.machine['context']}"
         subprocess.run(docker_command.split(' '), check=True)
@@ -49,10 +49,10 @@ class Docker(ITask):
     # The mule schema supports defining agent.{env,volumes} as either dicts or lists,
     # but we want to operate on lists in this module because it's easier to build out
     # the docker api.
-    def check_block_format(self, l, delimiter):
-        if type(l) is dict:
-            l = [f"{k}{delimiter}{v}" for k, v in l.items()]
-        return l
+    def format_block(self, block, delimiter):
+        if type(block) is dict:
+            block = [f"{k}{delimiter}{v}" for k, v in block.items() if v]
+        return self.trim(block)
 
     def check_for_local_image(self, image):
         found = False
@@ -122,16 +122,19 @@ class Docker(ITask):
         container_name = f"mule-{time.time_ns()}"
         docker_command = ['docker', 'run', '--name', container_name, rm_container, '-w', work_dir, '-i', '-v', f"{os.getcwd()}:{work_dir}"]
 
-        for env_var in self.check_block_format(self.machine['env'], "="):
+        for env_var in self.format_block(self.machine['env'], "="):
             docker_command.extend(['--env', env_var])
 
-        for volume in self.check_block_format(self.machine['volumes'], ":"):
+        for volume in self.format_block(self.machine['volumes'], ":"):
             docker_command.extend(['-v', volume])
 
         docker_command.append(image)
         docker_command.extend([self.machine['shell'], '-c', self.command])
         atexit.register(self.kill, container_name)
         subprocess.run(docker_command, check=True)
+
+    def trim(self, block):
+        return list(filter(None, block))
 
 
 class Make(Docker):

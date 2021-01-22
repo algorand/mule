@@ -1,0 +1,19 @@
+#!mule
+agents:
+  - name: deb
+    dockerFilePath: docker/build/cicd.ubuntu.Dockerfile
+    image: algorand/go-algorand-ci-linux-ubuntu
+    version: scripts/configure_dev-deps.sh
+    workDir: $HOME/projects/go-algorand
+
+tasks:
+  - task: docker.Make
+    name: deb
+    agent: deb
+    target: hello
+
+jobs:
+  deb:
+    tasks:
+      - docker.Make.deb
+
