@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Try for local hooks first.
+STR=$(git config --get-all --local hooks.pre-commit.mule)
+
+if [ -z "$STR" ]; then
+    STR=$(git config --get-all hooks.pre-commit.mule)
+fi
+
+if [ -n "$STR" ]; then
+    for HOOK in $STR; do
+        bash "./.git/hooks/pre-commit.d/$HOOK"
+
+        if [ "$?" -eq 1 ]; then
+            exit 1
+        else
+            # Separate the hooks by an empty line.
+            echo
+        fi
+    done
+fi
+
