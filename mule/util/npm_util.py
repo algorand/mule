@@ -1,5 +1,19 @@
 import json
 
+from mule.util import shell_util
+
+
+def build():
+    run_package_script('build')
+
+
+def test():
+    run_package_script('test')
+
+
+def run_package_script(script):
+    shell_util.run(['npm', 'run', script])
+
 
 def get_version():
     return get_field_from_package('version')
