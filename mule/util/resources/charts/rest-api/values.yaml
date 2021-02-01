@@ -1,0 +1,9 @@
+deployment:
+  image:
+  tag:
+  port:
+  env:
+service:
+  type: ClusterIP
+ingress:
+environment: dev

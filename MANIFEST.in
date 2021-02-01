@@ -1,1 +1,2 @@
 include mule/task/release/resources/*
+include mule/util/charts/**/*

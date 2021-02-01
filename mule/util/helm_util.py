@@ -1,5 +1,7 @@
 import subprocess
 
+from pkg_resources import resource_filename
+
 from mule.ci import config
 from mule.util import aws_util, download_util, file_util
 from shutil import which
@@ -36,6 +38,10 @@ def deploy(application_name, environment, version, chart):
 
     opts.extend([application_name, chart])
     helm('upgrade', opts)
+
+
+def get_packaged_chart(name):
+    return resource_filename(__name__, f"resources/charts/{name}")
 
 
 def delete(application_name, environment):
