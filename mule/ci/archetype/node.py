@@ -1,5 +1,5 @@
-from mule.archetype import IArchetype
-from mule.poc import config
+from mule.ci.archetype import IArchetype
+from mule.ci import config
 from mule.util import npm_util, docker_util, aws_util, helm_util
 
 

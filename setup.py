@@ -32,8 +32,8 @@ setuptools.setup(
     ],
     entry_points={
         "console_scripts": [
-            "mule = mule.main:main",
-            "muleci = mule.poc.driver:main"
+            "mule = mule.task.main:main",
+            "muleci = mule.ci.driver:main"
         ],
         "mule.plugin": [
             "docker = mule.task.docker",

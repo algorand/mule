@@ -2,8 +2,8 @@ import time
 
 import pystache
 
-import mule.validator as validator
-from mule.error import messages
+import mule.task.validator as validator
+from mule.task.error import messages
 
 
 class ITask:

@@ -5,7 +5,7 @@ import tempfile
 import os
 from contextlib import contextmanager
 
-from mule.poc import config
+from mule.ci import config
 from mule.util import file_util
 
 

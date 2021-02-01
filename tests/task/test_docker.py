@@ -1,6 +1,6 @@
 import pytest
 
-from mule import mule
+from mule.task import mule
 from mule.task.docker import Make
 
 

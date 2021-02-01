@@ -1,6 +1,6 @@
 import subprocess
 
-from mule.poc import config
+from mule.ci import config
 from mule.util import aws_util, download_util, file_util
 from shutil import which
 import sys

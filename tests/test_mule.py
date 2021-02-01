@@ -1,6 +1,6 @@
 import pytest
 
-from mule import mule
+from mule.task import mule
 
 
 @pytest.fixture(scope="module")

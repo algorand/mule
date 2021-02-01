@@ -2,7 +2,7 @@ import os
 import re
 import yaml
 
-from mule.error import messages
+from mule.task.error import messages
 from mule.logger import logger
 
 

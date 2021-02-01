@@ -4,7 +4,7 @@ import re
 import time
 from pydoc import locate
 
-from mule.error import messages
+from mule.task.error import messages
 from mule.util import file_util
 from mule.util import get_dict_value
 

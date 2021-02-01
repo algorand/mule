@@ -1,6 +1,5 @@
-import mule.archetype.util
-from mule import archetype
-from mule.poc import parser
+import mule.ci.archetype.util
+from mule.ci import parser
 from mule.util import file_util
 
 CONFIG_FILE_PATH = '.mule.yml'
@@ -10,9 +9,9 @@ def main():
     args = parser.parse_args()
     config = build_config(args)
     validate_config(config)
-    archetypes = mule.archetype.util.get_archetypes()
+    archetypes = mule.ci.archetype.util.get_archetypes()
     if config['archetype'] in archetypes:
-        archetype_instance = mule.archetype.util.get_archetype(config['archetype'], config['application_name'])
+        archetype_instance = mule.ci.archetype.util.get_archetype(config['archetype'], config['application_name'])
         if args.which == 'deps':
             archetype_instance.deps()
         if args.which == 'build':

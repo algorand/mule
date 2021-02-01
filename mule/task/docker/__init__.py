@@ -1,11 +1,10 @@
 import atexit
 import hashlib
 import os
-import re
 import subprocess
 import time
 
-from mule.error import messages
+from mule.task.error import messages
 from mule.logger import logger
 from mule.task import ITask
 

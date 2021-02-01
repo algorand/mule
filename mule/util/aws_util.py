@@ -4,7 +4,7 @@ import base64
 from shutil import which
 import sys
 
-from mule.poc import config
+from mule.ci import config
 from mule.util import download_util
 from mule.util import shell_util
 

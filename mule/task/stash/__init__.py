@@ -2,7 +2,8 @@ from mule.task import ITask
 from mule.util import s3_util
 from mule.util import time_util
 from mule.util import file_util
-from mule.error import messages
+from mule.task.error import messages
+
 
 class Stash(ITask):
     required_fields = [

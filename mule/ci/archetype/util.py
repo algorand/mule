@@ -1,6 +1,6 @@
 from pydoc import locate
 
-from mule.archetype.node import Npm
+from mule.ci.archetype.node import Npm
 
 archetypes = {
     'npm': Npm

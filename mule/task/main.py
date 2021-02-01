@@ -1,14 +1,12 @@
 import yaml
-
-
-from mule.mule import get_configs, list_agents, list_env, list_jobs, list_tasks
-from mule.error import messages
+from mule.task.mule import get_configs, list_agents, list_env, list_jobs, list_tasks
+from mule.task.error import messages
 from mule.logger import logger, start_debug
-import mule.parser
+import mule.task.parser
 from mule.task import Job
 from mule.util import JobContext, prettify_json
 import mule.util.yaml.env_var_loader as yaml_util
-import mule.validator
+import mule.task.validator
 
 
 def _execute_job(job_config):
@@ -61,7 +59,7 @@ def _yaml_read_raw(args):
 
 
 def main():
-    args = mule.parser.parseArgs()
+    args = mule.task.parser.parseArgs()
     try:
         mule_yamls = args.file
         if not len(mule_yamls):
