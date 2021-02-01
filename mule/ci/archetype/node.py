@@ -37,3 +37,9 @@ class Npm(IArchetype):
         helm_util.update_repo()
         helm_util.deploy(self.application_name, environment, version, './chart')
 
+    def undeploy(self, environment: str):
+        version = npm_util.get_version()
+        if config.EKS_CLUSTER_NAME:
+            aws_util.update_kubeconfig(config.EKS_CLUSTER_NAME)
+        helm_util.update_repo()
+        helm_util.delete(self.application_name, environment, version, './chart')
