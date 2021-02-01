@@ -2,7 +2,7 @@ import mule.ci.archetype.util
 from mule.ci import parser
 from mule.util import file_util
 
-CONFIG_FILE_PATH = '.mule.yml'
+CONFIG_FILE_PATH = '.muleci.yml'
 
 
 def main():
