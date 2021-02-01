@@ -29,7 +29,7 @@ def deploy(application_name, environment, version, chart):
         '-n', environment,
         '--create-namespace',
         '--set', f"deployment.image={repository_uri}",
-        '--set', f"deployment.version={version}",
+        '--set', f"deployment.tag={version}",
         '--set', f"environment={environment}",
     ]
 

@@ -17,7 +17,7 @@ spec:
       terminationGracePeriodSeconds: 10
       containers:
         - name: {{ template "fullname" . }}
-          image: {{ .Values.deployment.image }}:{{ .Values.deployment.tag }}
+          image: "{{ .Values.deployment.image }}:{{ .Values.deployment.tag }}"
           imagePullPolicy: Always
           resources:
 {{ toYaml .Values.deployment.resources | indent 12 }}
