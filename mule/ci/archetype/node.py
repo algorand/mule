@@ -4,6 +4,13 @@ from mule.util import npm_util, docker_util, aws_util, helm_util
 
 
 class Npm(IArchetype):
+
+    def deps(self):
+        aws_util.deps()
+        helm_util.deps()
+        docker_util.deps()
+        npm_util.deps()
+
     def build(self):
         version = npm_util.get_version()
         docker_util.build([f"{self.application_name}:{version}"])

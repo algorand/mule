@@ -1,6 +1,13 @@
 import json
+from shutil import which
 
 from mule.util import shell_util
+from mule.logger import logger
+
+
+def deps():
+    if not which('npm'):
+        logger.info('npm must be installed to use this library')
 
 
 def build():

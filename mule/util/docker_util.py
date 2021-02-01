@@ -1,7 +1,15 @@
 import subprocess
 
 # Build the docker image
+from shutil import which
+
+from mule.logger import logger
 from mule.util import shell_util
+
+
+def deps():
+    if not which('docker'):
+        logger.info('docker must be installed to use this library')
 
 
 def build(tags, build_args=[], docker_file_path='Dockerfile', build_context_path='.'):
