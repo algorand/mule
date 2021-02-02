@@ -1,8 +1,6 @@
 import mule.ci.archetype.util
-from mule.ci import parser
+from mule.ci import parser, config
 from mule.util import file_util
-
-CONFIG_FILE_PATH = '.muleci.yml'
 
 
 def main():
@@ -41,6 +39,6 @@ def validate_config(config):
 
 
 def read_config():
-    if file_util.is_file(CONFIG_FILE_PATH):
-        return file_util.read_yaml_file(CONFIG_FILE_PATH)
+    if file_util.is_file(config.MULE_FILE_PATH):
+        return file_util.read_yaml_file(config.MULE_FILE_PATH)
     return {}
