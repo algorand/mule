@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ template "fullname" . }}
+  replicas: {{ .Values.deployment.replicas }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "fullname" . }}
+        chart: {{ $.Chart.Name }}
+        version: {{ .Values.deployment.tag }}
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: {{ template "fullname" . }}
+          image: "{{ .Values.deployment.image }}:{{ .Values.deployment.tag }}"
+          imagePullPolicy: Always
+          resources:
+{{ toYaml .Values.deployment.resources | indent 12 }}
+          ports:
+            - containerPort: {{ .Values.deployment.port }}
+          env:
+            - name: PORT
+              value: "{{ .Values.deployment.port }}"
+          envFrom:
+          {{- if .Values.deployment.secretsRef }}
+            - secretRef:
+                name: {{ .Values.deployment.secretsRef }}
+          {{- end }}
+          {{- if .Values.deployment.env }}
+            - configMapRef:
+                name: {{ template "fullname" . }}
+          {{- end }}

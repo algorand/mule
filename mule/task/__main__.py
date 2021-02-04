@@ -1,6 +1,6 @@
 import sys
 
-from mule.driver import main
+from mule.task import main
 
 if __name__ == "__main__":
     sys.exit(main())

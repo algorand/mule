@@ -1,6 +1,6 @@
 from mule.task import ITask
 from mule.util import algorand_util
-from mule.validator import validate_required_task_fields_present
+from mule.task.validator import validate_required_task_fields_present
 
 class Start(ITask):
     required_fields = [

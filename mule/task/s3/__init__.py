@@ -2,7 +2,7 @@ import re
 import os
 import pathlib
 
-from mule.error import messages
+from mule.task.error import messages
 from mule.task import ITask
 from mule.util import s3_util
 

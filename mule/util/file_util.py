@@ -5,6 +5,16 @@ import tarfile
 import json
 import shutil
 
+
+def is_file(path):
+    return os.path.exists(path)
+
+
+def read_yaml_file(path):
+    with open(path) as configs:
+        return yaml.load(configs, Loader=yaml.FullLoader)
+
+
 def deleteFile(path):
     os.remove(path)
 

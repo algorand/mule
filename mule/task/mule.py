@@ -1,12 +1,10 @@
 import os
-import sys
-
 
 import mule
-from mule.error import messages
+from mule.task.error import messages
 from mule.util import file_util, update_mule_file
 import mule.util.yaml.env_var_loader as yaml_util
-import mule.validator
+from mule.task import validator
 
 
 def _read_mule_yamls(mule_yamls):
@@ -25,7 +23,7 @@ def _read_mule_yamls(mule_yamls):
 def get_configs(mule_yamls, raw):
     mule_config = _read_mule_yamls(mule_yamls)
     parsed_mule_config = yaml_util.read_yaml(mule_config, raw)
-    return mule.validator.get_validated_mule_yaml(parsed_mule_config)
+    return validator.get_validated_mule_yaml(parsed_mule_config)
 
 
 def get_version():

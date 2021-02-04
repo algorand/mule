@@ -5,6 +5,7 @@ venv
 
 # IDE files
 .vscode
+.idea
 
 # Python build folders
 build

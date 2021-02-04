@@ -1,6 +1,6 @@
 #!/usr/bin/env python
+import setuptools as setuptools
 
-import setuptools
 from mule import __version__
 
 setuptools.setup(
@@ -19,6 +19,7 @@ setuptools.setup(
         'pystache',
         'pytest',
         'pyyaml',
+        'wget',
     ],
     license='MIT',
     classifiers=[
@@ -31,7 +32,8 @@ setuptools.setup(
     ],
     entry_points={
         "console_scripts": [
-            "mule = mule.main:main"
+            "mule = mule.task.main:main",
+            "muleci = mule.ci.driver:main"
         ],
         "mule.plugin": [
             "docker = mule.task.docker",

@@ -1,0 +1,5 @@
+name: rest-api
+version: 1.0
+description: Generic chart for deploying simple restapis
+maintainers:
+  - name: Brice Rising
