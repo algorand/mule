@@ -35,7 +35,7 @@ def build_config(args):
 
 def validate_config(configs):
     if 'application_name' not in configs:
-        raise Exception(f"Application name must be provided through cli arguement or {config.MULE_FILE_PATH} file")
+        raise Exception(f"Application name must be provided through cli argument or {config.MULE_FILE_PATH} file")
 
 
 def read_config():
