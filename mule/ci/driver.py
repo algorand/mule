@@ -33,9 +33,9 @@ def build_config(args):
     return config
 
 
-def validate_config(config):
-    if 'application_name' not in config:
-        raise Exception('Application name must be provided through cli arguement or .cicd_config.yml file')
+def validate_config(configs):
+    if 'application_name' not in configs:
+        raise Exception(f"Application name must be provided through cli argument or {config.MULE_FILE_PATH} file")
 
 
 def read_config():
