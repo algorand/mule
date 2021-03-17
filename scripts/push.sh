@@ -6,7 +6,11 @@ VERSION=$1
 
 if [[ -z $VERSION ]]
 then
-    VERSION=$(python3 setup.py --version)
+    VERSION=${1:-$(sed -n 's/.*=\s*''\([0-9.]*\)''/\1/p' ./mule/__init__.py)}
+    # Strip single quote from beginning.
+    VERSION="${VERSION#\'}"
+    # Strip single quote from end.
+    VERSION="${VERSION%\'}"
 fi
 
 # Push to pypi.
