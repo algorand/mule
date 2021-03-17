@@ -1,2 +1,2 @@
 include mule/task/release/resources/*
-include mule/util/charts/**/*
+recursive-include mule/util/resources/charts *
