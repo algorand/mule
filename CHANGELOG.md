@@ -3,6 +3,10 @@ All notable changes to this project will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 This file uses change log convention from [Keep a CHANGELOG](https://keepachangelog.com/en/1.0.0/).
 
+## 0.0.22 - 2021-3-17
+### Added
+* Remove helm repo updates from deploy/undeploy actions in node archetype
+
 ## 0.0.21 - 2021-3-17
 ### Added
 * Support for base_name overrides in rest-api deployments. The old implementation prevented multiple apps on one domain.
