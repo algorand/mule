@@ -15,6 +15,9 @@ spec:
       - backend:
           serviceName: {{ template "fullname" . }}
           servicePort: {{ .Values.deployment.port }}
+{{- if .Values.ingress.path }}
+        path: {{ .Values.ingress.path }}
+{{- end -}}
 {{- if .Values.ingress.tls }}
   tls:
     - hosts:
