@@ -1,9 +1,14 @@
 import os
+import subprocess
+
 import yaml
 from glob import glob
 import tarfile
 import json
 import shutil
+
+from mule.ci import config
+from mule.logger import logger
 
 
 def is_file(path):
@@ -77,3 +82,32 @@ def mv_folder_contents(source, dest, ignore=False):
 
 def copy_file(source, dest):
     shutil.copy(source, dest)
+
+
+def make_executable(path):
+    mode = os.stat(path).st_mode
+    mode |= (mode & 0o444) >> 2  # copy R bits to X
+    os.chmod(path, mode)
+
+
+def add_to_bin(path, symlink=False):
+    filename = os.path.basename(path)
+    target = f"{config.BIN_DIR}/{filename}"
+    if symlink:
+        os.symlink(path, target)
+    else:
+        copyfile(path, target)
+    make_executable(target)
+
+
+def untar_file(path):
+    if tarfile.is_tarfile(path):
+        subprocess.run(['tar', 'xf', path], cwd=os.path.dirname(path), check=True)
+    else:
+        logger.warning(f"Tried to untar non tarfile at {path}")
+
+
+def copyfile(source, target):
+    shutil.copyfile(source, target)
+
+
