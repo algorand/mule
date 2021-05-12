@@ -1,9 +1,11 @@
 from pydoc import locate
 
 from mule.ci.archetype.node import Npm
+from mule.ci.archetype.docker import Docker
 
 archetypes = {
-    'npm': Npm
+    'npm': Npm,
+    'docker': Docker,
 }
 
 
