@@ -9,7 +9,6 @@ class Docker(IArchetype):
         aws_util.deps()
         helm_util.deps()
         docker_util.deps()
-        npm_util.deps()
 
     def build(self):
         version = git_util.getHeadCommitHash()
