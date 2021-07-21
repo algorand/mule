@@ -4,24 +4,20 @@ about: Suggestions for how we can improve the algorand platform.
 title: ''
 labels: new-feature-request
 assignees: ''
-
 ---
 
-<!--
-NOTE: If this issue relates to security, please use the vulnerability disclosure form here:
-https://www.algorand.com/resources/blog/security
+## Problem
 
-General, developer or support questions concerning Algorand should be directed to the Algorand Forums https://forum.algorand.org/.
--->
+<!-- What is the problem that we’re trying to solve? -->
 
-**Is your feature request related to a problem? Please describe.**
+## Solution
 
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+<!-- Do you have a potential/suggested solution? Document more than one if possible. -->
 
-**Describe the solution you'd like**
+## Dependencies
 
-A clear and concise description of what you want to happen.
+<!-- Does the solution have any team or design dependencies? -->
 
-**Additional context**
+## Urgency
 
-Add any other context or screenshots about the feature request here.
+<!-- What is the urgency here and why? -->
